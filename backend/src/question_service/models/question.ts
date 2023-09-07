@@ -18,7 +18,7 @@ const questionSchema = new Schema({
   },
   complexity: {
     type: String,
-    enum: complexityEnum, 
+    enum: complexityEnum,
     required: true,
   },
   linkToQuestion: {
@@ -30,8 +30,8 @@ const questionSchema = new Schema({
     required: true,
   },
   questionImageURL: {
-    type: String, 
-    required: false, 
+    type: String,
+    required: false,
   },
 });
 
