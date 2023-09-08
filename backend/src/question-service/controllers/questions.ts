@@ -49,6 +49,13 @@ export const addQuestion: RequestHandler[] = [
 export const deleteQuestion: RequestHandler = async (req, res, next) => {
   try {
     const questionId = req.params.questionId;
+
+    // regex to check if questionId is a number
+    if (!/^\d+$/.test(questionId)) {
+      return res
+        .status(400)
+        .json({ errors: [{ msg: "Invalid questionId format." }] });
+    }
   
     const existingQuestion = await QuestionModel.findOne({
       questionID: questionId,
