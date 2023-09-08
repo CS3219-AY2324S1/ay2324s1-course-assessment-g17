@@ -29,8 +29,8 @@ const questionSchema = new Schema({
     type: String,
     required: true,
   },
-  questionImageURL: {
-    type: String,
+  questionImageURLs: {
+    type: [String],
     required: false,
   },
 });
