@@ -5,6 +5,8 @@ const router = express.Router();
 
 router.get("/", QuestionsController.getQuestions);
 
-// TODO: "/:questionId", "/add", "/:questionId/update", "/:questionId/delete"
+router.post("/", QuestionsController.addQuestion);
+
+// TODO: "/:questionId", "/:questionId/update", "/:questionId/delete"
 
 export default router;

@@ -1,6 +1,6 @@
 import { InferSchemaType, Schema, model } from "mongoose";
 
-const complexityEnum = ["Easy", "Medium", "Hard"];
+export const complexityEnum = ["Easy", "Medium", "Hard"];
 
 const questionSchema = new Schema({
   questionID: {
