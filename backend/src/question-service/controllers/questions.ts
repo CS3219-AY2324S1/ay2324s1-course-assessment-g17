@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import QuestionModel from "../models/question";
 import { body, matchedData, validationResult } from "express-validator";
 import { complexityEnum } from "../models/question";
+import createHttpError from "http-errors";
 
 export const getQuestions: RequestHandler = async (req, res, next) => {
   try {
@@ -45,4 +46,24 @@ export const addQuestion: RequestHandler[] = [
   },
 ];
 
-// TODO: updateQuestion, deleteQuestion
+export const deleteQuestion: RequestHandler = async (req, res, next) => {
+  try {
+    const questionId = req.params.questionId;
+  
+    const existingQuestion = await QuestionModel.findOne({
+      questionID: questionId,
+    });
+
+    if (!existingQuestion) {
+      throw createHttpError(404, "Question not found.");
+    }
+
+    await existingQuestion.deleteOne();
+
+    res.sendStatus(200); 
+  } catch (error) {
+    next(error);
+  }
+};
+
+// TODO: updateQuestion
