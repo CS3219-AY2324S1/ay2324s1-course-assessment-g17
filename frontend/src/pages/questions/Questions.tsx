@@ -3,7 +3,7 @@ import DataTable from '../../components/tables/DataTable';
 import React, { useEffect, useMemo, useState } from 'react';
 import { type QuestionData } from '../../types/questions/questions';
 import QuestionsAPI from '../../api/questions/questions';
-import { Box, Button, Skeleton, Stack, Tag } from '@chakra-ui/react';
+import { Box, IconButton, Skeleton, Stack, Tag, Tooltip } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
@@ -55,14 +55,17 @@ const Questions: React.FC = () => {
       columnHelper.accessor('questionID', {
         header: '',
         cell: (cell) => (
-          <Button
-            value={cell.getValue()}
-            onClick={() => {
-              navigate(`/question/${cell.getValue()}`);
-            }}
-          >
-            <ChevronRightIcon />
-          </Button>
+          <Tooltip label={`View Question ${cell.getValue()}`}>
+            <IconButton
+              aria-label="Previous Page"
+              value={cell.getValue()}
+              onClick={() => {
+                navigate(`/question/${cell.getValue()}`);
+              }}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+          </Tooltip>
         ),
       }),
     ],
