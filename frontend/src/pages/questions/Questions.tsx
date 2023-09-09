@@ -3,9 +3,10 @@ import DataTable from '../../components/tables/DataTable';
 import React, { useEffect, useMemo, useState } from 'react';
 import { type QuestionData } from '../../types/questions/questions';
 import QuestionsAPI from '../../api/questions/questions';
-import { Box, Button, Skeleton } from '@chakra-ui/react';
+import { Box, Button, Skeleton, Stack, Tag } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRightIcon } from '@chakra-ui/icons';
+import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
 
 const Questions: React.FC = () => {
   const navigate = useNavigate();
@@ -38,12 +39,18 @@ const Questions: React.FC = () => {
         header: 'Question Title',
       }),
       columnHelper.accessor('categories', {
-        cell: (categories): string => categories.getValue().join(', '),
         header: 'Question Categories',
+        cell: (categories) => (
+          <Stack direction="row">
+            {categories.getValue().map((category) => (
+              <Tag key={category}>{category}</Tag>
+            ))}
+          </Stack>
+        ),
       }),
       columnHelper.accessor('complexity', {
-        cell: (complexity): string => complexity.getValue() as string,
         header: 'Question Complexity',
+        cell: (complexity) => <QuestionComplexityTag questionComplexity={complexity.getValue()} />,
       }),
       columnHelper.accessor('questionID', {
         header: '',
