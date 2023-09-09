@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import QuestionModel from "../models/question";
-import { body, matchedData, validationResult } from "express-validator";
+import { body, matchedData, validationResult, param } from "express-validator";
 import { complexityEnum } from "../models/question";
 
 export const getQuestions: RequestHandler = async (req, res, next) => {
@@ -45,4 +45,27 @@ export const addQuestion: RequestHandler[] = [
   },
 ];
 
-// TODO: updateQuestion, deleteQuestion
+export const deleteQuestion: RequestHandler[] = [
+  param("questionId").notEmpty().withMessage("question field cannot be empty."),
+  param("questionId").isNumeric().withMessage("questionId should be a number."),
+  async (req, res) => {
+    if (!validationResult(req).isEmpty()) {
+      res.status(400).json({ errors: validationResult(req).array() });
+      return;
+    }
+      const questionId = req.params.questionId;
+      const existingQuestion = await QuestionModel.findOne({
+        questionID: questionId,
+      });
+
+      if (!existingQuestion) {
+        res.status(400).json({ errors: [{ msg: "question does not exist." }] });
+        return;
+      }
+
+      await existingQuestion.deleteOne();
+
+      res.sendStatus(200);
+    },
+]
+// TODO: updateQuestion
