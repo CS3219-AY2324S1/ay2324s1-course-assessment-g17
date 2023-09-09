@@ -8,7 +8,7 @@ export default class QuestionsAPI {
 
   public async getQuestions(): Promise<QuestionData[]> {
     const response = await client.get(this.getQuestionsUrl());
-    const questionList = response.data as QuestionData[];
+    const questionList = response.data.data as QuestionData[];
     return questionList;
   }
 
