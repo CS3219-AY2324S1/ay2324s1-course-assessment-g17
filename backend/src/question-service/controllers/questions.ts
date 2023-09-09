@@ -1,8 +1,7 @@
 import { RequestHandler } from "express";
 import QuestionModel from "../models/question";
-import { body, matchedData, validationResult } from "express-validator";
+import { body, matchedData, validationResult, param } from "express-validator";
 import { complexityEnum } from "../models/question";
-import createHttpError from "http-errors";
 
 export const getQuestions: RequestHandler = async (req, res, next) => {
   try {
@@ -46,31 +45,27 @@ export const addQuestion: RequestHandler[] = [
   },
 ];
 
-export const deleteQuestion: RequestHandler = async (req, res, next) => {
-  try {
-    const questionId = req.params.questionId;
-
-    // regex to check if questionId is a number
-    if (!/^\d+$/.test(questionId)) {
-      return res
-        .status(400)
-        .json({ errors: [{ msg: "Invalid questionId format." }] });
+export const deleteQuestion: RequestHandler[] = [
+  param("questionId").notEmpty().withMessage("question field cannot be empty."),
+  param("questionId").isNumeric().withMessage("questionId should be a number."),
+  async (req, res) => {
+    if (!validationResult(req).isEmpty()) {
+      res.status(400).json({ errors: validationResult(req).array() });
+      return;
     }
-  
-    const existingQuestion = await QuestionModel.findOne({
-      questionID: questionId,
-    });
+      const questionId = req.params.questionId;
+      const existingQuestion = await QuestionModel.findOne({
+        questionID: questionId,
+      });
 
-    if (!existingQuestion) {
-      throw createHttpError(404, "Question not found.");
-    }
+      if (!existingQuestion) {
+        res.status(400).json({ errors: [{ msg: "question does not exist." }] });
+        return;
+      }
 
-    await existingQuestion.deleteOne();
+      await existingQuestion.deleteOne();
 
-    res.sendStatus(200); 
-  } catch (error) {
-    next(error);
-  }
-};
-
+      res.sendStatus(200);
+    },
+]
 // TODO: updateQuestion
