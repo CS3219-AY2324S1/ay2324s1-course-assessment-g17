@@ -35,6 +35,7 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
   return (
     <Flex justifyContent="space-between" margin={4} alignItems="center">
       <Flex>
+        {/* Jump to first page icon button */}
         <Tooltip label="First Page">
           <IconButton
             aria-label="First Page"
@@ -46,6 +47,8 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
             mr={4}
           />
         </Tooltip>
+
+        {/* Navigate to previous page icon button */}
         <Tooltip label="Previous Page">
           <IconButton
             aria-label="Previous Page"
@@ -57,18 +60,24 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
       </Flex>
 
       <Flex alignItems="center">
-        <Text flexShrink="0" marginRight={8}>
-          Page{' '}
-          <Text fontWeight="bold" as="span">
+        {/* Current page number display */}
+        <Text fontSize="sm" flexShrink="0" marginRight={8}>
+          {'Page '}
+          <Text fontSize="sm" fontWeight="bold" as="span">
             {pageIndex + 1}
-          </Text>{' '}
-          of{' '}
-          <Text fontWeight="bold" as="span">
+          </Text>
+          {' of '}
+          <Text fontSize="sm" fontWeight="bold" as="span">
             {getPageCount()}
           </Text>
         </Text>
-        <Text flexShrink="0">Go to page:</Text>{' '}
+
+        {/* Page Navigation Field Input */}
+        <Text fontSize="sm" flexShrink="0">
+          {'Go to page: '}
+        </Text>
         <NumberInput
+          size="sm"
           marginLeft={2}
           marginRight={8}
           width={28}
@@ -85,7 +94,10 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
             <NumberDecrementStepper />
           </NumberInputStepper>
         </NumberInput>
+
+        {/* Toggle number of entries per page */}
         <Select
+          size="sm"
           width={32}
           value={pageSize}
           onChange={(e) => {
