@@ -1,35 +1,34 @@
 module.exports = {
-  env: {
-    browser: true,
-    es2021: true,
-    node: true,
-  },
-  settings: {
-    'import/resolver': {
-      node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-        moduleDirectory: ['node_modules', 'src/'],
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "settings": {
+      "react": {
+        "version": 'detect'
       },
     },
-    'import/ignore': ['node_modules'],
-    react: {
-      version: 'detect',
+    "extends": [
+        "standard-with-typescript",
+        "plugin:react/recommended"
+    ],
+    "overrides": [
+        {
+          "extends": [
+            'plugin:@typescript-eslint/recommended-requiring-type-checking',
+          ],
+          "files": ['**/*.tsx']
+        }
+    ],
+    "parser": '@typescript-eslint/parser',
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
     },
-  },
-  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
-  },
-  plugins: ["@typescript-eslint"],
-  rules: {},
-  overrides: [
-    {
-      files: ['**/*.tsx'],
-      rules: {
-        'react/prop-types': 'off',
-      },
+    "plugins": [
+        "react"
+    ],
+    "rules": {
     },
-  ],
-};
+    "ignorePatterns": ['.eslintrc.js']
+}
