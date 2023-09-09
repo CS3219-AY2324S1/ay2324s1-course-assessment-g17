@@ -9,14 +9,14 @@ import {
   InputLeftAddon,
   Select,
   Stack,
-  Textarea
+  Textarea,
 } from '@chakra-ui/react';
 import {
   AutoComplete,
   AutoCompleteInput,
   AutoCompleteItem,
   AutoCompleteList,
-  AutoCompleteTag
+  AutoCompleteTag,
 } from '@choc-ui/chakra-autocomplete';
 
 import React, { useEffect, useState } from 'react';

@@ -20,45 +20,54 @@ const Questions: React.FC = () => {
           setQuestionList(questions);
         })
         .catch(console.error);
-      setTimeout(() => { setIsLoaded(true); }, 1000);
+      setTimeout(() => {
+        setIsLoaded(true);
+      }, 1000);
     }
   }, []);
 
   const columnHelper = createColumnHelper<QuestionData>();
-  const questionDataColumns = useMemo(() => ([
-    columnHelper.accessor('questionID', {
-      cell: (id): number => id.getValue(),
-      header: 'Question ID'
-    }),
-    columnHelper.accessor('title', {
-      cell: (title): string => title.getValue(),
-      header: 'Question Title'
-    }),
-    columnHelper.accessor('categories', {
-      cell: (categories): string => categories.getValue().join(', '),
-      header: 'Question Categories'
-    }),
-    columnHelper.accessor('complexity', {
-      cell: (complexity): string => complexity.getValue() as string,
-      header: 'Question Complexity'
-    }),
-    columnHelper.accessor('questionID', {
-      header: '',
-      cell: (cell) => (
-      <Button value={cell.getValue()} onClick={() => { navigate(`/question/${cell.getValue()}`); }
-      }>
-        <ChevronRightIcon />
-      </Button>
-      )
-    })
-  ]), []);
+  const questionDataColumns = useMemo(
+    () => [
+      columnHelper.accessor('questionID', {
+        cell: (id): number => id.getValue(),
+        header: 'Question ID',
+      }),
+      columnHelper.accessor('title', {
+        cell: (title): string => title.getValue(),
+        header: 'Question Title',
+      }),
+      columnHelper.accessor('categories', {
+        cell: (categories): string => categories.getValue().join(', '),
+        header: 'Question Categories',
+      }),
+      columnHelper.accessor('complexity', {
+        cell: (complexity): string => complexity.getValue() as string,
+        header: 'Question Complexity',
+      }),
+      columnHelper.accessor('questionID', {
+        header: '',
+        cell: (cell) => (
+          <Button
+            value={cell.getValue()}
+            onClick={() => {
+              navigate(`/question/${cell.getValue()}`);
+            }}
+          >
+            <ChevronRightIcon />
+          </Button>
+        ),
+      }),
+    ],
+    [],
+  );
 
   return (
-      <Box padding={4}>
-        <Skeleton isLoaded={isLoaded}>
-          {(questionList !== undefined) && <DataTable columns={questionDataColumns} tableData={questionList} />}
-        </Skeleton>
-      </Box>
+    <Box padding={4}>
+      <Skeleton isLoaded={isLoaded}>
+        {questionList !== undefined && <DataTable columns={questionDataColumns} tableData={questionList} />}
+      </Skeleton>
+    </Box>
   );
 };
 

@@ -5,19 +5,19 @@ export enum QuestionComplexityEnum {
 }
 
 export interface QuestionData {
-  questionID: number
-  title: string
-  categories: string[]
-  complexity: QuestionComplexityEnum
-  linkToQuestion: string
-  questionDescription: string
-  questionImageURLs?: string[]
-};
+  questionID: number;
+  title: string;
+  categories: string[];
+  complexity: QuestionComplexityEnum;
+  linkToQuestion: string;
+  questionDescription: string;
+  questionImageURLs?: string[];
+}
 
 export interface QuestionPostData {
-  title: string
-  categories: string[]
-  complexity: string
-  questionDescription: string
-  linkToQuestion: string
-};
+  title: string;
+  categories: string[];
+  complexity: string;
+  questionDescription: string;
+  linkToQuestion: string;
+}

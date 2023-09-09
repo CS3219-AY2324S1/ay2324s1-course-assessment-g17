@@ -6,14 +6,10 @@ const Navbar: React.FC = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   return (
     <Box backgroundColor={useColorModeValue('gray.100', 'gray.900')} px={8}>
-        <Flex height={16} alignItems="center" justifyContent="space-between">
-          <Text fontWeight="bold">
-            PeerPrep
-          </Text>
-          <Button onClick={toggleColorMode}>
-            {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-          </Button>
-        </Flex>
+      <Flex height={16} alignItems="center" justifyContent="space-between">
+        <Text fontWeight="bold">PeerPrep</Text>
+        <Button onClick={toggleColorMode}>{colorMode === 'light' ? <MoonIcon /> : <SunIcon />}</Button>
+      </Flex>
     </Box>
   );
 };

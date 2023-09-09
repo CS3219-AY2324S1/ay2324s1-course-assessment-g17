@@ -2,23 +2,23 @@ import { type QuestionData, type QuestionPostData } from '../../types/questions/
 import client from '../base';
 
 export default class QuestionsAPI {
-  protected getQuestionsUrl (): string {
+  protected getQuestionsUrl(): string {
     return '/questions';
   }
 
-  public async getQuestions (): Promise<QuestionData[]> {
+  public async getQuestions(): Promise<QuestionData[]> {
     const response = await client.get(this.getQuestionsUrl());
     const questionList = response.data as QuestionData[];
     return questionList;
   }
 
-  public async getCategories (): Promise<string[]> {
+  public async getCategories(): Promise<string[]> {
     const response = await client.get(`${this.getQuestionsUrl()}/categories`);
     const categories = response.data.data as string[];
     return categories;
   }
 
-  public async addQuestion (question: QuestionPostData): Promise<never> {
+  public async addQuestion(question: QuestionPostData): Promise<never> {
     return await client.post(this.getQuestionsUrl(), question);
   }
 }
