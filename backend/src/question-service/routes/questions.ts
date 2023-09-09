@@ -9,6 +9,8 @@ router.post("/", QuestionsController.addQuestion);
 
 router.delete("/:questionId", QuestionsController.deleteQuestion);
 
+router.get("/categories", QuestionsController.getQuestionCategories);
+
 // TODO: "/:questionId", "/:questionId/update"
 
 export default router;
