@@ -1,5 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons';
-import { Box, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
+import { Table, Tbody, Td, Th, Thead, Tr, chakra } from '@chakra-ui/react';
 import { useReactTable, getCoreRowModel, getSortedRowModel, type SortingState, type ColumnDef, flexRender } from '@tanstack/react-table';
 import React, { useState } from 'react';
 interface DataTableProps<T extends object> {
@@ -30,17 +30,17 @@ const DataTable = <T extends object>({ tableData, columns }: DataTableProps<T>):
               headerGroup.headers.map((header) => {
                 const sortDirection = header.column.getIsSorted();
                 return (
-                <Th key={header.id} onClick={header.column.getToggleSortingHandler}>
+                <Th key={header.id} onClick={header.column.getToggleSortingHandler()}>
                   {
                     flexRender(
                       header.column.columnDef.header,
                       header.getContext()
                     )
                   }
-                  <Box paddingLeft={2}>
+                  <chakra.span paddingLeft={2}>
                     {sortDirection === 'asc' && <ArrowUpIcon />}
                     {sortDirection === 'desc' && <ArrowDownIcon />}
-                  </Box>
+                  </chakra.span>
                 </Th>
                 );
               })
