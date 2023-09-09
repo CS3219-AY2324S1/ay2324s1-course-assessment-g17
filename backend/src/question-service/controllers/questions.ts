@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import QuestionModel from "../models/question";
+import QuestionModel, { categoryEnum } from "../models/question";
 import { body, matchedData, validationResult, param } from "express-validator";
 import { complexityEnum } from "../models/question";
 
@@ -14,10 +14,7 @@ export const getQuestions: RequestHandler = async (req, res, next) => {
 
 export const addQuestion: RequestHandler[] = [
   body("title").notEmpty().withMessage("title cannot be empty."),
-  body("categories")
-    .optional()
-    .isArray()
-    .withMessage("categories should be an array."),
+  body("categories").isArray().withMessage("categories should be an array."),
   body("complexity")
     .isIn(complexityEnum)
     .withMessage(`complexity should be one of ${complexityEnum.join(", ")}.`),
@@ -53,19 +50,24 @@ export const deleteQuestion: RequestHandler[] = [
       res.status(400).json({ errors: validationResult(req).array() });
       return;
     }
-      const questionId = req.params.questionId;
-      const existingQuestion = await QuestionModel.findOne({
-        questionID: questionId,
-      });
+    const questionId = req.params.questionId;
+    const existingQuestion = await QuestionModel.findOne({
+      questionID: questionId,
+    });
 
-      if (!existingQuestion) {
-        res.status(400).json({ errors: [{ msg: "question does not exist." }] });
-        return;
-      }
+    if (!existingQuestion) {
+      res.status(400).json({ errors: [{ msg: "question does not exist." }] });
+      return;
+    }
 
-      await existingQuestion.deleteOne();
+    await existingQuestion.deleteOne();
 
-      res.sendStatus(200);
-    },
-]
+    res.sendStatus(200);
+  },
+];
 // TODO: updateQuestion
+export const getQuestionCategories: RequestHandler = (req, res) => {
+  res.json({ data: categoryEnum });
+};
+
+// TODO: updateQuestion, deleteQuestion
