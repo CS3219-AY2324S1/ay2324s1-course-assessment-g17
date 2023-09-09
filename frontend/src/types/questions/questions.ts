@@ -1,2 +1,7 @@
-// temporary so that app can compile, to remove once file is not empty
-export {};
+export interface QuestionPostData {
+  title: string
+  categories: string[]
+  complexity: string
+  questionDescription: string
+  linkToQuestion: string
+}
