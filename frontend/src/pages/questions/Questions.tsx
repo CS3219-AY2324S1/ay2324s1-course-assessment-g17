@@ -1,15 +1,14 @@
-import { createColumnHelper } from '@tanstack/react-table';
 import DataTable from '../../components/tables/DataTable';
 import React, { useEffect, useMemo, useState } from 'react';
 import { type QuestionData } from '../../types/questions/questions';
 import QuestionsAPI from '../../api/questions/questions';
-import { Box, IconButton, Skeleton, Stack, Tag, Tooltip } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronRightIcon } from '@chakra-ui/icons';
-import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
+import { Box, Skeleton } from '@chakra-ui/react';
+import { type ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { QuestionsTableColumns } from '../../utils/questions';
 
 const Questions: React.FC = () => {
-  const navigate = useNavigate();
+  const columnHelper = createColumnHelper<QuestionData>();
+  const questionColumns: Array<ColumnDef<QuestionData>> = useMemo(() => QuestionsTableColumns(columnHelper), []);
   const [questionList, setQuestionList] = useState<QuestionData[]>();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
@@ -27,55 +26,10 @@ const Questions: React.FC = () => {
     }
   }, []);
 
-  const columnHelper = createColumnHelper<QuestionData>();
-  const questionDataColumns = useMemo(
-    () => [
-      columnHelper.accessor('questionID', {
-        cell: (id): number => id.getValue(),
-        header: 'Question ID',
-      }),
-      columnHelper.accessor('title', {
-        cell: (title): string => title.getValue(),
-        header: 'Question Title',
-      }),
-      columnHelper.accessor('categories', {
-        header: 'Question Categories',
-        cell: (categories) => (
-          <Stack direction="row">
-            {categories.getValue().map((category) => (
-              <Tag key={category}>{category}</Tag>
-            ))}
-          </Stack>
-        ),
-      }),
-      columnHelper.accessor('complexity', {
-        header: 'Question Complexity',
-        cell: (complexity) => <QuestionComplexityTag questionComplexity={complexity.getValue()} />,
-      }),
-      columnHelper.accessor('questionID', {
-        header: '',
-        cell: (cell) => (
-          <Tooltip label={`View Question ${cell.getValue()}`}>
-            <IconButton
-              aria-label="Previous Page"
-              value={cell.getValue()}
-              onClick={() => {
-                navigate(`/question/${cell.getValue()}`);
-              }}
-            >
-              <ChevronRightIcon />
-            </IconButton>
-          </Tooltip>
-        ),
-      }),
-    ],
-    [],
-  );
-
   return (
     <Box padding={4}>
       <Skeleton isLoaded={isLoaded}>
-        {questionList !== undefined && <DataTable columns={questionDataColumns} tableData={questionList} />}
+        {questionList !== undefined && <DataTable columns={questionColumns} tableData={questionList} />}
       </Skeleton>
     </Box>
   );
