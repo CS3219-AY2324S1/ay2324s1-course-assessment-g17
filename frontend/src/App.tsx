@@ -7,8 +7,8 @@ import Navbar from './components/navigation/Navbar';
 const App: React.FC = () => {
   return (
     <ChakraProvider>
-      <Navbar />
       <BrowserRouter>
+        <Navbar />
         <AppRouter />
       </BrowserRouter>
     </ChakraProvider>
