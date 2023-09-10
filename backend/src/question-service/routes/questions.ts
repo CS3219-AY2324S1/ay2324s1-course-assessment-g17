@@ -7,12 +7,12 @@ router.get("/", QuestionsController.getQuestions);
 
 router.post("/", QuestionsController.addQuestion);
 
-router.get("/:questionId", QuestionsController.getQuestion);
-
 router.delete("/:questionId", QuestionsController.deleteQuestion);
 
 router.get("/categories", QuestionsController.getQuestionCategories);
 
-// TODO: "/:questionId", "/:questionId/update"
+router.get("/:questionId", QuestionsController.getQuestion);
+
+// TODO: "/:questionId/update"
 
 export default router;
