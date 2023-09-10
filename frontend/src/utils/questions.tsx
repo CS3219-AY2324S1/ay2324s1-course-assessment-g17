@@ -5,7 +5,13 @@ import QuestionComplexityTag from '../components/questions/QuestionComplexityTag
 import QuestionViewIconButton from '../components/questions/QuestionViewIconButton';
 import React from 'react';
 
-export const QuestionsTableColumns = (columnHelper: ColumnHelper<QuestionData>): Array<ColumnDef<QuestionData>> => {
+export interface QuestionDataRowData extends QuestionData {
+  action?: undefined;
+}
+
+export const QuestionsTableColumns = (
+  columnHelper: ColumnHelper<QuestionDataRowData>,
+): Array<ColumnDef<QuestionDataRowData>> => {
   return [
     columnHelper.accessor('questionID', {
       cell: (id): number => id.getValue(),
@@ -33,10 +39,12 @@ export const QuestionsTableColumns = (columnHelper: ColumnHelper<QuestionData>):
       enableSorting: true,
       cell: (complexity) => <QuestionComplexityTag questionComplexity={complexity.getValue()} />,
     }),
-    columnHelper.accessor('questionID', {
+    columnHelper.accessor('action', {
       header: '',
       enableSorting: false,
-      cell: (cell) => <QuestionViewIconButton questionId={cell.getValue()} />,
+      cell: (cell) => (
+        <QuestionViewIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
+      ),
     }),
-  ] as Array<ColumnDef<QuestionData>>;
+  ] as Array<ColumnDef<QuestionDataRowData>>;
 };

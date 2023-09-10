@@ -5,12 +5,16 @@ import React from 'react';
 
 interface QuestionViewIconButtonProps {
   questionId: number;
+  title: string;
 }
 
-const QuestionViewIconButton: React.FC<QuestionViewIconButtonProps> = ({ questionId }: QuestionViewIconButtonProps) => {
+const QuestionViewIconButton: React.FC<QuestionViewIconButtonProps> = ({
+  questionId,
+  title,
+}: QuestionViewIconButtonProps) => {
   const navigate = useNavigate();
   return (
-    <Tooltip label={`View Question ${questionId}`}>
+    <Tooltip label={`View Question ${questionId}: ${title}`}>
       <IconButton
         aria-label="View Question"
         value={questionId}

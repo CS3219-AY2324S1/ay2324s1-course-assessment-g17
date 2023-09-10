@@ -1,15 +1,14 @@
 import DataTable from '../../components/tables/DataTable';
 import React, { useEffect, useMemo, useState } from 'react';
-import { type QuestionData } from '../../types/questions/questions';
 import QuestionsAPI from '../../api/questions/questions';
 import { Box, Skeleton } from '@chakra-ui/react';
 import { type ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { QuestionsTableColumns } from '../../utils/questions';
+import { type QuestionDataRowData, QuestionsTableColumns } from '../../utils/questions';
 
 const Questions: React.FC = () => {
-  const columnHelper = createColumnHelper<QuestionData>();
-  const questionColumns: Array<ColumnDef<QuestionData>> = useMemo(() => QuestionsTableColumns(columnHelper), []);
-  const [questionList, setQuestionList] = useState<QuestionData[]>();
+  const columnHelper = createColumnHelper<QuestionDataRowData>();
+  const questionColumns: Array<ColumnDef<QuestionDataRowData>> = useMemo(() => QuestionsTableColumns(columnHelper), []);
+  const [questionList, setQuestionList] = useState<QuestionDataRowData[]>();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
