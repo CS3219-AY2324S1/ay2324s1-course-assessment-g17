@@ -64,11 +64,10 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
         <Text fontSize="sm" flexShrink="0" marginRight={8}>
           {'Page '}
           <Text fontSize="sm" fontWeight="bold" as="span">
-            {pageIndex + 1}
+            {`${pageIndex + 1} of ${Math.max(getPageCount(), 1)}`}
           </Text>
-          {' of '}
-          <Text fontSize="sm" fontWeight="bold" as="span">
-            {Math.max(getPageCount(), 1)}
+          <Text fontSize="sm" as="span">
+            {` (${table.getPrePaginationRowModel().rows.length} entries)`}
           </Text>
         </Text>
 
@@ -80,7 +79,7 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
           size="sm"
           marginLeft={2}
           marginRight={8}
-          width={28}
+          width={20}
           min={1}
           max={Math.max(getPageCount(), 1)}
           onChange={(_str, num) => {
@@ -98,7 +97,7 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
         {/* Toggle number of entries per page */}
         <Select
           size="sm"
-          width={32}
+          width={28}
           value={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
