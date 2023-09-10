@@ -12,6 +12,28 @@ export const getQuestions: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const getQuestion: RequestHandler[] = [
+  param("questionId").notEmpty().withMessage("question field cannot be empty."),
+  param("questionId").isNumeric().withMessage("questionId should be a number."),
+  async (req, res) => {
+    if (!validationResult(req).isEmpty()) {
+      res.status(400).json({ errors: validationResult(req).array() });
+      return;
+    }
+    const questionId = req.params.questionId;
+    const existingQuestion = await QuestionModel.findOne({
+      questionID: questionId,
+    });
+
+    if (!existingQuestion) {
+      res.status(400).json({ errors: [{ msg: "question does not exist." }] });
+      return;
+    }
+
+    res.status(200).json({ data: existingQuestion });
+  },
+];
+
 export const addQuestion: RequestHandler[] = [
   body("title").notEmpty().trim().withMessage("title cannot be empty."),
   body("categories").isArray().withMessage("categories should be an array."),
