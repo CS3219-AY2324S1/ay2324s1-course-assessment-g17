@@ -9,14 +9,17 @@ export const QuestionsTableColumns = (columnHelper: ColumnHelper<QuestionData>):
   return [
     columnHelper.accessor('questionID', {
       cell: (id): number => id.getValue(),
+      enableSorting: true,
       header: 'Question ID',
     }),
     columnHelper.accessor('title', {
       cell: (title): string => title.getValue(),
+      enableSorting: true,
       header: 'Question Title',
     }),
     columnHelper.accessor('categories', {
       header: 'Question Categories',
+      enableSorting: true,
       cell: (categories) => (
         <Stack direction="row">
           {categories.getValue().map((category) => (
@@ -27,10 +30,12 @@ export const QuestionsTableColumns = (columnHelper: ColumnHelper<QuestionData>):
     }),
     columnHelper.accessor('complexity', {
       header: 'Question Complexity',
+      enableSorting: true,
       cell: (complexity) => <QuestionComplexityTag questionComplexity={complexity.getValue()} />,
     }),
     columnHelper.accessor('questionID', {
       header: '',
+      enableSorting: false,
       cell: (cell) => <QuestionViewIconButton questionId={cell.getValue()} />,
     }),
   ] as Array<ColumnDef<QuestionData>>;
