@@ -13,7 +13,6 @@ export const getQuestions: RequestHandler = async (req, res, next) => {
 };
 
 export const getQuestion: RequestHandler[] = [
-  param("questionId").notEmpty().withMessage("question field cannot be empty."),
   param("questionId").isNumeric().withMessage("questionId should be a number."),
   async (req, res) => {
     if (!validationResult(req).isEmpty()) {
