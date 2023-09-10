@@ -1,4 +1,4 @@
-import { Table, Tbody, Td, Text, Tr } from '@chakra-ui/react';
+import { Card, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -56,26 +56,28 @@ const DataTable = <T extends object>({
   return (
     <>
       {isSortable && <DataTableSearch table={table} />}
-      <Table>
-        <DataTableHeader headerGroups={table.getHeaderGroups()} isSortable={isSortable} />
-        <Tbody>
-          {table.getRowModel().rows.map((row) => (
-            <Tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <Td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</Td>
-              ))}
-            </Tr>
-          ))}
-          {table.getPrePaginationRowModel().rows.length === 0 && (
-            <Tr>
-              <Td textAlign="center" colSpan={table.getAllColumns().length}>
-                <Text color="gray.500">No questions found</Text>
-              </Td>
-            </Tr>
-          )}
-        </Tbody>
-      </Table>
-      {isPaginated && <DataTablePagination table={table} />}
+      <Card variant="outline">
+        <Table size="sm">
+          <DataTableHeader headerGroups={table.getHeaderGroups()} isSortable={isSortable} />
+          <Tbody>
+            {table.getRowModel().rows.map((row) => (
+              <Tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <Td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</Td>
+                ))}
+              </Tr>
+            ))}
+            {table.getPrePaginationRowModel().rows.length === 0 && (
+              <Tr>
+                <Td textAlign="center" colSpan={table.getAllColumns().length}>
+                  <Text color="gray.500">No questions found</Text>
+                </Td>
+              </Tr>
+            )}
+          </Tbody>
+        </Table>
+        {isPaginated && <DataTablePagination table={table} />}
+      </Card>
     </>
   );
 };

@@ -33,7 +33,7 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
   } = table;
   const { pageIndex, pageSize } = getState().pagination;
   return (
-    <Flex justifyContent="space-between" margin={4} alignItems="center">
+    <Flex justifyContent="space-between" alignItems="center" borderTopWidth="1px" padding={4}>
       <Flex>
         {/* Jump to first page icon button */}
         <Tooltip label="First Page">
