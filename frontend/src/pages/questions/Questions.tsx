@@ -1,11 +1,13 @@
 import DataTable from '../../components/tables/DataTable';
 import React, { useEffect, useMemo, useState } from 'react';
 import QuestionsAPI from '../../api/questions/questions';
-import { Skeleton, Stack } from '@chakra-ui/react';
-import { type ColumnDef, createColumnHelper, type Column } from '@tanstack/react-table';
-import { type QuestionDataRowData, QuestionsTableColumns } from '../../utils/questions';
 import IconWithText from '../../components/content/IconWithText';
 import { BiSolidBook } from 'react-icons/bi';
+import { Button, Flex, Skeleton, Stack } from '@chakra-ui/react';
+import { type ColumnDef, createColumnHelper, type Column } from '@tanstack/react-table';
+import { type QuestionDataRowData, QuestionsTableColumns } from '../../utils/questions';
+import { Link } from 'react-router-dom';
+import { AddIcon } from '@chakra-ui/icons';
 
 const Questions: React.FC = () => {
   const columnHelper = createColumnHelper<QuestionDataRowData>();
@@ -29,7 +31,14 @@ const Questions: React.FC = () => {
 
   return (
     <Stack paddingX={16} paddingY={8} spacing={6}>
-      <IconWithText fontSize="lg" fontWeight="bold" text="Question Repository" icon={<BiSolidBook size={20} />} />
+      <Flex justifyContent={'space-between'}>
+        <IconWithText fontSize="lg" fontWeight="bold" text="Question Repository" icon={<BiSolidBook size={20} />} />
+        <Link to="/questions/new">
+          <Button leftIcon={<AddIcon />} colorScheme="teal">
+            New Question
+          </Button>
+        </Link>
+      </Flex>
       <Skeleton isLoaded={isLoaded}>
         {questionList !== undefined && (
           <DataTable
