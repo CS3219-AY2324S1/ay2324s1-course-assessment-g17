@@ -7,6 +7,8 @@ router.get("/", QuestionsController.getQuestions);
 
 router.post("/", QuestionsController.addQuestion);
 
+router.get("/:questionId", QuestionsController.getQuestion);
+
 router.delete("/:questionId", QuestionsController.deleteQuestion);
 
 router.get("/categories", QuestionsController.getQuestionCategories);
