@@ -13,7 +13,7 @@ export const getQuestions: RequestHandler = async (req, res, next) => {
 };
 
 export const addQuestion: RequestHandler[] = [
-  body("title").notEmpty().withMessage("title cannot be empty."),
+  body("title").notEmpty().trim().withMessage("title cannot be empty."),
   body("categories").isArray().withMessage("categories should be an array."),
   body("complexity")
     .isIn(complexityEnum)
@@ -34,7 +34,7 @@ export const addQuestion: RequestHandler[] = [
 
     // Check if a question with similar title (case insensitive) is already added.
     const sameQuestionExists = await QuestionModel.exists({
-      title: { $regex: formData.title, $options: "i" },
+      title: { $regex: new RegExp("^" + formData.title + "$"), $options: "i" },
     });
 
     if (sameQuestionExists) {
