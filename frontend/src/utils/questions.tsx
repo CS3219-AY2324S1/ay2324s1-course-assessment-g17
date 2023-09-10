@@ -1,6 +1,6 @@
 import { type ColumnDef, type ColumnHelper } from '@tanstack/react-table';
 import { type QuestionData } from '../types/questions/questions';
-import { Stack, Tag } from '@chakra-ui/react';
+import { Stack, Tag, Wrap, WrapItem } from '@chakra-ui/react';
 import QuestionComplexityTag from '../components/questions/QuestionComplexityTag';
 import QuestionViewIconButton from '../components/questions/QuestionViewIconButton';
 import React from 'react';
@@ -25,10 +25,14 @@ export const QuestionsTableColumns = (
       header: 'Categories',
       enableColumnFilter: true,
       cell: (categories) => (
-        <Stack direction="row">
-          {categories.getValue().map((category) => (
-            <Tag key={category}>{category}</Tag>
-          ))}
+        <Stack direction="row" spacing={4}>
+          <Wrap>
+            {categories.getValue().map((category) => (
+              <WrapItem key={category}>
+                <Tag>{category}</Tag>
+              </WrapItem>
+            ))}
+          </Wrap>
         </Stack>
       ),
     }),
