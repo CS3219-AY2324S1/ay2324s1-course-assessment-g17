@@ -10,6 +10,7 @@ import {
   Select,
   Stack,
   Textarea,
+  useToast,
 } from '@chakra-ui/react';
 import {
   AutoComplete,
@@ -22,6 +23,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../../api/questions/questions';
 import { useNavigate } from 'react-router-dom';
+import { type AxiosError } from 'axios';
 
 export const CreateQuestion: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -30,6 +32,8 @@ export const CreateQuestion: React.FC = () => {
   const [complexity, setComplexity] = useState('Easy');
   const [linkToQuestion, setLinkToQuestion] = useState('');
   const [allCategories, setAllCategories] = useState<string[]>([]);
+
+  const toast = useToast();
 
   const linkPrefix = 'https://leetcode.com/problems/';
 
@@ -51,14 +55,27 @@ export const CreateQuestion: React.FC = () => {
       .then(() => {
         navigate('/');
       })
-      .catch(console.error);
+      .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
+        const errors = err?.response?.data?.errors;
+        if (errors !== undefined) {
+          errors.map((error) =>
+            toast({
+              title: 'Question creation failed.',
+              description: error.msg,
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+            }),
+          );
+        }
+      });
   };
 
   return (
     <Container>
       <form onSubmit={handleSubmit}>
-        <Stack spacing={2}>
-          <Heading size={'2xl'} mb={4}>
+        <Stack spacing={4}>
+          <Heading size={'2xl'} mb={4} mt={8}>
             Create Question
           </Heading>
           <FormControl isRequired>
