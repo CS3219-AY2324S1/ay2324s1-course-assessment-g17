@@ -18,7 +18,7 @@ interface DataTablePaginationProps<T> {
   table: Table<T>;
 }
 
-const numEntriesPerPageOptions = [10, 20, 30, 40, 50];
+const numEntriesPerPageOptions = [5, 10, 20, 30, 40, 50];
 
 const DataTablePagination = <T extends object>({ table }: DataTablePaginationProps<T>): JSX.Element => {
   const {
@@ -53,7 +53,7 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
           <IconButton
             aria-label="Previous Page"
             onClick={previousPage}
-            isDisabled={!getCanNextPage()}
+            isDisabled={!getCanPreviousPage()}
             icon={<ChevronLeftIcon height={6} width={6} />}
           />
         </Tooltip>
@@ -68,7 +68,7 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
           </Text>
           {' of '}
           <Text fontSize="sm" fontWeight="bold" as="span">
-            {getPageCount()}
+            {Math.max(getPageCount(), 1)}
           </Text>
         </Text>
 
@@ -82,11 +82,11 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
           marginRight={8}
           width={28}
           min={1}
-          max={getPageCount()}
+          max={Math.max(getPageCount(), 1)}
           onChange={(_str, num) => {
             if (_str !== '') setPageIndex(Math.max(num - 1, 0));
           }}
-          defaultValue={pageIndex + 1}
+          value={pageIndex + 1}
         >
           <NumberInputField />
           <NumberInputStepper>
