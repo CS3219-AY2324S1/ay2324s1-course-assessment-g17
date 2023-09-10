@@ -31,6 +31,19 @@ export const addQuestion: RequestHandler[] = [
     }
 
     const formData = matchedData(req);
+
+    // Check if a question with similar title (case insensitive) is already added.
+    const sameQuestionExists = await QuestionModel.exists({
+      title: { $regex: formData.title, $options: "i" },
+    });
+
+    if (sameQuestionExists) {
+      res.status(400).json({
+        errors: [{ msg: "Question already exists in the database." }],
+      });
+      return;
+    }
+
     const lastQuestion = await QuestionModel.find({})
       .sort({ questionID: -1 })
       .limit(1);
