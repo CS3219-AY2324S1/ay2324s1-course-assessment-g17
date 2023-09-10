@@ -16,15 +16,15 @@ export const QuestionsTableColumns = (
     columnHelper.accessor('questionID', {
       cell: (id): number => id.getValue(),
       enableSorting: true,
-      header: 'Question ID',
+      header: 'ID',
     }),
     columnHelper.accessor('title', {
       cell: (title): string => title.getValue(),
       enableSorting: true,
-      header: 'Question Title',
+      header: 'Title',
     }),
     columnHelper.accessor('categories', {
-      header: 'Question Categories',
+      header: 'Categories',
       enableSorting: true,
       cell: (categories) => (
         <Stack direction="row">
@@ -35,7 +35,7 @@ export const QuestionsTableColumns = (
       ),
     }),
     columnHelper.accessor('complexity', {
-      header: 'Question Complexity',
+      header: 'Complexity',
       enableSorting: true,
       cell: (complexity) => <QuestionComplexityTag questionComplexity={complexity.getValue()} />,
     }),

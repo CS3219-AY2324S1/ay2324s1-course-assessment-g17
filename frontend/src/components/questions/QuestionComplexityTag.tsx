@@ -13,7 +13,7 @@ const QuestionComplexityTag: React.FC<QuestionComplexityTagProps> = ({
     case QuestionComplexityEnum.EASY:
       return <Tag colorScheme="green">{questionComplexity}</Tag>;
     case QuestionComplexityEnum.MEDIUM:
-      return <Tag colorScheme="yellow">{questionComplexity}</Tag>;
+      return <Tag colorScheme="orange">{questionComplexity}</Tag>;
     case QuestionComplexityEnum.HARD:
       return <Tag colorScheme="red">{questionComplexity}</Tag>;
     default:
