@@ -1,9 +1,10 @@
 import { type ColumnDef, type ColumnHelper } from '@tanstack/react-table';
-import { type QuestionData } from '../types/questions/questions';
+import { QuestionComplexityEnum, type QuestionData } from '../types/questions/questions';
 import { Stack, Tag, Wrap, WrapItem } from '@chakra-ui/react';
 import QuestionComplexityTag from '../components/questions/QuestionComplexityTag';
 import QuestionViewIconButton from '../components/questions/QuestionViewIconButton';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import QuestionsAPI from '../api/questions/questions';
 
 export interface QuestionDataRowData extends QuestionData {
   action?: undefined;
@@ -12,6 +13,16 @@ export interface QuestionDataRowData extends QuestionData {
 export const QuestionsTableColumns = (
   columnHelper: ColumnHelper<QuestionDataRowData>,
 ): Array<ColumnDef<QuestionDataRowData>> => {
+  const [categories, setAllCategories] = useState<string[]>([]);
+  useEffect(() => {
+    new QuestionsAPI()
+      .getCategories()
+      .then((categories) => {
+        setAllCategories(categories);
+      })
+      .catch(console.error);
+  }, []);
+
   return [
     columnHelper.accessor('questionID', {
       cell: (id): number => id.getValue(),
@@ -22,7 +33,12 @@ export const QuestionsTableColumns = (
       header: 'Title',
     }),
     columnHelper.accessor('categories', {
+      meta: {
+        selectFilterOptions: categories,
+        selectOptionPrefix: 'Category',
+      },
       header: 'Categories',
+      filterFn: 'arrIncludes',
       enableColumnFilter: true,
       cell: (categories) => (
         <Stack direction="row" spacing={4}>
@@ -37,6 +53,10 @@ export const QuestionsTableColumns = (
       ),
     }),
     columnHelper.accessor('complexity', {
+      meta: {
+        selectFilterOptions: Object.values(QuestionComplexityEnum),
+        selectOptionPrefix: 'Complexity',
+      },
       header: 'Complexity',
       cell: (complexity) => <QuestionComplexityTag questionComplexity={complexity.getValue()} />,
     }),
