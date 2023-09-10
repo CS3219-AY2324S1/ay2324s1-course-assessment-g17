@@ -13,7 +13,7 @@ export const getQuestions: RequestHandler = async (req, res, next) => {
 };
 
 export const addQuestion: RequestHandler[] = [
-  body("title").notEmpty().withMessage("title cannot be empty."),
+  body("title").notEmpty().trim().withMessage("title cannot be empty."),
   body("categories").isArray().withMessage("categories should be an array."),
   body("complexity")
     .isIn(complexityEnum)
@@ -31,6 +31,19 @@ export const addQuestion: RequestHandler[] = [
     }
 
     const formData = matchedData(req);
+
+    // Check if a question with similar title (case insensitive) is already added.
+    const sameQuestionExists = await QuestionModel.exists({
+      title: { $regex: new RegExp("^" + formData.title + "$"), $options: "i" },
+    });
+
+    if (sameQuestionExists) {
+      res.status(400).json({
+        errors: [{ msg: "Question already exists in the database." }],
+      });
+      return;
+    }
+
     const lastQuestion = await QuestionModel.find({})
       .sort({ questionID: -1 })
       .limit(1);
