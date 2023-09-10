@@ -2,7 +2,7 @@ import DataTable from '../../components/tables/DataTable';
 import React, { useEffect, useMemo, useState } from 'react';
 import QuestionsAPI from '../../api/questions/questions';
 import { Skeleton, Stack } from '@chakra-ui/react';
-import { type ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { type ColumnDef, createColumnHelper, type Column } from '@tanstack/react-table';
 import { type QuestionDataRowData, QuestionsTableColumns } from '../../utils/questions';
 import IconWithText from '../../components/content/IconWithText';
 import { BiSolidBook } from 'react-icons/bi';
@@ -31,7 +31,13 @@ const Questions: React.FC = () => {
     <Stack paddingX={16} paddingY={8} spacing={6}>
       <IconWithText fontSize="lg" fontWeight="bold" text="Question Repository" icon={<BiSolidBook size={20} />} />
       <Skeleton isLoaded={isLoaded}>
-        {questionList !== undefined && <DataTable columns={questionColumns} tableData={questionList} />}
+        {questionList !== undefined && (
+          <DataTable
+            columns={questionColumns}
+            tableData={questionList}
+            getColumnCanGlobalFilter={(column: Column<QuestionDataRowData>) => column.getCanSort()}
+          />
+        )}
       </Skeleton>
     </Stack>
   );

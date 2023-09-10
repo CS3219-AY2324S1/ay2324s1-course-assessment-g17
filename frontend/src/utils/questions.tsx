@@ -15,17 +15,15 @@ export const QuestionsTableColumns = (
   return [
     columnHelper.accessor('questionID', {
       cell: (id): number => id.getValue(),
-      enableSorting: true,
       header: 'ID',
     }),
     columnHelper.accessor('title', {
       cell: (title): string => title.getValue(),
-      enableSorting: true,
       header: 'Title',
     }),
     columnHelper.accessor('categories', {
       header: 'Categories',
-      enableSorting: true,
+      enableColumnFilter: true,
       cell: (categories) => (
         <Stack direction="row">
           {categories.getValue().map((category) => (
@@ -36,12 +34,12 @@ export const QuestionsTableColumns = (
     }),
     columnHelper.accessor('complexity', {
       header: 'Complexity',
-      enableSorting: true,
       cell: (complexity) => <QuestionComplexityTag questionComplexity={complexity.getValue()} />,
     }),
     columnHelper.accessor('action', {
       header: '',
       enableSorting: false,
+      enableGlobalFilter: false,
       cell: (cell) => (
         <QuestionViewIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
       ),

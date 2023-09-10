@@ -4,6 +4,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   type SortingState,
+  type Column,
   type ColumnDef,
   flexRender,
   getPaginationRowModel,
@@ -26,6 +27,8 @@ interface DataTableProps<T extends object> {
   isSortable?: boolean;
   /* Whether the DataTable should be searchable or not, enabled by default */
   isSearchable?: boolean;
+  /* Determines which columns can be filtered */
+  getColumnCanGlobalFilter?: (column: Column<T>) => boolean;
   /* Whether the DataTable should be paginated or not, enabled by default */
   isPaginated?: boolean;
 }
@@ -34,6 +37,8 @@ const DataTable = <T extends object>({
   tableData,
   columns,
   isSortable = true,
+  isSearchable = true,
+  getColumnCanGlobalFilter,
   isPaginated = true,
 }: DataTableProps<T>): JSX.Element => {
   const [sortBy, setSortBy] = useState<SortingState>([]);
@@ -49,7 +54,8 @@ const DataTable = <T extends object>({
       onSortingChange: setSortBy,
       getSortedRowModel: getSortedRowModel(),
     }),
-    ...(isSortable && { getFilteredRowModel: getFilteredRowModel() }),
+    ...(isSearchable && { getFilteredRowModel: getFilteredRowModel() }),
+    ...(getColumnCanGlobalFilter !== undefined && { getColumnCanGlobalFilter }),
     ...(isPaginated && { getPaginationRowModel: getPaginationRowModel() }),
   });
 
