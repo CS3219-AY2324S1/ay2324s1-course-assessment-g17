@@ -84,7 +84,7 @@ const DataTablePagination = <T extends object>({ table }: DataTablePaginationPro
           min={1}
           max={getPageCount()}
           onChange={(_str, num) => {
-            setPageIndex(Math.min(num - 1, 0));
+            if (_str !== '') setPageIndex(Math.max(num - 1, 0));
           }}
           defaultValue={pageIndex + 1}
         >
