@@ -6,7 +6,7 @@ import { complexityEnum } from "../models/question";
 export const getQuestions: RequestHandler = async (req, res, next) => {
   try {
     const questions = await QuestionModel.find().exec();
-    res.status(200).json(questions);
+    res.status(200).json({ data: questions });
   } catch (error) {
     next(error);
   }

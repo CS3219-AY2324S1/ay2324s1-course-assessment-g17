@@ -10,7 +10,8 @@ module.exports = {
   },
   "extends": [
     "standard-with-typescript",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    'plugin:prettier/recommended'
   ],
   "overrides": [
     {
@@ -28,7 +29,7 @@ module.exports = {
   "plugins": ["react"],
   "rules": {
     "@typescript-eslint/semi": "off",
-    "semi": [2, "always"]
+    "semi": [2, "always"],
   },
   "ignorePatterns": ['.eslintrc.js']
 };
