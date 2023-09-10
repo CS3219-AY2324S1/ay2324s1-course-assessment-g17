@@ -1,5 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons';
-import { Table, Tbody, Td, Th, Thead, Tr, chakra } from '@chakra-ui/react';
+import { Table, Tbody, Td, Tr } from '@chakra-ui/react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -11,6 +10,7 @@ import {
 } from '@tanstack/react-table';
 import React, { useState } from 'react';
 import DataTablePagination from './DataTablePagination';
+import DataTableHeader from './DataTableHeader';
 
 interface DataTableProps<T extends object> {
   /* The data collection to be displayed by the table */
@@ -18,43 +18,39 @@ interface DataTableProps<T extends object> {
   /* The columns to be displayed by the table */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: Array<ColumnDef<T, any>>;
+  /* Whether the DataTable should be sortable or not, sorting is enabled for
+    all columns by default. To only enable sorting for some columns, set isSortable
+    to true and toggle the enableSorting attribute in the column def. */
+  isSortable?: boolean;
+  /* Whether the DataTable should be paginated or not, enabled by default */
+  isPaginated?: boolean;
 }
 
-const DataTable = <T extends object>({ tableData, columns }: DataTableProps<T>): JSX.Element => {
+const DataTable = <T extends object>({
+  tableData,
+  columns,
+  isSortable = true,
+  isPaginated = true,
+}: DataTableProps<T>): JSX.Element => {
   const [sortBy, setSortBy] = useState<SortingState>([]);
   const table = useReactTable<T>({
     data: tableData,
     columns,
     state: {
-      sorting: sortBy,
+      sorting: isSortable ? sortBy : undefined,
     },
     getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSortBy,
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(isSortable && {
+      onSortingChange: setSortBy,
+      getSortedRowModel: getSortedRowModel(),
+    }),
+    ...(isPaginated && { getPaginationRowModel: getPaginationRowModel() }),
   });
 
   return (
     <>
       <Table>
-        <Thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <Tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const sortDirection = header.column.getIsSorted();
-                return (
-                  <Th key={header.id} onClick={header.column.getToggleSortingHandler()}>
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    <chakra.span paddingLeft={2}>
-                      {sortDirection === 'asc' && <ArrowUpIcon />}
-                      {sortDirection === 'desc' && <ArrowDownIcon />}
-                    </chakra.span>
-                  </Th>
-                );
-              })}
-            </Tr>
-          ))}
-        </Thead>
+        <DataTableHeader headerGroups={table.getHeaderGroups()} isSortable={isSortable} />
         <Tbody>
           {table.getRowModel().rows.map((row) => (
             <Tr key={row.id}>
@@ -65,7 +61,7 @@ const DataTable = <T extends object>({ tableData, columns }: DataTableProps<T>):
           ))}
         </Tbody>
       </Table>
-      <DataTablePagination table={table} />
+      {isPaginated && <DataTablePagination table={table} />}
     </>
   );
 };
