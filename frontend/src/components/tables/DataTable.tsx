@@ -7,11 +7,15 @@ import {
   type SortingState,
   type ColumnDef,
   flexRender,
+  getPaginationRowModel,
 } from '@tanstack/react-table';
 import React, { useState } from 'react';
 import DataTablePagination from './DataTablePagination';
+
 interface DataTableProps<T extends object> {
+  /* The data collection to be displayed by the table */
   tableData: T[];
+  /* The columns to be displayed by the table */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: Array<ColumnDef<T, any>>;
 }
@@ -27,6 +31,7 @@ const DataTable = <T extends object>({ tableData, columns }: DataTableProps<T>):
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSortBy,
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (

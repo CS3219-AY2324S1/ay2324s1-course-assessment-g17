@@ -27,7 +27,7 @@ const Questions: React.FC = () => {
   }, []);
 
   return (
-    <Box padding={4}>
+    <Box padding={8}>
       <Skeleton isLoaded={isLoaded}>
         {questionList !== undefined && <DataTable columns={questionColumns} tableData={questionList} />}
       </Skeleton>
