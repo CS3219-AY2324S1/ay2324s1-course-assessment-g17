@@ -13,6 +13,6 @@ router.get("/categories", QuestionsController.getQuestionCategories);
 
 router.get("/:questionId", QuestionsController.getQuestion);
 
-router.patch("/:questionId/update", QuestionsController.updateQuestion);
+router.patch("/:questionId", QuestionsController.updateQuestion);
 
 export default router;
