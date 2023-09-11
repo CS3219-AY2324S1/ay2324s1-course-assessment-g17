@@ -11,6 +11,7 @@ import {
   Select,
   Stack,
   Textarea,
+  useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
 import {
@@ -75,7 +76,7 @@ export const CreateQuestion: React.FC = () => {
   return (
     <Card m={12} p={8}>
       <form onSubmit={handleSubmit}>
-        <Stack spacing={2}>
+        <Stack spacing={4}>
           <Heading size={'lg'} mb={4}>
             Create Question
           </Heading>
@@ -111,12 +112,13 @@ export const CreateQuestion: React.FC = () => {
             <AutoComplete
               openOnFocus
               closeOnSelect
-              closeOnBlur
               multiple
               onChange={(categories) => {
                 setCategories(categories as string[]);
               }}
               isLoading={allCategories.length === 0}
+              suggestWhenEmpty
+              restoreOnBlurIfEmpty={false}
             >
               <AutoCompleteInput variant="filled">
                 {({ tags }) =>
@@ -130,14 +132,28 @@ export const CreateQuestion: React.FC = () => {
                   <AutoCompleteItem
                     key={`option-${cid}`}
                     value={category}
-                    _selected={{ bg: 'whiteAlpha.50' }}
-                    _focus={{ bg: 'whiteAlpha.100' }}
+                    style={{ marginTop: 4, marginBottom: 4 }}
+                    _selected={{ bg: useColorModeValue('blackAlpha.50', 'whiteAlpha.50'), color: 'gray.500' }}
+                    _focus={{ bg: useColorModeValue('blackAlpha.100', 'whiteAlpha.100') }}
                   >
                     {category}
                   </AutoCompleteItem>
                 ))}
               </AutoCompleteList>
             </AutoComplete>
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>Link to Question</FormLabel>
+            <InputGroup>
+              <InputLeftAddon>{linkPrefix}</InputLeftAddon>
+              <Input
+                value={linkToQuestion}
+                onChange={(e) => {
+                  setLinkToQuestion(e.target.value);
+                }}
+              />
+            </InputGroup>
           </FormControl>
 
           <FormControl isRequired>
@@ -153,18 +169,6 @@ export const CreateQuestion: React.FC = () => {
             />
           </FormControl>
 
-          <FormControl isRequired>
-            <FormLabel>Link to Question</FormLabel>
-            <InputGroup>
-              <InputLeftAddon>{linkPrefix}</InputLeftAddon>
-              <Input
-                value={linkToQuestion}
-                onChange={(e) => {
-                  setLinkToQuestion(e.target.value);
-                }}
-              />
-            </InputGroup>
-          </FormControl>
           <Button type="submit" colorScheme="teal">
             Submit
           </Button>
