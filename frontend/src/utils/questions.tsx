@@ -38,7 +38,7 @@ export const QuestionsTableColumns = (
         selectOptionPrefix: 'Category',
       },
       header: 'Categories',
-      filterFn: 'arrIncludes',
+      filterFn: 'arrIncludesAll',
       enableColumnFilter: true,
       cell: (categories) => (
         <Stack direction="row" spacing={4}>
