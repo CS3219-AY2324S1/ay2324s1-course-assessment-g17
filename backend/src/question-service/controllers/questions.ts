@@ -36,6 +36,9 @@ export const getQuestion: RequestHandler[] = [
 export const addQuestion: RequestHandler[] = [
   body("title").notEmpty().trim().withMessage("title cannot be empty."),
   body("categories").isArray().withMessage("categories should be an array."),
+  body("categories")
+    .isIn(categoryEnum)
+    .withMessage(`categories should be one of ${categoryEnum.join(", ")}.`),
   body("complexity")
     .isIn(complexityEnum)
     .withMessage(`complexity should be one of ${complexityEnum.join(", ")}.`),
@@ -111,6 +114,9 @@ export const updateQuestion: RequestHandler[] = [
   param("questionId").isNumeric().withMessage("questionId should be a number."),
   body("title").notEmpty().trim().withMessage("title cannot be empty."),
   body("categories").isArray().withMessage("categories should be an array."),
+  body("categories")
+    .isIn(categoryEnum)
+    .withMessage(`categories should be one of ${categoryEnum.join(", ")}.`),
   body("complexity")
     .isIn(complexityEnum)
     .withMessage(`complexity should be one of ${complexityEnum.join(", ")}.`),
@@ -143,11 +149,12 @@ export const updateQuestion: RequestHandler[] = [
   
     // Check if a question with similar title (case insensitive) is already added.
     const sameQuestionExists = await QuestionModel.exists({
+      questionID: { $ne: questionId }, // Exclude the current question by ID
       title: { $regex: new RegExp("^" + formData.title + "$"), $options: "i" },
     });
     if (sameQuestionExists) {
       res.status(400).json({
-        errors: [{ msg: "Question already exists in the database." }],
+        errors: [{ msg: "Duplicate question already exists in the database." }],
       });
       return;
     }
