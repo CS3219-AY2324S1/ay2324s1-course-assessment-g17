@@ -1,4 +1,4 @@
-import { Card, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react';
+import { Card, Stack, Table, Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import DataTablePagination from './DataTablePagination';
 import DataTableHeader from './DataTableHeader';
 import DataTableSearch from './DataTableSearch';
+import DataTableSelectFilter from './DataTableSelectFilter';
 
 interface DataTableProps<T extends object> {
   /* The data collection to be displayed by the table */
@@ -61,7 +62,19 @@ const DataTable = <T extends object>({
 
   return (
     <>
-      {isSortable && <DataTableSearch table={table} />}
+      <Stack direction="row" alignItems="end" marginBottom={6}>
+        {isSortable && <DataTableSearch table={table} />}
+        {table.getHeaderGroups().map((headerGroup) =>
+          headerGroup.headers.map((header) => {
+            const column = header.column;
+            if (column.columnDef.meta === undefined) return null;
+            if ('selectFilterOptions' in column.columnDef.meta) {
+              return <DataTableSelectFilter key={column.id} column={column} />;
+            } else return null;
+          }),
+        )}
+      </Stack>
+
       <Card variant="outline">
         <Table size="sm">
           <DataTableHeader headerGroups={table.getHeaderGroups()} isSortable={isSortable} />

@@ -1,5 +1,5 @@
 import DataTable from '../../components/tables/DataTable';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../../api/questions/questions';
 import IconWithText from '../../components/content/IconWithText';
 import { BiSolidBook } from 'react-icons/bi';
@@ -11,7 +11,7 @@ import { AddIcon } from '@chakra-ui/icons';
 
 const Questions: React.FC = () => {
   const columnHelper = createColumnHelper<QuestionDataRowData>();
-  const questionColumns: Array<ColumnDef<QuestionDataRowData>> = useMemo(() => QuestionsTableColumns(columnHelper), []);
+  const questionColumns: Array<ColumnDef<QuestionDataRowData>> = QuestionsTableColumns(columnHelper);
   const [questionList, setQuestionList] = useState<QuestionDataRowData[]>();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
