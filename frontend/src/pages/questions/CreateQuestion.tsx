@@ -1,8 +1,9 @@
 import {
   Button,
-  Container,
+  Card,
   FormControl,
   FormLabel,
+  HStack,
   Heading,
   Input,
   InputGroup,
@@ -72,34 +73,39 @@ export const CreateQuestion: React.FC = () => {
   };
 
   return (
-    <Container>
+    <Card m={12} p={8}>
       <form onSubmit={handleSubmit}>
-        <Stack spacing={4}>
-          <Heading size={'2xl'} mb={4} mt={8}>
+        <Stack spacing={2}>
+          <Heading size={'lg'} mb={4}>
             Create Question
           </Heading>
-          <FormControl isRequired>
-            <FormLabel>Title</FormLabel>
-            <Input
-              type="text"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-              }}
-              required
-            />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Description</FormLabel>
-            <Textarea
-              placeholder="Description of leetcode question"
-              value={questionDescription}
-              onChange={(e) => {
-                setQuestionDescription(e.target.value);
-              }}
-              required
-            />
-          </FormControl>
+          <HStack>
+            <FormControl isRequired width={'250%'}>
+              <FormLabel>Title</FormLabel>
+              <Input
+                type="text"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                }}
+                required
+              />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel>Complexity</FormLabel>
+              <Select
+                value={complexity}
+                onChange={(e) => {
+                  setComplexity(e.target.value);
+                }}
+              >
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </Select>
+            </FormControl>
+          </HStack>
+
           <FormControl isRequired>
             <FormLabel>Categories</FormLabel>
             <AutoComplete
@@ -133,19 +139,20 @@ export const CreateQuestion: React.FC = () => {
               </AutoCompleteList>
             </AutoComplete>
           </FormControl>
+
           <FormControl isRequired>
-            <FormLabel>Complexity</FormLabel>
-            <Select
-              value={complexity}
+            <FormLabel>Description</FormLabel>
+            <Textarea
+              placeholder="Description of leetcode question"
+              value={questionDescription}
               onChange={(e) => {
-                setComplexity(e.target.value);
+                setQuestionDescription(e.target.value);
               }}
-            >
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
-            </Select>
+              required
+              rows={8}
+            />
           </FormControl>
+
           <FormControl isRequired>
             <FormLabel>Link to Question</FormLabel>
             <InputGroup>
@@ -163,6 +170,6 @@ export const CreateQuestion: React.FC = () => {
           </Button>
         </Stack>
       </form>
-    </Container>
+    </Card>
   );
 };
