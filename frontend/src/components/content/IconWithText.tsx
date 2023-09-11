@@ -8,7 +8,7 @@ interface IconWithTextProps extends TextProps {
 
 const IconWithText: React.FC<IconWithTextProps> = ({ icon, text, ...textProps }: IconWithTextProps) => {
   return (
-    <Stack direction="row" alignItems="center" gap={4}>
+    <Stack direction="row" alignItems="center" justifyItems="center" gap={4}>
       {icon}
       <Text {...textProps}>{text}</Text>
     </Stack>

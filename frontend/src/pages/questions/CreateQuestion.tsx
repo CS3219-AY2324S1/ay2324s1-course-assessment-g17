@@ -1,15 +1,17 @@
 import {
   Button,
-  Container,
+  Card,
+  Flex,
   FormControl,
   FormLabel,
-  Heading,
+  HStack,
   Input,
   InputGroup,
   InputLeftAddon,
   Select,
   Stack,
   Textarea,
+  useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
 import {
@@ -19,11 +21,14 @@ import {
   AutoCompleteList,
   AutoCompleteTag,
 } from '@choc-ui/chakra-autocomplete';
-
+import { FaCheck } from 'react-icons/fa6';
+import { BiSolidBookAdd } from 'react-icons/bi';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../../api/questions/questions';
 import { useNavigate } from 'react-router-dom';
 import { type AxiosError } from 'axios';
+import IconWithText from '../../components/content/IconWithText';
+import ConfirmationDialog from '../../components/content/ConfirmationDialog';
 
 export const CreateQuestion: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -72,45 +77,49 @@ export const CreateQuestion: React.FC = () => {
   };
 
   return (
-    <Container>
+    <Card m={12} p={8}>
       <form onSubmit={handleSubmit}>
         <Stack spacing={4}>
-          <Heading size={'2xl'} mb={4} mt={8}>
-            Create Question
-          </Heading>
-          <FormControl isRequired>
-            <FormLabel>Title</FormLabel>
-            <Input
-              type="text"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-              }}
-              required
-            />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Description</FormLabel>
-            <Textarea
-              placeholder="Description of leetcode question"
-              value={questionDescription}
-              onChange={(e) => {
-                setQuestionDescription(e.target.value);
-              }}
-              required
-            />
-          </FormControl>
+          <IconWithText text="Create Question" icon={<BiSolidBookAdd size={25} />} fontSize={'2xl'} fontWeight="bold" />
+          <HStack mt={2}>
+            <FormControl isRequired width={'250%'}>
+              <FormLabel>Title</FormLabel>
+              <Input
+                type="text"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                }}
+                required
+              />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel>Complexity</FormLabel>
+              <Select
+                value={complexity}
+                onChange={(e) => {
+                  setComplexity(e.target.value);
+                }}
+              >
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </Select>
+            </FormControl>
+          </HStack>
+
           <FormControl isRequired>
             <FormLabel>Categories</FormLabel>
             <AutoComplete
               openOnFocus
               closeOnSelect
-              closeOnBlur
               multiple
               onChange={(categories) => {
                 setCategories(categories as string[]);
               }}
               isLoading={allCategories.length === 0}
+              suggestWhenEmpty
+              restoreOnBlurIfEmpty={false}
             >
               <AutoCompleteInput variant="filled">
                 {({ tags }) =>
@@ -124,8 +133,9 @@ export const CreateQuestion: React.FC = () => {
                   <AutoCompleteItem
                     key={`option-${cid}`}
                     value={category}
-                    _selected={{ bg: 'whiteAlpha.50' }}
-                    _focus={{ bg: 'whiteAlpha.100' }}
+                    style={{ marginTop: 4, marginBottom: 4 }}
+                    _selected={{ bg: useColorModeValue('blackAlpha.50', 'whiteAlpha.50'), color: 'gray.500' }}
+                    _focus={{ bg: useColorModeValue('blackAlpha.100', 'whiteAlpha.100') }}
                   >
                     {category}
                   </AutoCompleteItem>
@@ -133,19 +143,7 @@ export const CreateQuestion: React.FC = () => {
               </AutoCompleteList>
             </AutoComplete>
           </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Complexity</FormLabel>
-            <Select
-              value={complexity}
-              onChange={(e) => {
-                setComplexity(e.target.value);
-              }}
-            >
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
-            </Select>
-          </FormControl>
+
           <FormControl isRequired>
             <FormLabel>Link to Question</FormLabel>
             <InputGroup>
@@ -158,11 +156,38 @@ export const CreateQuestion: React.FC = () => {
               />
             </InputGroup>
           </FormControl>
-          <Button type="submit" colorScheme="teal">
-            Submit
-          </Button>
+
+          <FormControl isRequired>
+            <FormLabel>Description</FormLabel>
+            <Textarea
+              placeholder="Description of Leetcode question"
+              _placeholder={{ color: useColorModeValue('gray.600', 'gray.400') }}
+              value={questionDescription}
+              onChange={(e) => {
+                setQuestionDescription(e.target.value);
+              }}
+              required
+              rows={8}
+            />
+          </FormControl>
+
+          <Flex mt={4} justifyContent="space-between">
+            <ConfirmationDialog
+              dialogHeader="Cancel Question Creation"
+              dialogBody="Are you sure? Any progress on the form will not be saved. This action is irreversible!"
+              mainButtonLabel="Cancel"
+              leftButtonLabel="No, stay on this form"
+              rightButtonLabel="Yes, bring me back"
+              onConfirm={() => {
+                navigate('/');
+              }}
+            />
+            <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />}>
+              Submit Question
+            </Button>
+          </Flex>
         </Stack>
       </form>
-    </Container>
+    </Card>
   );
 };
