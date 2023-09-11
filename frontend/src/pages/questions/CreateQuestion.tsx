@@ -1,10 +1,10 @@
 import {
   Button,
   Card,
+  Flex,
   FormControl,
   FormLabel,
   HStack,
-  Heading,
   Input,
   InputGroup,
   InputLeftAddon,
@@ -21,11 +21,14 @@ import {
   AutoCompleteList,
   AutoCompleteTag,
 } from '@choc-ui/chakra-autocomplete';
-
+import { FaCheck } from 'react-icons/fa6';
+import { BiSolidBookAdd } from 'react-icons/bi';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../../api/questions/questions';
 import { useNavigate } from 'react-router-dom';
 import { type AxiosError } from 'axios';
+import IconWithText from '../../components/content/IconWithText';
+import ConfirmationDialog from '../../components/content/ConfirmationDialog';
 
 export const CreateQuestion: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -77,10 +80,8 @@ export const CreateQuestion: React.FC = () => {
     <Card m={12} p={8}>
       <form onSubmit={handleSubmit}>
         <Stack spacing={4}>
-          <Heading size={'lg'} mb={4}>
-            Create Question
-          </Heading>
-          <HStack>
+          <IconWithText text="Create Question" icon={<BiSolidBookAdd size={25} />} fontSize={'2xl'} fontWeight="bold" />
+          <HStack mt={2}>
             <FormControl isRequired width={'250%'}>
               <FormLabel>Title</FormLabel>
               <Input
@@ -159,7 +160,8 @@ export const CreateQuestion: React.FC = () => {
           <FormControl isRequired>
             <FormLabel>Description</FormLabel>
             <Textarea
-              placeholder="Description of leetcode question"
+              placeholder="Description of Leetcode question"
+              _placeholder={{ color: useColorModeValue('gray.600', 'gray.400') }}
               value={questionDescription}
               onChange={(e) => {
                 setQuestionDescription(e.target.value);
@@ -169,9 +171,21 @@ export const CreateQuestion: React.FC = () => {
             />
           </FormControl>
 
-          <Button type="submit" colorScheme="teal">
-            Submit
-          </Button>
+          <Flex mt={4} justifyContent="space-between">
+            <ConfirmationDialog
+              dialogHeader="Cancel Question Creation"
+              dialogBody="Are you sure? Any progress on the form will not be saved. This action is irreversible!"
+              mainButtonLabel="Cancel"
+              leftButtonLabel="No, stay on this form"
+              rightButtonLabel="Yes, bring me back"
+              onConfirm={() => {
+                navigate('/');
+              }}
+            />
+            <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />}>
+              Submit Question
+            </Button>
+          </Flex>
         </Stack>
       </form>
     </Card>
