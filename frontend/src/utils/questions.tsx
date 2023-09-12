@@ -8,6 +8,7 @@ import { Stack, Tag, Wrap, WrapItem } from '@chakra-ui/react';
 import QuestionComplexityTag from '../components/questions/QuestionComplexityTag';
 import QuestionViewIconButton from '../components/questions/QuestionViewIconButton';
 import QuestionDeleteIconButton from '../components/questions/QuestionDeleteIconButton';
+import QuestionEditIconButton from '../components/questions/QuestionEditIconButton';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../api/questions/questions';
 
@@ -87,6 +88,7 @@ export const QuestionsTableColumns = (
       cell: (cell) => (
         <Stack direction="row" spacing={2}>
           <QuestionViewIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
+          <QuestionEditIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
           <QuestionDeleteIconButton
             questionId={cell.row.original.questionID}
             onDelete={(questionId) => {
