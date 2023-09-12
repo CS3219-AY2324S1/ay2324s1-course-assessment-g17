@@ -1,35 +1,11 @@
-import {
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  InputGroup,
-  InputLeftAddon,
-  Select,
-  Stack,
-  Textarea,
-  useToast,
-  Card,
-  Flex,
-  HStack,
-  useColorModeValue,
-} from '@chakra-ui/react';
-import {
-  AutoComplete,
-  AutoCompleteInput,
-  AutoCompleteItem,
-  AutoCompleteList,
-  AutoCompleteTag,
-} from '@choc-ui/chakra-autocomplete';
-
+import { Spinner, Stack, useToast, Card } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../../api/questions/questions';
 import { useNavigate, useParams } from 'react-router-dom';
 import { type AxiosError } from 'axios';
-import { FaCheck } from 'react-icons/fa6';
 import { BiSolidBookAdd } from 'react-icons/bi';
 import IconWithText from '../../components/content/IconWithText';
-import ConfirmationDialog from '../../components/content/ConfirmationDialog';
+import QuestionForm from '../../components/content/QuestionForm';
 
 export const UpdateQuestion: React.FC = () => {
   const { questionId } = useParams();
@@ -45,6 +21,7 @@ export const UpdateQuestion: React.FC = () => {
   const [complexity, setComplexity] = useState('Easy');
   const [linkToQuestion, setLinkToQuestion] = useState('');
   const [allCategories, setAllCategories] = useState<string[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false); // Add this state
 
   const toast = useToast();
 
@@ -70,9 +47,11 @@ export const UpdateQuestion: React.FC = () => {
         setCategories(questionData.categories);
         setComplexity(questionData.complexity);
         setLinkToQuestion(questionData.linkToQuestion.replace(linkPrefix, ''));
+        setDataLoaded(true); // Mark data as loaded
       })
       .catch((error) => {
         console.error('Error fetching question data:', error);
+        setDataLoaded(true);
       });
   }, []);
 
@@ -122,112 +101,23 @@ export const UpdateQuestion: React.FC = () => {
       <form onSubmit={handleSubmit}>
         <Stack spacing={4}>
           <IconWithText text="Update Question" icon={<BiSolidBookAdd size={25} />} fontSize={'2xl'} fontWeight="bold" />
-          <HStack mt={2}>
-            <FormControl isRequired width={'250%'}>
-              <FormLabel>Title</FormLabel>
-              <Input
-                type="text"
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                }}
-                required
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Complexity</FormLabel>
-              <Select
-                value={complexity}
-                onChange={(e) => {
-                  setComplexity(e.target.value);
-                }}
-              >
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-              </Select>
-            </FormControl>
-          </HStack>
-
-          <FormControl isRequired>
-            <FormLabel>Categories</FormLabel>
-            <AutoComplete
-              openOnFocus
-              closeOnSelect
-              multiple
-              onChange={(categories) => {
-                setCategories(categories as string[]);
-              }}
-              isLoading={allCategories.length === 0}
-              suggestWhenEmpty
-              restoreOnBlurIfEmpty={false}
-              value={categories}
-            >
-              <AutoCompleteInput variant="filled" isRequired={false}>
-                {({ tags }) =>
-                  tags.map((tag, tid) => (
-                    <AutoCompleteTag key={tid} label={tag.label as string} onRemove={tag.onRemove} />
-                  ))
-                }
-              </AutoCompleteInput>
-              <AutoCompleteList>
-                {allCategories.map((category, cid) => (
-                  <AutoCompleteItem
-                    key={`option-${cid}`}
-                    value={category}
-                    style={{ marginTop: 4, marginBottom: 4 }}
-                    _selected={{ bg: useColorModeValue('blackAlpha.50', 'whiteAlpha.50'), color: 'gray.500' }}
-                    _focus={{ bg: useColorModeValue('blackAlpha.100', 'whiteAlpha.100') }}
-                  >
-                    {category}
-                  </AutoCompleteItem>
-                ))}
-              </AutoCompleteList>
-            </AutoComplete>
-          </FormControl>
-
-          <FormControl isRequired>
-            <FormLabel>Link to Question</FormLabel>
-            <InputGroup>
-              <InputLeftAddon>{linkPrefix}</InputLeftAddon>
-              <Input
-                value={linkToQuestion}
-                onChange={(e) => {
-                  setLinkToQuestion(e.target.value);
-                }}
-              />
-            </InputGroup>
-          </FormControl>
-
-          <FormControl isRequired>
-            <FormLabel>Description</FormLabel>
-            <Textarea
-              placeholder="Description of Leetcode question"
-              _placeholder={{ color: useColorModeValue('gray.600', 'gray.400') }}
-              value={questionDescription}
-              onChange={(e) => {
-                setQuestionDescription(e.target.value);
-              }}
-              required
-              rows={8}
+          {dataLoaded ? (
+            <QuestionForm
+              title={title}
+              setTitle={setTitle}
+              questionDescription={questionDescription}
+              setQuestionDescription={setQuestionDescription}
+              categories={categories}
+              setCategories={setCategories}
+              complexity={complexity}
+              setComplexity={setComplexity}
+              linkToQuestion={linkToQuestion}
+              setLinkToQuestion={setLinkToQuestion}
+              allCategories={allCategories}
             />
-          </FormControl>
-
-          <Flex mt={4} justifyContent="space-between">
-            <ConfirmationDialog
-              dialogHeader="Cancel Question Creation"
-              dialogBody="Are you sure? Any progress on the form will not be saved. This action is irreversible!"
-              mainButtonLabel="Cancel"
-              leftButtonLabel="No, stay on this form"
-              rightButtonLabel="Yes, bring me back"
-              onConfirm={() => {
-                navigate('/');
-              }}
-            />
-            <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />}>
-              Submit Question
-            </Button>
-          </Flex>
+          ) : (
+            <Spinner size="xl" />
+          )}
         </Stack>
       </form>
     </Card>
