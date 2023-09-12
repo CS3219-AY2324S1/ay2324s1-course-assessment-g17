@@ -22,7 +22,6 @@ export default class QuestionsAPI {
     return await client.post(this.getQuestionsUrl(), question);
   }
 
-
   // get individual question (placeholder function for 'update question')
   public async getQuestion(questionId: string): Promise<QuestionData> {
     const response = await client.get(`${this.getQuestionsUrl()}/${questionId}`);
