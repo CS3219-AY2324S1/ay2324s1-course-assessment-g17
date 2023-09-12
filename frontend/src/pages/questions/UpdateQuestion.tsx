@@ -78,6 +78,18 @@ export const UpdateQuestion: React.FC = () => {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+
+    if (categories.length === 0) {
+      toast({
+        title: 'Missing Categories!',
+        description: 'Please fill in the question categories before submitting.',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
+      return;
+    }
+
     new QuestionsAPI()
       .updateQuestion(questionIdString, {
         title,
