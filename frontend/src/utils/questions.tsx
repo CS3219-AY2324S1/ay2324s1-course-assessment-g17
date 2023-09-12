@@ -13,6 +13,8 @@ export interface QuestionDataRowData extends QuestionData {
 
 export const QuestionsTableColumns = (
   columnHelper: ColumnHelper<QuestionDataRowData>,
+  // Accept the setQuestionList prop
+  setQuestionList: React.Dispatch<React.SetStateAction<QuestionDataRowData[]>>,
 ): Array<ColumnDef<QuestionDataRowData>> => {
   const [categories, setAllCategories] = useState<string[]>([]);
   useEffect(() => {
@@ -71,8 +73,8 @@ export const QuestionsTableColumns = (
           <QuestionDeleteIconButton
             questionId={cell.row.original.questionID}
             onDelete={(questionId) => {
-              // Implement delete logic here using the questionId
-              console.log(`Delete question with ID ${questionId}`);
+              // Remove the deleted question from the list
+              setQuestionList((prevList) => prevList.filter((question) => question.questionID !== questionId));
             }}
           />
         </Stack>

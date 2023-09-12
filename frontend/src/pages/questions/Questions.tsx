@@ -11,8 +11,9 @@ import { AddIcon } from '@chakra-ui/icons';
 
 const Questions: React.FC = () => {
   const columnHelper = createColumnHelper<QuestionDataRowData>();
-  const questionColumns: Array<ColumnDef<QuestionDataRowData>> = QuestionsTableColumns(columnHelper);
-  const [questionList, setQuestionList] = useState<QuestionDataRowData[]>();
+  const [questionList, setQuestionList] = useState<QuestionDataRowData[]>([]);
+  // Pass setQuestionList as a prop to the QuestionsTableColumns function
+  const questionColumns: Array<ColumnDef<QuestionDataRowData>> = QuestionsTableColumns(columnHelper, setQuestionList);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
