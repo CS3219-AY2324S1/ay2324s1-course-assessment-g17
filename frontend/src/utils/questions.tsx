@@ -3,6 +3,7 @@ import { QuestionComplexityEnum, type QuestionData } from '../types/questions/qu
 import { Stack, Tag, Wrap, WrapItem } from '@chakra-ui/react';
 import QuestionComplexityTag from '../components/questions/QuestionComplexityTag';
 import QuestionViewIconButton from '../components/questions/QuestionViewIconButton';
+import QuestionDeleteIconButton from '../components/questions/QuestionDeleteIconButton';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../api/questions/questions';
 
@@ -65,7 +66,16 @@ export const QuestionsTableColumns = (
       enableSorting: false,
       enableGlobalFilter: false,
       cell: (cell) => (
-        <QuestionViewIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
+        <Stack direction="row" spacing={2}>
+          <QuestionViewIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
+          <QuestionDeleteIconButton
+            questionId={cell.row.original.questionID}
+            onDelete={(questionId) => {
+              // Implement delete logic here using the questionId
+              console.log(`Delete question with ID ${questionId}`);
+            }}
+          />
+        </Stack>
       ),
     }),
   ] as Array<ColumnDef<QuestionDataRowData>>;
