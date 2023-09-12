@@ -1,5 +1,5 @@
 import { DeleteIcon } from '@chakra-ui/icons';
-import { Tooltip, IconButton } from '@chakra-ui/react';
+import { Tooltip, IconButton, useToast } from '@chakra-ui/react';
 import React from 'react';
 import QuestionsAPI from '../../api/questions/questions';
 
@@ -12,6 +12,7 @@ const QuestionDeleteIconButton: React.FC<QuestionDeleteIconButtonProps> = ({
   questionId,
   onDelete,
 }: QuestionDeleteIconButtonProps) => {
+  const toast = useToast();
   const handleDelete = (): void => {
     new QuestionsAPI()
       .deleteQuestion(questionId)
@@ -22,6 +23,12 @@ const QuestionDeleteIconButton: React.FC<QuestionDeleteIconButtonProps> = ({
       .catch((error) => {
         // Handle errors (e.g., display an error message)
         console.error('Error deleting question:', error);
+        toast({
+          title: 'Question deletion failed.',
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        });
       });
   };
 
