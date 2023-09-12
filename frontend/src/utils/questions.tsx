@@ -3,6 +3,7 @@ import { QuestionComplexityEnum, type QuestionData } from '../types/questions/qu
 import { Stack, Tag, Wrap, WrapItem } from '@chakra-ui/react';
 import QuestionComplexityTag from '../components/questions/QuestionComplexityTag';
 import QuestionViewIconButton from '../components/questions/QuestionViewIconButton';
+import QuestionEditIconButton from '../components/questions/QuestionEditIconButton';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../api/questions/questions';
 
@@ -65,7 +66,10 @@ export const QuestionsTableColumns = (
       enableSorting: false,
       enableGlobalFilter: false,
       cell: (cell) => (
-        <QuestionViewIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
+        <Stack direction="row" spacing={4} justifyContent="flex-end">
+          <QuestionViewIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
+          <QuestionEditIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
+        </Stack>
       ),
     }),
   ] as Array<ColumnDef<QuestionDataRowData>>;
