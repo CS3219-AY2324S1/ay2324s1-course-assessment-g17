@@ -147,21 +147,20 @@ export const updateQuestion: RequestHandler[] = [
     });
     // catch error if no existing question
     if (!existingQuestion) {
-      res.status(400).json({ errors: [{ msg: "question does not exist." }] });
+      res.status(400).json({ errors: [{ msg: "Question does not exist." }] });
       return;
     }
 
     const formData = matchedData(req);
 
-    // Check if a question with similar title (case insensitive) is already added.
     const sameQuestionExists = await QuestionModel.exists({
-      // questionID: { $ne: questionId }, // Exclude the current question by ID
       title: formData.title,
-      complexity: formData.complexity,
       categories: formData.categories,
+      complexity: formData.complexity,
       linkToQuestion: formData.linkToQuestion,
       questionDescription: formData.questionDescription,
     });
+
     if (sameQuestionExists) {
       res.status(400).json({
         errors: [{ msg: "Duplicate question already exists in the database." }],
