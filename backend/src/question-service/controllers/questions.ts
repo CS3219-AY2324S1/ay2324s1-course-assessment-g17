@@ -112,10 +112,11 @@ export const getQuestionCategories: RequestHandler = (req, res) => {
   res.json({ data: categoryEnum });
 };
 
-// Submitting edit form 
+// Submitting edit form
 export const updateQuestion: RequestHandler[] = [
-  
-  param("questionId").notEmpty().withMessage("questionId field cannot be empty."),
+  param("questionId")
+    .notEmpty()
+    .withMessage("questionId field cannot be empty."),
   param("questionId").isNumeric().withMessage("questionId should be a number."),
   body("title").notEmpty().trim().withMessage("title cannot be empty."),
   body("categories").isArray().withMessage("categories should be an array."),
@@ -131,8 +132,8 @@ export const updateQuestion: RequestHandler[] = [
   body("questionDescription")
     .notEmpty()
     .withMessage("questionDescription should not be empty."),
-  
-  async (req, res) => {  
+
+  async (req, res) => {
     // validation errors for both above
     if (!validationResult(req).isEmpty()) {
       res.status(400).json({ errors: validationResult(req).array() });
@@ -151,11 +152,15 @@ export const updateQuestion: RequestHandler[] = [
     }
 
     const formData = matchedData(req);
-  
+
     // Check if a question with similar title (case insensitive) is already added.
     const sameQuestionExists = await QuestionModel.exists({
-      questionID: { $ne: questionId }, // Exclude the current question by ID
-      title: { $regex: new RegExp("^" + formData.title + "$"), $options: "i" },
+      // questionID: { $ne: questionId }, // Exclude the current question by ID
+      title: formData.title,
+      complexity: formData.complexity,
+      categories: formData.categories,
+      linkToQuestion: formData.linkToQuestion,
+      questionDescription: formData.questionDescription,
     });
     if (sameQuestionExists) {
       res.status(400).json({
@@ -165,11 +170,14 @@ export const updateQuestion: RequestHandler[] = [
     }
 
     // Update the existing question with the new data
-    const finalQuestion = await QuestionModel.findByIdAndUpdate(existingQuestion._id, formData, { new: true });
+    const finalQuestion = await QuestionModel.findByIdAndUpdate(
+      existingQuestion._id,
+      formData,
+      { new: true },
+    );
 
     res.status(200).json({ data: finalQuestion, status: "success" });
-  }
+  },
 ];
-
 
 // TODO: deleteQuestion
