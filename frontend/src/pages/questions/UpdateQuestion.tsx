@@ -44,20 +44,26 @@ export const UpdateQuestion: React.FC = () => {
   useEffect(() => {
     // Fetch the existing question data based on questionId and set the state variables for editing
     const fetchQuestionData = async () => {
-      const response = await new QuestionsAPI().getQuestion(questionId);
-      const questionData = response.data.data;
-    
-      setTitle(questionData.title);
-      setQuestionDescription(questionData.questionDescription);
-      setCategories(questionData.categories);
-      setComplexity(questionData.complexity);
-      setLinkToQuestion(questionData.linkToQuestion.replace(linkPrefix, ''));
+      try {
+        const questionData = await new QuestionsAPI().getQuestion(questionId);
+        // const questionData = response.data.data;
+      
+        setTitle(questionData.title);
+        setQuestionDescription(questionData.questionDescription);
+        setCategories(questionData.categories);
+        setComplexity(questionData.complexity);
+        setLinkToQuestion(questionData.linkToQuestion.replace(linkPrefix, ''));
+      } catch (error) {
+        console.error('Error fetching question data:', error);
+      }
+    };
+      fetchQuestionData();
   }, []);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     new QuestionsAPI()
-      .addQuestion({ title, questionDescription, categories, complexity, linkToQuestion: linkPrefix + linkToQuestion })
+      .updateQuestion(questionId, { title, questionDescription, categories, complexity, linkToQuestion: linkPrefix + linkToQuestion })
       .then(() => {
         navigate('/');
       })
@@ -66,7 +72,7 @@ export const UpdateQuestion: React.FC = () => {
         if (errors !== undefined) {
           errors.map((error) =>
             toast({
-              title: 'Question creation failed.',
+              title: 'Question update failed.',
               description: error.msg,
               status: 'error',
               duration: 9000,
@@ -82,7 +88,7 @@ export const UpdateQuestion: React.FC = () => {
       <form onSubmit={handleSubmit}>
         <Stack spacing={4}>
           <Heading size={'2xl'} mb={4} mt={8}>
-            Create Question
+            Update Question
           </Heading>
           <FormControl isRequired>
             <FormLabel>Title</FormLabel>

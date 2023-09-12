@@ -48,7 +48,7 @@ export const addQuestion: RequestHandler[] = [
   body("questionDescription")
     .notEmpty()
     .withMessage("questionDescription should not be empty."),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!validationResult(req).isEmpty()) {
       res.status(400).json({ errors: validationResult(req).array() });
       return;
@@ -72,10 +72,15 @@ export const addQuestion: RequestHandler[] = [
       .sort({ questionID: -1 })
       .limit(1);
     const questionID = lastQuestion[0] ? lastQuestion[0].questionID + 1 : 1;
-    const question = new QuestionModel({ ...formData, questionID });
-    await question.save();
 
-    res.sendStatus(200);
+    try {
+      const question = new QuestionModel({ ...formData, questionID });
+      await question.save();
+
+      res.sendStatus(200);
+    } catch (error) {
+      next(error);
+    }
   },
 ];
 
