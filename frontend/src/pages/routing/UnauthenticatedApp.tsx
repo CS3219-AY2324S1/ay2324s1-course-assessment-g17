@@ -8,9 +8,9 @@ const UnauthenticatedApp: React.FC = () => {
   return (
     <Routes>
       <Route path="questions/new" element={<CreateQuestion />} />
-      <Route path="questions/" element={<Questions />} />
+      <Route path="/" element={<Questions />} />
       
-      <Route path="questions/edit/:questionId" element={<UpdateQuestion />} />
+      <Route path="question/edit/:questionId" element={<UpdateQuestion />} />
     </Routes>
   );
 };
