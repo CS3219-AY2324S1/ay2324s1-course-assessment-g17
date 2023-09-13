@@ -36,7 +36,7 @@ const ViewQuestion: React.FC = () => {
   }
 
   return (
-    <Box p={4}>
+    <Box px={12} py={10}>
       <Heading as="h1" size="xl" textAlign="center">
         {question.title}
       </Heading>
