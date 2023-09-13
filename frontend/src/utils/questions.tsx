@@ -1,5 +1,9 @@
-import { type ColumnDef, type ColumnHelper } from '@tanstack/react-table';
-import { QuestionComplexityEnum, type QuestionData } from '../types/questions/questions';
+import { type SortingFn, type ColumnDef, type ColumnHelper, type Row } from '@tanstack/react-table';
+import {
+  QuestionComplexityEnum,
+  QuestionComplexityEnumToLevelMap,
+  type QuestionData,
+} from '../types/questions/questions';
 import { Stack, Tag, Wrap, WrapItem } from '@chakra-ui/react';
 import QuestionComplexityTag from '../components/questions/QuestionComplexityTag';
 import QuestionViewIconButton from '../components/questions/QuestionViewIconButton';
@@ -9,6 +13,18 @@ import QuestionsAPI from '../api/questions/questions';
 export interface QuestionDataRowData extends QuestionData {
   action?: undefined;
 }
+
+export const ComplexitySortingFn: SortingFn<QuestionData> = (
+  rowA: Row<QuestionData>,
+  rowB: Row<QuestionData>,
+  _columnId: string,
+): number => {
+  const rowAComplexity: QuestionComplexityEnum = rowA.getValue('complexity');
+  const rowBComplexity: QuestionComplexityEnum = rowB.getValue('complexity');
+  const rowAComplexityLevel: number = QuestionComplexityEnumToLevelMap[rowAComplexity];
+  const rowBComplexityLevel: number = QuestionComplexityEnumToLevelMap[rowBComplexity];
+  return rowAComplexityLevel > rowBComplexityLevel ? 1 : rowAComplexityLevel < rowBComplexityLevel ? -1 : 0;
+};
 
 export const QuestionsTableColumns = (
   columnHelper: ColumnHelper<QuestionDataRowData>,
@@ -57,6 +73,7 @@ export const QuestionsTableColumns = (
         selectFilterOptions: Object.values(QuestionComplexityEnum),
         selectOptionPrefix: 'Complexity',
       },
+      sortingFn: ComplexitySortingFn,
       header: 'Complexity',
       cell: (complexity) => <QuestionComplexityTag questionComplexity={complexity.getValue()} />,
     }),

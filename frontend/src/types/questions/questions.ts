@@ -4,6 +4,12 @@ export enum QuestionComplexityEnum {
   HARD = 'Hard',
 }
 
+export const QuestionComplexityEnumToLevelMap: Record<QuestionComplexityEnum, number> = Object.freeze({
+  [QuestionComplexityEnum.EASY]: 1,
+  [QuestionComplexityEnum.MEDIUM]: 2,
+  [QuestionComplexityEnum.HARD]: 3,
+});
+
 export interface QuestionData {
   questionID: number;
   title: string;
