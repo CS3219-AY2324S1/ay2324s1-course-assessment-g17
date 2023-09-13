@@ -57,7 +57,7 @@ const ViewQuestion: React.FC = () => {
         <Heading as="h2" size="md">
           Description
         </Heading>
-        <Text>{question.questionDescription}</Text>
+        <Text whiteSpace="pre-line">{question.questionDescription}</Text>
       </VStack>
     </Box>
   );
