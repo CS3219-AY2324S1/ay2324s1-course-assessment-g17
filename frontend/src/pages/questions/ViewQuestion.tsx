@@ -1,8 +1,9 @@
-import { Box, Heading, Text, Link, VStack, Divider, useColorModeValue, Badge } from '@chakra-ui/react';
+import { Box, Heading, Text, Link, VStack, Divider, useColorModeValue } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import QuestionsAPI from '../../api/questions/questions';
 import { type QuestionData } from '../../types/questions/questions';
+import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
 
 const ViewQuestion: React.FC = () => {
   const { questionId } = useParams(); // Get questionId from URL parameters
@@ -41,7 +42,8 @@ const ViewQuestion: React.FC = () => {
         {question.title}
       </Heading>
       <Text fontSize="md" color={useColorModeValue('gray.600', 'gray.400')} mt={2}>
-        <span style={{ fontWeight: 'bold' }}>Complexity:</span> <Badge colorScheme="teal">{question.complexity}</Badge>
+        <span style={{ fontWeight: 'bold' }}>Complexity: </span>
+        <QuestionComplexityTag questionComplexity={question.complexity} />
       </Text>
       <Text fontSize="md" color={useColorModeValue('gray.600', 'gray.400')} mt={2}>
         <span style={{ fontWeight: 'bold' }}>Categories:</span> {question.categories.join(', ')}
