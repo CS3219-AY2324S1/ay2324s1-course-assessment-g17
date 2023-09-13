@@ -41,13 +41,14 @@ const ViewQuestion: React.FC = () => {
         {question.title}
       </Heading>
       <Text fontSize="md" color={useColorModeValue('gray.600', 'gray.400')} mt={2}>
-        Complexity: <Badge colorScheme="teal">{question.complexity}</Badge>
+        <span style={{ fontWeight: 'bold' }}>Complexity:</span> <Badge colorScheme="teal">{question.complexity}</Badge>
       </Text>
       <Text fontSize="md" color={useColorModeValue('gray.600', 'gray.400')} mt={2}>
-        Categories: {question.categories.join(', ')}
+        <span style={{ fontWeight: 'bold' }}>Categories:</span> {question.categories.join(', ')}
       </Text>
       <Text fontSize="md" color={useColorModeValue('gray.600', 'gray.400')} mt={2}>
-        Link to Question: <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
+        <span style={{ fontWeight: 'bold' }}>Link to Question: </span>
+        <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
       </Text>
       <Divider mt={4} />
       <VStack align="start" spacing={4} mt={4}>
