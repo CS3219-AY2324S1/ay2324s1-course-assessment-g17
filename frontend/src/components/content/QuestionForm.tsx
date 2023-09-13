@@ -36,6 +36,8 @@ interface QuestionFormProps {
   linkToQuestion: string;
   setLinkToQuestion: (value: string) => void;
   allCategories: string[];
+  dialogHeader: string;
+  dialogBody: string;
 }
 
 const QuestionForm: React.FC<QuestionFormProps> = ({
@@ -50,6 +52,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   linkToQuestion,
   setLinkToQuestion,
   allCategories,
+  dialogHeader,
+  dialogBody,
 }) => {
   const linkPrefix = 'https://leetcode.com/problems/';
   const navigate = useNavigate();
@@ -147,8 +151,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
       <Flex mt={4} justifyContent="space-between">
         <ConfirmationDialog
-          dialogHeader="Cancel Question Creation"
-          dialogBody="Are you sure? Any progress on the form will not be saved. This action is irreversible!"
+          dialogHeader={dialogHeader}
+          dialogBody={dialogBody}
           mainButtonLabel="Cancel"
           leftButtonLabel="No, stay on this form"
           rightButtonLabel="Yes, bring me back"

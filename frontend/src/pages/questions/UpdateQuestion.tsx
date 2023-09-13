@@ -114,6 +114,8 @@ export const UpdateQuestion: React.FC = () => {
               linkToQuestion={linkToQuestion}
               setLinkToQuestion={setLinkToQuestion}
               allCategories={allCategories}
+              dialogBody={'Are you sure? Any progress on the form will not be saved. This action is irreversible!'}
+              dialogHeader={'Cancel Question Update'}
             />
           ) : (
             <Spinner size="xl" />

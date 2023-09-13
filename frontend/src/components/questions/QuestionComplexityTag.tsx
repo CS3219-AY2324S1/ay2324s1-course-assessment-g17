@@ -8,7 +8,8 @@ interface QuestionComplexityTagProps {
 
 const QuestionComplexityTag: React.FC<QuestionComplexityTagProps> = ({
   questionComplexity,
-}: QuestionComplexityTagProps) => {
+}: QuestionComplexityTagProps): JSX.Element => {
+  // Specify the return type
   switch (questionComplexity) {
     case QuestionComplexityEnum.EASY:
       return <Tag colorScheme="green">{questionComplexity}</Tag>;
@@ -17,7 +18,8 @@ const QuestionComplexityTag: React.FC<QuestionComplexityTagProps> = ({
     case QuestionComplexityEnum.HARD:
       return <Tag colorScheme="red">{questionComplexity}</Tag>;
     default:
-    // should not happen
+      // should not happen
+      return <></>; // Return an empty fragment
   }
 };
 
