@@ -35,17 +35,10 @@ export const getQuestion: RequestHandler[] = [
 
 export const addQuestion: RequestHandler[] = [
   body("title").notEmpty().trim().withMessage("title cannot be empty."),
+  body("categories").isArray().withMessage("categories should be an array."),
   body("categories")
-    .isArray()
-    .withMessage("categories should be an array.")
-    .custom((categories: string[]) => {
-      for (const category of categories) {
-        if (!categoryEnum.includes(category)) {
-          throw new Error(`Invalid category: ${category}`);
-        }
-      }
-      return true;
-    }),
+    .isIn(categoryEnum)
+    .withMessage(`categories should be one of ${categoryEnum.join(", ")}.`),
   body("complexity")
     .isIn(complexityEnum)
     .withMessage(`complexity should be one of ${complexityEnum.join(", ")}.`),
@@ -114,9 +107,76 @@ export const deleteQuestion: RequestHandler[] = [
     res.sendStatus(200);
   },
 ];
-// TODO: updateQuestion
+
 export const getQuestionCategories: RequestHandler = (req, res) => {
   res.json({ data: categoryEnum });
 };
 
-// TODO: updateQuestion, deleteQuestion
+// Submitting edit form
+export const updateQuestion: RequestHandler[] = [
+  param("questionId")
+    .notEmpty()
+    .withMessage("questionId field cannot be empty."),
+  param("questionId").isNumeric().withMessage("questionId should be a number."),
+  body("title").notEmpty().trim().withMessage("title cannot be empty."),
+  body("categories").isArray().withMessage("categories should be an array."),
+  body("categories")
+    .isIn(categoryEnum)
+    .withMessage(`categories should be one of ${categoryEnum.join(", ")}.`),
+  body("complexity")
+    .isIn(complexityEnum)
+    .withMessage(`complexity should be one of ${complexityEnum.join(", ")}.`),
+  body("linkToQuestion")
+    .isURL()
+    .withMessage("linkToQuestion should be a valid URL."),
+  body("questionDescription")
+    .notEmpty()
+    .withMessage("questionDescription should not be empty."),
+
+  async (req, res) => {
+    // validation errors for both above
+    if (!validationResult(req).isEmpty()) {
+      res.status(400).json({ errors: validationResult(req).array() });
+      return;
+    }
+
+    // Find question
+    const questionId = req.params.questionId;
+    const existingQuestion = await QuestionModel.findOne({
+      questionID: questionId,
+    });
+    // catch error if no existing question
+    if (!existingQuestion) {
+      res.status(400).json({ errors: [{ msg: "Question does not exist." }] });
+      return;
+    }
+
+    const formData = matchedData(req);
+
+    const sameQuestionExists = await QuestionModel.exists({
+      title: formData.title,
+      categories: formData.categories,
+      complexity: formData.complexity,
+      linkToQuestion: formData.linkToQuestion,
+      questionDescription: formData.questionDescription,
+    });
+
+    if (sameQuestionExists) {
+      res.status(400).json({
+        errors: [{ msg: "Duplicate question already exists in the database." }],
+      });
+      return;
+    }
+
+    // Update the existing question with the new data
+    const finalQuestion = await QuestionModel.findByIdAndUpdate(
+      existingQuestion._id,
+      formData,
+      { new: true },
+    );
+
+    res.status(200).json({ data: finalQuestion, status: "success" });
+  },
+];
+
+// TODO: deleteQuestion
