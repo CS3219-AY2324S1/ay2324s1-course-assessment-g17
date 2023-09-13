@@ -16,7 +16,6 @@ const QuestionEditIconButton: React.FC<QuestionEditIconButtonProps> = ({
   return (
     <Tooltip label={`Edit Question ${questionId}: ${title}`}>
       <IconButton
-        colorScheme="yellow"
         aria-label="Edit Question"
         value={questionId}
         onClick={() => {
