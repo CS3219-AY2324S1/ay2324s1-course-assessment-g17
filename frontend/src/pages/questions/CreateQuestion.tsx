@@ -67,7 +67,7 @@ export const CreateQuestion: React.FC = () => {
     <Card m={12} p={8}>
       <form onSubmit={handleSubmit}>
         <Stack spacing={4}>
-          <IconWithText text="Update Question" icon={<BiSolidBookAdd size={25} />} fontSize={'2xl'} fontWeight="bold" />
+          <IconWithText text="Create Question" icon={<BiSolidBookAdd size={25} />} fontSize={'2xl'} fontWeight="bold" />
           <QuestionForm
             title={title}
             setTitle={setTitle}
@@ -80,6 +80,8 @@ export const CreateQuestion: React.FC = () => {
             linkToQuestion={linkToQuestion}
             setLinkToQuestion={setLinkToQuestion}
             allCategories={allCategories}
+            dialogBody={'Are you sure? Any progress on the form will not be saved. This action is irreversible!'}
+            dialogHeader={'Cancel Question Creation'}
           />
         </Stack>
       </form>
