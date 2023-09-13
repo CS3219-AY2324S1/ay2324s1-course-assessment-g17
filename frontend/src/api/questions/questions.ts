@@ -35,7 +35,7 @@ export default class QuestionsAPI {
     const updatedQuestionData = response.data.data as QuestionData;
     return updatedQuestionData;
   }
-  
+
   public async getQuestionById(questionId: number): Promise<QuestionData | null> {
     try {
       const response = await client.get(`${this.getQuestionsUrl()}/${questionId}`);
@@ -46,5 +46,4 @@ export default class QuestionsAPI {
       return null;
     }
   }
-  
 }
