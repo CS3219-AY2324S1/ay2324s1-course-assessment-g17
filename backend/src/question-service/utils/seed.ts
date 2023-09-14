@@ -18,12 +18,12 @@ mongoose
     })
       .then((data) => JSON.parse(data))
       .then((data) =>
-        question.deleteMany().then(() => question.insertMany(data))
+        question.deleteMany().then(() => question.insertMany(data)),
       )
       .then(() => {
         mongoose.connection.close();
         console.log(
-          "Seed data successfully inserted, closed mongo connection."
+          "Seed data successfully inserted, closed mongo connection.",
         );
       });
   })
