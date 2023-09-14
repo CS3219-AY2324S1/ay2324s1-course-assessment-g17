@@ -1,13 +1,13 @@
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
-import questionRoutes from "./question-service/routes/questions";
+import questionRoutes from "./routes/questions";
 import morgan from "morgan";
 import createHttpError, { isHttpError } from "http-errors";
 import cors from "cors";
 
 const app = express();
 
-app.use(cors());
+app.use(cors())
 
 app.use(morgan("dev"));
 
