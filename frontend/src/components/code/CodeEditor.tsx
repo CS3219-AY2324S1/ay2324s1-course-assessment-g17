@@ -1,16 +1,13 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
-import { useColorModeValue } from '@chakra-ui/react';
 
-const CodeEditor: React.FC = () => {
+interface CodeEditorProps {
+  theme?: string;
+}
+
+const CodeEditor: React.FC<CodeEditorProps> = ({ theme }: CodeEditorProps) => {
   return (
-    <Editor
-      height="90vh"
-      width="70vh"
-      theme={useColorModeValue('light', 'vs-dark')}
-      defaultLanguage="javascript"
-      defaultValue="// some comment"
-    />
+    <Editor height="85vh" width="100%" theme={theme} defaultLanguage="javascript" defaultValue="// some comment" />
   );
 };
 
