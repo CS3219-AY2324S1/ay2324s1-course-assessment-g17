@@ -46,6 +46,7 @@ interface QuestionFormProps {
   initialData?: QuestionData | null;
   isLoading?: boolean;
   errorTitle: string;
+  submitButtonLabel: string;
 }
 
 const QuestionForm: React.FC<QuestionFormProps> = ({
@@ -56,6 +57,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   initialData,
   isLoading = false,
   errorTitle,
+  submitButtonLabel,
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
@@ -228,7 +230,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                 }}
               />
               <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />}>
-                Submit Question
+                {submitButtonLabel}
               </Button>
             </Flex>
           </Stack>

@@ -14,6 +14,7 @@ export const CreateQuestion: React.FC = () => {
       dialogHeader={'Cancel Question Creation'}
       handleData={handleData}
       errorTitle={'Question creation failed.'}
+      submitButtonLabel={'Submit Question'}
     />
   );
 };

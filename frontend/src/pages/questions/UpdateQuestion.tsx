@@ -41,6 +41,7 @@ export const UpdateQuestion: React.FC = () => {
       isLoading={!dataLoaded}
       initialData={questionData}
       errorTitle={'Question update failed.'}
+      submitButtonLabel={'Update Question'}
     />
   );
 };
