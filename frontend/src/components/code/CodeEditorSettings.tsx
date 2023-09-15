@@ -7,11 +7,13 @@ import React from 'react';
 interface CodeEditorSettingsProps {
   selectedTheme: string;
   toggleSelectedTheme: (theme: string) => void;
+  onDownload: () => void;
 }
 
 const CodeEditorSettings: React.FC<CodeEditorSettingsProps> = ({
   selectedTheme,
   toggleSelectedTheme,
+  onDownload,
 }: CodeEditorSettingsProps) => {
   return (
     <MenuButtonWithTooltip
@@ -40,7 +42,9 @@ const CodeEditorSettings: React.FC<CodeEditorSettingsProps> = ({
           <MenuGroup title="Actions">
             {/* Not implemented yet */}
             <MenuItem icon={<MdFileOpen size={18} />}>Open...</MenuItem>
-            <MenuItem icon={<MdDownload size={18} />}>Download File</MenuItem>
+            <MenuItem icon={<MdDownload size={18} />} onClick={onDownload}>
+              Download File
+            </MenuItem>
           </MenuGroup>
         </MenuList>
       }

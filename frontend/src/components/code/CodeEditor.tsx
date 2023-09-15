@@ -2,23 +2,25 @@ import React, { useEffect, useState, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';
 import { Box, Button, Flex, HStack, Select, useClipboard, useToast } from '@chakra-ui/react';
-import { EditorLanguageOptions } from '../../types/code/languages';
+import { EditorLanguageEnum, EditorLanguageOptions } from '../../types/code/languages';
 import { MdCheck, MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-icons/md';
 import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
+import { editorLanguageToFileExtensionMap } from '../../utils/code';
 
 interface CodeEditorProps {
   defaultTheme: string;
+  defaultDownloadedFileName: string;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloadedFileName }: CodeEditorProps) => {
   const toast = useToast();
   const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
   const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [isCopying, setIsCopying] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(defaultTheme);
-  const [selectedLanguage, setSelectedLangugage] = useState('javascript');
-  const [fontSize, setFontSize] = useState<number>(12);
+  const [selectedLanguage, setSelectedLangugage] = useState(EditorLanguageEnum.javascript);
+  const [fontSize, setFontSize] = useState<number>(14);
 
   const handleCopy = (): void => {
     if (clipboardValue === undefined || clipboardValue === '') return;
@@ -27,9 +29,31 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps
       title: 'Copied code',
       description: "You've copied your code to your clipboard!",
       status: 'success',
-      duration: 4000,
+      duration: 2000,
       isClosable: true,
     });
+  };
+
+  const handleDownload = (): void => {
+    const code = codeEditor.current?.getValue();
+    if (code === undefined || code === '') {
+      toast({
+        title: 'Empty code not downloaded',
+        description: 'No code detected, start coding first!',
+        status: 'warning',
+        duration: 2000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const data = new Blob([code]);
+    const element = document.createElement('a');
+    element.href = URL.createObjectURL(data);
+    element.download = `${defaultDownloadedFileName}.${editorLanguageToFileExtensionMap[selectedLanguage]}`;
+    document.body.appendChild(element);
+    element.click();
+    element.remove();
   };
 
   useEffect(() => {
@@ -60,7 +84,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps
         <Select
           value={selectedLanguage}
           onChange={(e) => {
-            setSelectedLangugage(e.target.value);
+            setSelectedLangugage(e.target.value as EditorLanguageEnum);
           }}
           maxWidth="fit-content"
           variant="unstyled"
@@ -102,7 +126,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps
                   title: 'Empty code not copied',
                   description: 'No code detected, start coding first!',
                   status: 'warning',
-                  duration: 4000,
+                  duration: 2000,
                   isClosable: true,
                 });
                 return;
@@ -114,7 +138,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps
             {hasCopied ? 'Code Copied!' : 'Copy Code'}
           </Button>
 
-          <CodeEditorSettings selectedTheme={selectedTheme} toggleSelectedTheme={setSelectedTheme} />
+          <CodeEditorSettings
+            selectedTheme={selectedTheme}
+            toggleSelectedTheme={setSelectedTheme}
+            onDownload={handleDownload}
+          />
         </HStack>
       </Flex>
 
