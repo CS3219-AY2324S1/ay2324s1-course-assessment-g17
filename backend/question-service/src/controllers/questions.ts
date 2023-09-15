@@ -35,17 +35,10 @@ export const getQuestion: RequestHandler[] = [
 
 export const addQuestion: RequestHandler[] = [
   body("title").notEmpty().trim().withMessage("title cannot be empty."),
+  body("categories").isArray().withMessage("categories should be an array."),
   body("categories")
-    .isArray()
-    .withMessage("categories should be an array.")
-    .custom((categories: string[]) => {
-      for (const category of categories) {
-        if (!categoryEnum.includes(category)) {
-          throw new Error(`Invalid category: ${category}`);
-        }
-      }
-      return true;
-    }),
+    .isIn(categoryEnum)
+    .withMessage(`categories should be one of ${categoryEnum.join(", ")}.`),
   body("complexity")
     .isIn(complexityEnum)
     .withMessage(`complexity should be one of ${complexityEnum.join(", ")}.`),

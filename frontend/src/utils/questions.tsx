@@ -7,8 +7,8 @@ import {
 import { Stack, Tag, Wrap, WrapItem } from '@chakra-ui/react';
 import QuestionComplexityTag from '../components/questions/QuestionComplexityTag';
 import QuestionViewIconButton from '../components/questions/QuestionViewIconButton';
-import QuestionDeleteIconButton from '../components/questions/QuestionDeleteIconButton';
 import QuestionEditIconButton from '../components/questions/QuestionEditIconButton';
+import QuestionDeleteIconButton from '../components/questions/QuestionDeleteIconButton';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../api/questions/questions';
 

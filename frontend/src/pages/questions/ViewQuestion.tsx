@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import QuestionsAPI from '../../api/questions/questions';
 import { type QuestionData } from '../../types/questions/questions';
 import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
+import DOMPurify from 'dompurify';
 
 const ViewQuestion: React.FC = () => {
   const { questionId } = useParams(); // Get questionId from URL parameters
@@ -61,7 +62,7 @@ const ViewQuestion: React.FC = () => {
         <Heading as="h2" size="md">
           Description
         </Heading>
-        <Text whiteSpace="pre-line">{question.questionDescription}</Text>
+        <Text whiteSpace="pre-line" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(question.questionDescription) }} />
       </VStack>
     </Box>
   );
