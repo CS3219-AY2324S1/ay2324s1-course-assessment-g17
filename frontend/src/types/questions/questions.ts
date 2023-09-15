@@ -21,3 +21,5 @@ export interface QuestionPostData {
   questionDescription: string;
   linkToQuestion: string;
 }
+
+export const LINK_PREFIX = 'https://leetcode.com/problems/';
