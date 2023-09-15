@@ -22,6 +22,10 @@ export default class QuestionsAPI {
     return await client.post(this.getQuestionsUrl(), question);
   }
 
+  public async deleteQuestion(questionId: number): Promise<void> {
+    await client.delete(`${this.getQuestionsUrl()}/${questionId}`);
+  }
+
   // get individual question (placeholder function for 'update question')
   public async getQuestion(questionId: string): Promise<QuestionData> {
     const response = await client.get(`${this.getQuestionsUrl()}/${questionId}`);
