@@ -207,19 +207,22 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
         </HStack>
       </Flex>
 
-      <Editor
-        height="80vh"
-        width="100%"
-        theme={selectedTheme}
-        language={selectedLanguage}
-        onMount={(editor) => {
-          codeEditor.current = editor;
-        }}
-        options={{
-          scrollBeyondLastLine: false,
-          fontSize,
-        }}
-      />
+      <Box>
+        <Editor
+          height="80vh"
+          width="100%"
+          theme={selectedTheme}
+          language={selectedLanguage}
+          onMount={(editor) => {
+            codeEditor.current = editor;
+          }}
+          options={{
+            scrollBeyondLastLine: false,
+            fixedOverflowWidgets: true,
+            fontSize,
+          }}
+        />
+      </Box>
 
       <Confirmation />
     </Box>
