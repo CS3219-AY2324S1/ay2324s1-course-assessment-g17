@@ -119,6 +119,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         }
       });
   };
+
+  const disableSubmit =
+    initialData !== undefined && initialData !== null
+      ? title === initialData.title &&
+        questionDescription === initialData.questionDescription &&
+        initialData.complexity === complexity &&
+        initialData.linkToQuestion === linkToQuestion &&
+        JSON.stringify(initialData.categories) === JSON.stringify(categories)
+      : false;
+
   return (
     <Card m={12} p={8}>
       <form onSubmit={handleSubmit}>
@@ -229,7 +239,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                   navigate('/');
                 }}
               />
-              <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />}>
+              <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />} isDisabled={disableSubmit}>
                 {submitButtonLabel}
               </Button>
             </Flex>
