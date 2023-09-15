@@ -42,7 +42,6 @@ const CodeEditorSettings: React.FC<CodeEditorSettingsProps> = ({
           </MenuOptionGroup>
           <MenuDivider />
           <MenuGroup title="Actions">
-            {/* Not implemented yet */}
             <MenuItem icon={<MdFileOpen size={18} />} onClick={() => fileInputRef.current?.click()}>
               Import File
             </MenuItem>
