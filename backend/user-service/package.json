@@ -7,14 +7,15 @@
     "start": "nodemon --exec ts-node ./src/app.ts"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"commonjs\"} prisma/seed.ts",
-    "schema": "prisma/schema.prisma"
+    "seed": "ts-node --compiler-options {\"module\":\"commonjs\"} ./src/models/prisma/seed.ts",
+    "schema": "./src/models/prisma/schema.prisma"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.17",
     "nodemon": "^3.0.1",
+    "prisma": "^5.3.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
