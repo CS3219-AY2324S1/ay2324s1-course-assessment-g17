@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';
-import { Box, Button, Flex, HStack, Select, useClipboard, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Input, Select, useClipboard, useToast } from '@chakra-ui/react';
 import { EditorLanguageEnum, EditorLanguageOptions } from '../../types/code/languages';
 import { MdCheck, MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-icons/md';
 import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
@@ -17,6 +17,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
   const toast = useToast();
   const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
   const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isCopying, setIsCopying] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(defaultTheme);
   const [selectedLanguage, setSelectedLangugage] = useState(EditorLanguageEnum.javascript);
@@ -56,6 +57,22 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
     element.remove();
   };
 
+  const handleOpenFile: React.ChangeEventHandler<HTMLInputElement> = (e): void => {
+    const file = e.target.files;
+    console.log('file', file);
+    if (file === null || file.length === 0) {
+      console.log('error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (rd) => {
+      const data = rd.target?.result as string;
+      codeEditor.current?.getModel()?.setValue(data);
+    };
+    reader.readAsText(file[0]);
+  };
+
   useEffect(() => {
     setSelectedTheme(defaultTheme);
   }, [defaultTheme]);
@@ -71,6 +88,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
 
   return (
     <Box paddingX={4}>
+      <Input type="file" onChange={handleOpenFile} hidden ref={fileInputRef} />
       <Flex
         marginBottom={2}
         paddingX={8}
@@ -142,6 +160,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
             selectedTheme={selectedTheme}
             toggleSelectedTheme={setSelectedTheme}
             onDownload={handleDownload}
+            fileInputRef={fileInputRef}
           />
         </HStack>
       </Flex>

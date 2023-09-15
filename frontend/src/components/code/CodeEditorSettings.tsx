@@ -8,12 +8,14 @@ interface CodeEditorSettingsProps {
   selectedTheme: string;
   toggleSelectedTheme: (theme: string) => void;
   onDownload: () => void;
+  fileInputRef: React.MutableRefObject<HTMLInputElement | null>;
 }
 
 const CodeEditorSettings: React.FC<CodeEditorSettingsProps> = ({
   selectedTheme,
   toggleSelectedTheme,
   onDownload,
+  fileInputRef,
 }: CodeEditorSettingsProps) => {
   return (
     <MenuButtonWithTooltip
@@ -41,7 +43,9 @@ const CodeEditorSettings: React.FC<CodeEditorSettingsProps> = ({
           <MenuDivider />
           <MenuGroup title="Actions">
             {/* Not implemented yet */}
-            <MenuItem icon={<MdFileOpen size={18} />}>Open...</MenuItem>
+            <MenuItem icon={<MdFileOpen size={18} />} onClick={() => fileInputRef.current?.click()}>
+              Import File
+            </MenuItem>
             <MenuItem icon={<MdDownload size={18} />} onClick={onDownload}>
               Download File
             </MenuItem>
