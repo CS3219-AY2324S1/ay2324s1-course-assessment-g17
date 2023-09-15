@@ -4,6 +4,7 @@ import { Stack, Tag, Wrap, WrapItem } from '@chakra-ui/react';
 import QuestionComplexityTag from '../components/questions/QuestionComplexityTag';
 import QuestionViewIconButton from '../components/questions/QuestionViewIconButton';
 import QuestionEditIconButton from '../components/questions/QuestionEditIconButton';
+import QuestionDeleteIconButton from '../components/questions/QuestionDeleteIconButton';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../api/questions/questions';
 
@@ -13,6 +14,8 @@ export interface QuestionDataRowData extends QuestionData {
 
 export const QuestionsTableColumns = (
   columnHelper: ColumnHelper<QuestionDataRowData>,
+  // Accept the setQuestionList prop
+  setQuestionList: React.Dispatch<React.SetStateAction<QuestionDataRowData[]>>,
 ): Array<ColumnDef<QuestionDataRowData>> => {
   const [categories, setAllCategories] = useState<string[]>([]);
   useEffect(() => {
@@ -66,9 +69,16 @@ export const QuestionsTableColumns = (
       enableSorting: false,
       enableGlobalFilter: false,
       cell: (cell) => (
-        <Stack direction="row" spacing={4} justifyContent="flex-end">
+        <Stack direction="row" spacing={2}>
           <QuestionViewIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
           <QuestionEditIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
+          <QuestionDeleteIconButton
+            questionId={cell.row.original.questionID}
+            onDelete={(questionId) => {
+              // Remove the deleted question from the list
+              setQuestionList((prevList) => prevList.filter((question) => question.questionID !== questionId));
+            }}
+          />
         </Stack>
       ),
     }),
