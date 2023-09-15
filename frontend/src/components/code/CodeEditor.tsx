@@ -7,6 +7,7 @@ import { MdCheck, MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-ic
 import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
 import { editorLanguageToFileExtensionMap } from '../../utils/code';
+import useAwaitableConfirmationDialog from '../content/AwaitableConfirmationDialog';
 
 interface CodeEditorProps {
   defaultTheme: string;
@@ -18,6 +19,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
   const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
   const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const { Confirmation, getConfirmation } = useAwaitableConfirmationDialog();
   const [isCopying, setIsCopying] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(defaultTheme);
   const [selectedLanguage, setSelectedLangugage] = useState(EditorLanguageEnum.javascript);
@@ -57,7 +60,26 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
     element.remove();
   };
 
-  const handleOpenFile: React.ChangeEventHandler<HTMLInputElement> = (e): void => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const currCode = codeEditor.current?.getModel()?.getValue();
+    if (currCode !== null && currCode?.trim() !== '') {
+      await getConfirmation(
+        'Replace code?',
+        "Are you sure you want to import this file? Doing so will replace the your code with the file's contents. This action is irreversible!",
+        'Import file and overwrite exisiting code',
+        'Cancel import',
+      ).then((confirmation) => {
+        console.log(confirmation, 'confirmation');
+        if (confirmation) {
+          handleImportFile(e);
+        }
+      });
+    } else {
+      handleImportFile(e);
+    }
+  };
+
+  const handleImportFile: React.ChangeEventHandler<HTMLInputElement> = (e): void => {
     const file = e.target.files;
     console.log('file', file);
     if (file === null || file.length === 0) {
@@ -88,7 +110,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
 
   return (
     <Box paddingX={4}>
-      <Input type="file" onChange={handleOpenFile} hidden ref={fileInputRef} />
+      {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
+      <Input type="file" onChange={handleFileSelect} hidden ref={fileInputRef} />
       <Flex
         marginBottom={2}
         paddingX={8}
@@ -178,6 +201,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
           fontSize,
         }}
       />
+
+      <Confirmation />
     </Box>
   );
 };
