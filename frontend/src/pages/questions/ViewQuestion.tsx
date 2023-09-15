@@ -71,7 +71,7 @@ const ViewQuestion: React.FC = () => {
         </Allotment.Pane>
         <Allotment.Pane>
           <Box as="div" style={{ maxHeight: '85vh' }}>
-            <CodeEditor theme={editorTheme} />
+            <CodeEditor defaultTheme={editorTheme} />
           </Box>
         </Allotment.Pane>
       </Allotment>
