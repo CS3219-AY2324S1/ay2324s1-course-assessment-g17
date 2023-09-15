@@ -3,17 +3,19 @@ import Editor from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';
 import { Box, Button, Flex, HStack, Select, useClipboard, useToast } from '@chakra-ui/react';
 import { EditorLanguageOptions } from '../../types/code/languages';
-import { MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-icons/md';
+import { MdCheck, MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-icons/md';
 import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
+import CodeEditorSettings from './CodeEditorSettings';
 
 interface CodeEditorProps {
-  defaultTheme?: string;
+  defaultTheme: string;
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps) => {
   const toast = useToast();
   const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
   const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const [isCopying, setIsCopying] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(defaultTheme);
   const [selectedLanguage, setSelectedLangugage] = useState('javascript');
   const [fontSize, setFontSize] = useState<number>(12);
@@ -35,8 +37,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps
   }, [defaultTheme]);
 
   useEffect(() => {
-    handleCopy();
-  }, [clipboardValue]);
+    // workaround as onCopy is not imperative, cannot rely it to run with the updated
+    // value set by setClipboardValue
+    if (isCopying) {
+      handleCopy();
+      setIsCopying(false);
+    }
+  }, [isCopying]);
 
   return (
     <Box paddingX={4}>
@@ -87,7 +94,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps
 
           <Button
             aria-label="Copy Code"
-            leftIcon={<MdContentCopy />}
+            leftIcon={hasCopied ? <MdCheck /> : <MdContentCopy />}
             onClick={() => {
               const copiedCode = codeEditor.current?.getValue();
               if (copiedCode === undefined || copiedCode === '') {
@@ -101,10 +108,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps
                 return;
               }
               setClipboardValue(copiedCode);
+              setIsCopying(true);
             }}
           >
-            {hasCopied ? 'Code Copied' : 'Copy Code'}
+            {hasCopied ? 'Code Copied!' : 'Copy Code'}
           </Button>
+
+          <CodeEditorSettings selectedTheme={selectedTheme} toggleSelectedTheme={setSelectedTheme} />
         </HStack>
       </Flex>
 
