@@ -6,7 +6,7 @@ import { EditorLanguageEnum, EditorLanguageOptions } from '../../types/code/lang
 import { MdCheck, MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-icons/md';
 import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
-import { editorLanguageToFileExtensionMap } from '../../utils/code';
+import { editorLanguageToAcceptedFileExtensionMap, editorLanguageToFileExtensionMap } from '../../utils/code';
 import useAwaitableConfirmationDialog from '../content/AwaitableConfirmationDialog';
 
 interface CodeEditorProps {
@@ -123,8 +123,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
 
   return (
     <Box paddingX={4}>
-      {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-      <Input type="file" onChange={handleFileSelect} hidden ref={fileInputRef} />
+      <Input
+        type="file"
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        onChange={handleFileSelect}
+        hidden
+        ref={fileInputRef}
+        accept={editorLanguageToAcceptedFileExtensionMap[selectedLanguage]}
+      />
       <Flex
         marginBottom={2}
         paddingX={8}
