@@ -69,7 +69,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
         'Import file and overwrite exisiting code',
         'Cancel import',
       ).then((confirmation) => {
-        console.log(confirmation, 'confirmation');
         if (confirmation) {
           handleImportFile(e);
         }
@@ -81,9 +80,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
 
   const handleImportFile: React.ChangeEventHandler<HTMLInputElement> = (e): void => {
     const file = e.target.files;
-    console.log('file', file);
     if (file === null || file.length === 0) {
-      console.log('error');
+      toast({
+        title: 'No files uploaded',
+        description: 'Looks like something went wrong, no files were detected for upload...',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
       return;
     }
 
@@ -91,6 +95,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
     reader.onload = (rd) => {
       const data = rd.target?.result as string;
       codeEditor.current?.getModel()?.setValue(data);
+    };
+    reader.onerror = (err) => {
+      toast({
+        title: 'Something went wrong...',
+        description: err.target?.error?.name,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
     };
     reader.readAsText(file[0]);
   };
