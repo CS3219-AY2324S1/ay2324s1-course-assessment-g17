@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Editor from '@monaco-editor/react';
-import { Box, Flex, HStack, Select } from '@chakra-ui/react';
+import { type editor } from 'monaco-editor';
+import { Box, Button, Flex, HStack, Select, useClipboard, useToast } from '@chakra-ui/react';
 import { EditorLanguageOptions } from '../../types/code/languages';
-import { MdTextIncrease, MdTextDecrease } from 'react-icons/md';
+import { MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-icons/md';
 import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 
 interface CodeEditorProps {
@@ -10,13 +11,32 @@ interface CodeEditorProps {
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps) => {
+  const toast = useToast();
+  const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
+  const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [selectedTheme, setSelectedTheme] = useState(defaultTheme);
   const [selectedLanguage, setSelectedLangugage] = useState('javascript');
   const [fontSize, setFontSize] = useState<number>(12);
 
+  const handleCopy = (): void => {
+    if (clipboardValue === undefined || clipboardValue === '') return;
+    onCopy();
+    toast({
+      title: 'Copied code',
+      description: "You've copied your code to your clipboard!",
+      status: 'success',
+      duration: 4000,
+      isClosable: true,
+    });
+  };
+
   useEffect(() => {
     setSelectedTheme(defaultTheme);
   }, [defaultTheme]);
+
+  useEffect(() => {
+    handleCopy();
+  }, [clipboardValue]);
 
   return (
     <Box paddingX={4}>
@@ -64,14 +84,38 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme }: CodeEditorProps
             }}
             tooltipLabel="Increase font size"
           />
+
+          <Button
+            aria-label="Copy Code"
+            leftIcon={<MdContentCopy />}
+            onClick={() => {
+              const copiedCode = codeEditor.current?.getValue();
+              if (copiedCode === undefined || copiedCode === '') {
+                toast({
+                  title: 'Empty code not copied',
+                  description: 'No code detected, start coding first!',
+                  status: 'warning',
+                  duration: 4000,
+                  isClosable: true,
+                });
+                return;
+              }
+              setClipboardValue(copiedCode);
+            }}
+          >
+            {hasCopied ? 'Code Copied' : 'Copy Code'}
+          </Button>
         </HStack>
       </Flex>
 
       <Editor
-        height="85vh"
+        height="80vh"
         width="100%"
         theme={selectedTheme}
         language={selectedLanguage}
+        onMount={(editor) => {
+          codeEditor.current = editor;
+        }}
         options={{
           scrollBeyondLastLine: false,
           fontSize,
