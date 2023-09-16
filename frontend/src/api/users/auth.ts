@@ -12,6 +12,10 @@ export default class AuthAPI {
     return response.data.user;
   }
 
+  public async logOut(): Promise<void> {
+    await userServiceClient.get(this.getAuthUrl() + 'logout');
+  }
+
   public async getCurrentUser(): Promise<User> {
     const response = await userServiceClient.get(this.getAuthUrl() + 'currentUser');
     return response.data.user;
