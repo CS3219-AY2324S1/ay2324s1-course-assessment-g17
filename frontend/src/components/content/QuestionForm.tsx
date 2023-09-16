@@ -6,7 +6,6 @@ import {
   InputGroup,
   InputLeftAddon,
   Select,
-  Textarea,
   Flex,
   HStack,
   useColorModeValue,
@@ -15,6 +14,8 @@ import {
   useToast,
   Spinner,
 } from '@chakra-ui/react';
+import { MantineProvider } from '@mantine/core';
+import { RichTextEditor } from '@mantine/rte';
 import {
   AutoComplete,
   AutoCompleteInput,
@@ -129,6 +130,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         JSON.stringify(initialData.categories) === JSON.stringify(categories)
       : false;
 
+  const handleDescriptionChange = (newContent: React.SetStateAction<string>): void => {
+    setQuestionDescription(newContent);
+  };
+
   return (
     <Card m={12} p={8}>
       <form onSubmit={handleSubmit}>
@@ -216,16 +221,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
             <FormControl isRequired>
               <FormLabel>Description</FormLabel>
-              <Textarea
-                placeholder="Description of Leetcode question"
-                _placeholder={{ color: useColorModeValue('gray.600', 'gray.400') }}
-                value={questionDescription}
-                onChange={(e) => {
-                  setQuestionDescription(e.target.value);
-                }}
-                required
-                rows={8}
-              />
+              <MantineProvider theme={{ colorScheme: 'dark' }}>
+                <RichTextEditor value={questionDescription} onChange={handleDescriptionChange} />
+              </MantineProvider>
             </FormControl>
 
             <Flex mt={4} justifyContent="space-between">

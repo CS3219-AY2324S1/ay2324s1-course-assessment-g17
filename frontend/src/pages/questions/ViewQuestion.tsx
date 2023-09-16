@@ -6,7 +6,7 @@ import { type QuestionData } from '../../types/questions/questions';
 import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
 
 const ViewQuestion: React.FC = () => {
-  const { questionId } = useParams(); // Get questionId from URL parameters
+  const { questionId } = useParams();
   const [question, setQuestion] = useState<QuestionData | null>(null);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const ViewQuestion: React.FC = () => {
         <Heading as="h2" size="md">
           Description
         </Heading>
-        <Text whiteSpace="pre-line">{question.questionDescription}</Text>
+        <div dangerouslySetInnerHTML={{ __html: question.questionDescription }} />
       </VStack>
     </Box>
   );
