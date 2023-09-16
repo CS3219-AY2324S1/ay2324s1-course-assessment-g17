@@ -35,10 +35,17 @@ export const getQuestion: RequestHandler[] = [
 
 export const addQuestion: RequestHandler[] = [
   body("title").notEmpty().trim().withMessage("title cannot be empty."),
-  body("categories").isArray().withMessage("categories should be an array."),
   body("categories")
-    .isIn(categoryEnum)
-    .withMessage(`categories should be one of ${categoryEnum.join(", ")}.`),
+    .isArray()
+    .withMessage("categories should be an array.")
+    .custom((categories: string[]) => {
+      for (const category of categories) {
+        if (!categoryEnum.includes(category)) {
+          throw new Error(`Invalid category: ${category}`);
+        }
+      }
+      return true;
+    }),
   body("complexity")
     .isIn(complexityEnum)
     .withMessage(`complexity should be one of ${complexityEnum.join(", ")}.`),
@@ -112,7 +119,6 @@ export const getQuestionCategories: RequestHandler = (req, res) => {
   res.json({ data: categoryEnum });
 };
 
-// Submitting edit form
 export const updateQuestion: RequestHandler[] = [
   param("questionId")
     .notEmpty()
@@ -178,5 +184,3 @@ export const updateQuestion: RequestHandler[] = [
     res.status(200).json({ data: finalQuestion, status: "success" });
   },
 ];
-
-// TODO: deleteQuestion

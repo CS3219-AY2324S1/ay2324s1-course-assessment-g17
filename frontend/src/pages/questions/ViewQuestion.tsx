@@ -1,4 +1,4 @@
-import { Box, Heading, Text, Link, VStack, Divider, useColorModeValue } from '@chakra-ui/react';
+import { Box, Heading, Text, Link, VStack, Divider, useColorModeValue, Spinner, Center } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import QuestionsAPI from '../../api/questions/questions';
@@ -29,7 +29,11 @@ const ViewQuestion: React.FC = () => {
   }, [questionId]);
 
   if (question === null || question === undefined) {
-    return <div>Loading...</div>;
+    return (
+      <Center h="100vh">
+        <Spinner size="xl" />
+      </Center>
+    );
   }
 
   if (questionId === null || questionId === undefined) {
