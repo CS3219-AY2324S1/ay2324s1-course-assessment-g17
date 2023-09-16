@@ -5,10 +5,7 @@ const router = express.Router();
 
 router.post("/login", authController.logIn);
 router.post("/signup", authController.signUp);
-
-// TODO
-// router.get("/users/:id", userController.getUser);
-// router.put("/users/:id", userController.updateUser);
-// router.delete("/users/:id", userController.deleteUser);
+router.get("/logout", authController.logOut);
+router.get("/currentUser", authController.getCurrentUser);
 
 export default router;

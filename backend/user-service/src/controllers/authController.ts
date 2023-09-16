@@ -1,8 +1,9 @@
-import { Prisma, Role } from "@prisma/client";
+import { Prisma, Role, User } from "@prisma/client";
 import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
 import { Request, RequestHandler, Response } from "express";
 import { comparePassword, hashPassword } from "../utils/auth";
+import jwt from "jsonwebtoken";
 
 interface LogInData {
   username: string;
@@ -13,6 +14,8 @@ interface SignUpData extends LogInData {
   email: string;
   confirmPassword: string;
 }
+
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export const signUp: RequestHandler[] = [
   body("username").notEmpty(),
@@ -54,8 +57,6 @@ export const signUp: RequestHandler[] = [
       return;
     }
 
-    // TODO: create token
-
     res.sendStatus(200);
   },
 ];
@@ -63,7 +64,7 @@ export const signUp: RequestHandler[] = [
 export const logIn: RequestHandler[] = [
   body("username").notEmpty(),
   body("password").notEmpty(),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!validationResult(req).isEmpty()) {
       res.status(400).json({ errors: validationResult(req).array() });
       return;
@@ -71,10 +72,12 @@ export const logIn: RequestHandler[] = [
 
     const formData = matchedData(req) as LogInData;
 
-    // login
     const user = await prisma.user.findFirst({
       where: {
         username: formData.username,
+      },
+      include: {
+        languages: true,
       },
     });
 
@@ -83,16 +86,36 @@ export const logIn: RequestHandler[] = [
       return;
     }
 
-    // TODO: create token
-    res.json({ user });
+    const { password: _, ...userWithoutPassword } = user;
+    jwt.sign(
+      { user: userWithoutPassword },
+      JWT_SECRET,
+      (err: Error | null, token: string | undefined) => {
+        if (err) {
+          return next(err);
+        }
+        res
+          .cookie("jwt", token, { httpOnly: true, secure: false })
+          .sendStatus(200);
+      }
+    );
   },
 ];
 
 export async function logOut(req: Request, res: Response) {
-  // logout
-  // TODO: destroy token
+  res.clearCookie("jwt").end();
 }
 
 export async function getCurrentUser(req: Request, res: Response) {
-  // decode jwt and return user
+  jwt.verify(
+    req.cookies["jwt"],
+    JWT_SECRET,
+    (err: Error | null, decoded: Object | undefined) => {
+      if (err) {
+        res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
+      } else {
+        res.json(decoded);
+      }
+    }
+  );
 }
