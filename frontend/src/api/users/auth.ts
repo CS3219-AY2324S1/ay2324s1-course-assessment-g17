@@ -11,4 +11,9 @@ export default class AuthAPI {
     const response = await userServiceClient.post(this.getAuthUrl() + 'login', data);
     return response.data.user;
   }
+
+  public async getCurrentUser(): Promise<User> {
+    const response = await userServiceClient.get(this.getAuthUrl() + 'currentUser');
+    return response.data.user;
+  }
 }
