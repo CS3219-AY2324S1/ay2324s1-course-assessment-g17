@@ -35,9 +35,7 @@ const SignUpForm: React.FC = () => {
         navigate('/');
       })
       .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
-        console.log('ran');
         const errors = err?.response?.data?.errors;
-        console.log(err?.response?.data);
         if (errors !== undefined) {
           errors.map((error) =>
             toast({
