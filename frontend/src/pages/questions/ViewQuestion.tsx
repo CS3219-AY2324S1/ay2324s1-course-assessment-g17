@@ -62,7 +62,11 @@ const ViewQuestion: React.FC = () => {
           Description
         </Heading>
         <Box>
-          <div dangerouslySetInnerHTML={{ __html: question.questionDescription }} />
+          <Box
+            dangerouslySetInnerHTML={{
+              __html: question.questionDescription,
+            }}
+          />
         </Box>
       </VStack>
     </Box>
