@@ -1,4 +1,4 @@
-import type { LogInPostData } from '../../types/users/auth';
+import type { LogInPostData, SignUpPostData } from '../../types/users/auth';
 import type { User } from '../../types/users/users';
 import { userServiceClient } from '../base';
 
@@ -14,6 +14,10 @@ export default class AuthAPI {
 
   public async logOut(): Promise<void> {
     await userServiceClient.get(this.getAuthUrl() + 'logout');
+  }
+
+  public async signUp(data: SignUpPostData): Promise<never> {
+    return await userServiceClient.post(this.getAuthUrl() + 'signup', data);
   }
 
   public async getCurrentUser(): Promise<User> {

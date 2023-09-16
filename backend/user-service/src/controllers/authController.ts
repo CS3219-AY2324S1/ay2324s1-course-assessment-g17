@@ -19,8 +19,14 @@ const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export const signUp: RequestHandler[] = [
   body("username").notEmpty(),
-  body("password").notEmpty().isLength({ min: 8 }),
-  body("email").notEmpty().isEmail(),
+  body("password")
+    .notEmpty()
+    .isLength({ min: 8 })
+    .withMessage("Password should have length of at least 8."),
+  body("email")
+    .notEmpty()
+    .isEmail()
+    .withMessage("email should be a valid email."),
   body("confirmPassword")
     .notEmpty()
     .withMessage("confirmPassword cannot be empty.")
@@ -51,7 +57,9 @@ export const signUp: RequestHandler[] = [
         err.code === "P2002"
       ) {
         res.status(400).json({
-          errors: `${err.meta?.target} is already taken by another user.`,
+          errors: [
+            { msg: `${err.meta?.target} is already taken by another user.` },
+          ],
         });
       }
       return;
