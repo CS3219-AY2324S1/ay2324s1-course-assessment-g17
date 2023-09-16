@@ -221,7 +221,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
             <FormControl isRequired>
               <FormLabel>Description</FormLabel>
-              <MantineProvider theme={{ colorScheme: 'dark' }}>
+              <MantineProvider theme={{ colorScheme: useColorModeValue('light', 'dark') }}>
                 <RichTextEditor
                   value={questionDescription}
                   onChange={handleDescriptionChange}
