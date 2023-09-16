@@ -27,6 +27,12 @@ export const theme = extendTheme({
       h3: {
         fontSize: 'md',
       },
+      ol: {
+        marginLeft: '1rem',
+      },
+      ul: {
+        marginLeft: '1rem',
+      },
     },
   },
 });

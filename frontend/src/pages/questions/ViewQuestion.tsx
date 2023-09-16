@@ -62,13 +62,12 @@ const ViewQuestion: React.FC = () => {
         <Heading as="h2" size="md">
           Description
         </Heading>
-        <Box>
-          <Box
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(question.questionDescription),
-            }}
-          />
-        </Box>
+        <Box
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(question.questionDescription),
+          }}
+          width="100%"
+        />
       </VStack>
     </Box>
   );
