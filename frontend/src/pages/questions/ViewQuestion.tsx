@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import QuestionsAPI from '../../api/questions/questions';
 import { type QuestionData } from '../../types/questions/questions';
 import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
+import DOMPurify from 'dompurify';
 
 const ViewQuestion: React.FC = () => {
   const { questionId } = useParams();
@@ -64,7 +65,7 @@ const ViewQuestion: React.FC = () => {
         <Box>
           <Box
             dangerouslySetInnerHTML={{
-              __html: question.questionDescription,
+              __html: DOMPurify.sanitize(question.questionDescription),
             }}
           />
         </Box>
