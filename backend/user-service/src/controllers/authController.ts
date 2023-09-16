@@ -1,4 +1,4 @@
-import { Prisma, Role, User } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
 import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
 import { Request, RequestHandler, Response } from "express";
@@ -81,8 +81,15 @@ export const logIn: RequestHandler[] = [
       },
     });
 
-    if (!user || !comparePassword(formData.password, user.password)) {
-      res.status(401).json({ formData });
+    if (!user) {
+      res
+        .status(401)
+        .json({ errors: [{ msg: "This username does not exist." }] });
+      return;
+    }
+
+    if (!comparePassword(formData.password, user.password)) {
+      res.status(401).json({ errors: [{ msg: "Wrong password." }] });
       return;
     }
 
@@ -96,7 +103,7 @@ export const logIn: RequestHandler[] = [
         }
         res
           .cookie("jwt", token, { httpOnly: true, secure: false })
-          .sendStatus(200);
+          .json({ user: userWithoutPassword });
       }
     );
   },
