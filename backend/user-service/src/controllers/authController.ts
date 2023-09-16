@@ -2,7 +2,7 @@ import { Prisma, Role } from "@prisma/client";
 import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
 import { Request, RequestHandler, Response } from "express";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { comparePassword, hashPassword } from "../utils/auth";
 
 interface LogInData {
   username: string;
@@ -31,13 +31,13 @@ export const signUp: RequestHandler[] = [
 
     const formData = matchedData(req) as SignUpData;
 
-    // TODO: hash password
+    const hashedPassword = hashPassword(formData.password);
 
     try {
       const newUser = await prisma.user.create({
         data: {
           username: formData.username,
-          password: formData.password,
+          password: hashedPassword,
           email: formData.email,
           role: Role.USER,
         },
@@ -73,15 +73,14 @@ export const logIn: RequestHandler[] = [
 
     // login
     const user = await prisma.user.findFirst({
-      select: { username: true, email: true, userLanguage: true },
       where: {
         username: formData.username,
-        password: formData.password,
       },
     });
 
-    if (!user) {
+    if (!user || !comparePassword(formData.password, user.password)) {
       res.status(401).json({ formData });
+      return;
     }
 
     // TODO: create token

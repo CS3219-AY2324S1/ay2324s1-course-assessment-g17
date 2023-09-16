@@ -1,4 +1,5 @@
 import prisma from "../../lib/prisma";
+import { hashPassword } from "../../utils/auth";
 
 async function seed() {
   try {
@@ -7,7 +8,7 @@ async function seed() {
       data: {
         username: "admin_user",
         email: "admin@example.com",
-        password: "admin_password",
+        password: hashPassword("admin_password"),
         role: "ADMIN",
       },
     });
@@ -16,7 +17,7 @@ async function seed() {
       data: {
         username: "regular_user",
         email: "user@example.com",
-        password: "user_password",
+        password: hashPassword("user_password"),
         role: "USER",
       },
     });
@@ -36,14 +37,14 @@ async function seed() {
     await prisma.userLanguage.create({
       data: {
         user_id: user1.id,
-        language_id: pythonLanguage.id, 
+        language_id: pythonLanguage.id,
       },
     });
 
     await prisma.userLanguage.create({
       data: {
         user_id: user2.id,
-        language_id: javaLanguage.id, 
+        language_id: javaLanguage.id,
       },
     });
 
