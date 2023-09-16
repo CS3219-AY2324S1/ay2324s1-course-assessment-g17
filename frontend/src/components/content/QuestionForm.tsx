@@ -222,7 +222,17 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
             <FormControl isRequired>
               <FormLabel>Description</FormLabel>
               <MantineProvider theme={{ colorScheme: 'dark' }}>
-                <RichTextEditor value={questionDescription} onChange={handleDescriptionChange} />
+                <RichTextEditor
+                  value={questionDescription}
+                  onChange={handleDescriptionChange}
+                  placeholder="Enter question description..."
+                  controls={[
+                    ['bold', 'italic', 'underline', 'link', 'code'],
+                    ['unorderedList', 'orderedList', 'h1', 'h2', 'h3'],
+                    ['sup', 'sub'],
+                    ['alignLeft', 'alignCenter', 'alignRight'],
+                  ]}
+                />
               </MantineProvider>
             </FormControl>
 
