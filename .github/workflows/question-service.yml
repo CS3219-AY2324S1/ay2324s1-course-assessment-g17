@@ -20,7 +20,7 @@ jobs:
         run: ls -al backend/question-service
 
       - name: Build the Docker image
-        run: docker build -t question-service -f backend/question-service/Dockerfile .
+        run: docker build -t question-service -f backend/question-service/Dockerfile backend/question-service
 
       - name: Run the Docker container with MongoDB
         run: |

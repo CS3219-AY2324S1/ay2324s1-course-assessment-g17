@@ -4,8 +4,7 @@ RUN npm install -g nodemon
 
 WORKDIR /usr/src/app
 
-# COPY package*.json ./
-ADD package*.json /usr/src/app
+COPY package*.json ./
 
 RUN npm install --frozen-lockfile
 
