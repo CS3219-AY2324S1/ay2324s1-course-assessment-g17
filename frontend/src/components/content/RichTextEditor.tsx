@@ -18,7 +18,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, useCol
         onChange={onChange}
         placeholder="Enter question description..."
         controls={[
-          ['bold', 'italic', 'underline', 'link', 'code'],
+          ['bold', 'italic', 'underline', 'link', 'code', 'blockquote'],
           ['unorderedList', 'orderedList', 'h1', 'h2', 'h3'],
           ['sup', 'sub'],
           ['alignLeft', 'alignCenter', 'alignRight'],

@@ -33,6 +33,12 @@ export const theme = extendTheme({
       ul: {
         marginLeft: '1rem',
       },
+      blockquote: {
+        backgroundColor: '#f8f8f8',
+        borderLeft: '4px solid #ccc',
+        padding: '1rem',
+        margin: '1rem 0',
+      },
     },
   },
 });
