@@ -14,8 +14,7 @@ import {
   useToast,
   Spinner,
 } from '@chakra-ui/react';
-import { MantineProvider } from '@mantine/core';
-import { RichTextEditor } from '@mantine/rte';
+import RichTextEditor from './RichTextEditor';
 import {
   AutoComplete,
   AutoCompleteInput,
@@ -221,19 +220,11 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
             <FormControl isRequired>
               <FormLabel>Description</FormLabel>
-              <MantineProvider theme={{ colorScheme: useColorModeValue('light', 'dark') }}>
-                <RichTextEditor
-                  value={questionDescription}
-                  onChange={handleDescriptionChange}
-                  placeholder="Enter question description..."
-                  controls={[
-                    ['bold', 'italic', 'underline', 'link', 'code'],
-                    ['unorderedList', 'orderedList', 'h1', 'h2', 'h3'],
-                    ['sup', 'sub'],
-                    ['alignLeft', 'alignCenter', 'alignRight'],
-                  ]}
-                />
-              </MantineProvider>
+              <RichTextEditor
+                value={questionDescription}
+                onChange={handleDescriptionChange}
+                useColorModeValue={useColorModeValue}
+              />
             </FormControl>
 
             <Flex mt={4} justifyContent="space-between">
