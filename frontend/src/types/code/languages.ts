@@ -5,21 +5,16 @@ export enum EditorLanguageEnum {
   java = 'java',
   c = 'c',
   cpp = 'cpp',
-  bat = 'bat',
   clojure = 'clojure',
-  css = 'css',
   csharp = 'csharp',
   dart = 'dart',
-  dockerfile = 'dockerfile',
   elixir = 'elixir',
   fsharp = 'fsharp',
   go = 'go',
-  graphql = 'graphql',
-  json = 'json',
   julia = 'julia',
   kotlin = 'kotlin',
   lua = 'lua',
-  markdown = 'markdown',
+  mips = 'mips',
   mysql = 'mysql',
   objectivec = 'objective-c',
   pascal = 'pascal',
@@ -27,8 +22,6 @@ export enum EditorLanguageEnum {
   php = 'php',
   text = 'text',
   pgsql = 'pgsql',
-  powerquery = 'powerquery',
-  powershell = 'powershell',
   r = 'r',
   ruby = 'ruby',
   rust = 'rust',
@@ -63,16 +56,8 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
     value: EditorLanguageEnum.cpp,
   },
   {
-    label: 'Batch Script',
-    value: EditorLanguageEnum.bat,
-  },
-  {
     label: 'Clojure',
     value: EditorLanguageEnum.clojure,
-  },
-  {
-    label: 'CSS',
-    value: EditorLanguageEnum.css,
   },
   {
     label: 'C#',
@@ -81,10 +66,6 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
   {
     label: 'Dart',
     value: EditorLanguageEnum.dart,
-  },
-  {
-    label: 'Dockerfile',
-    value: EditorLanguageEnum.dockerfile,
   },
   {
     label: 'Elixir',
@@ -99,14 +80,6 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
     value: EditorLanguageEnum.go,
   },
   {
-    label: 'Graphql',
-    value: EditorLanguageEnum.graphql,
-  },
-  {
-    label: 'JSON',
-    value: EditorLanguageEnum.json,
-  },
-  {
     label: 'Julia',
     value: EditorLanguageEnum.julia,
   },
@@ -119,8 +92,8 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
     value: EditorLanguageEnum.lua,
   },
   {
-    label: 'Markdown',
-    value: EditorLanguageEnum.markdown,
+    label: 'MIPS',
+    value: EditorLanguageEnum.mips,
   },
   {
     label: 'MySQL',
@@ -149,14 +122,6 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
   {
     label: 'PostgreSQL',
     value: EditorLanguageEnum.pgsql,
-  },
-  {
-    label: 'Power Query',
-    value: EditorLanguageEnum.powerquery,
-  },
-  {
-    label: 'PowerShell',
-    value: EditorLanguageEnum.powershell,
   },
   {
     label: 'R',
