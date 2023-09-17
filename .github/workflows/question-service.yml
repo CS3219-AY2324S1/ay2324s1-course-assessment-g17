@@ -1,0 +1,24 @@
+name: Deploy question service
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MONGO_CONNECTION_STRING: ${{ secrets.MONGO_CONNECTION_STRING }}
+      PORT: 8080
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build the Docker image
+        run: docker build -t question-service -f backend/question-service/Dockerfile .
+
+      - name: Run the Docker container with MongoDB
+        run: |
+          docker run -e MONGO_CONNECTION_STRING -e PORT -p $PORT:8080 -d question-service
