@@ -8,13 +8,10 @@
     "@choc-ui/chakra-autocomplete": "^5.2.5",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-<<<<<<< HEAD
     "@mantine/core": "^5.10.5",
     "@mantine/hooks": "^5.10.5",
     "@mantine/rte": "^5.10.5",
-=======
     "@monaco-editor/react": "^4.5.2",
->>>>>>> 47f5503b40487c33824374393e71d913bec87be3
     "@reduxjs/toolkit": "^1.9.5",
     "@tanstack/react-table": "^8.9.7",
     "@testing-library/jest-dom": "^5.17.0",
