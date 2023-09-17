@@ -4,13 +4,10 @@ import { useParams } from 'react-router-dom';
 import QuestionsAPI from '../../api/questions/questions';
 import { type QuestionData } from '../../types/questions/questions';
 import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
-<<<<<<< HEAD
 import DOMPurify from 'dompurify';
-=======
 import CodeEditor from '../../components/code/CodeEditor';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
->>>>>>> 47f5503b40487c33824374393e71d913bec87be3
 
 const ViewQuestion: React.FC = () => {
   const { questionId } = useParams();
@@ -50,35 +47,6 @@ const ViewQuestion: React.FC = () => {
   }
 
   return (
-<<<<<<< HEAD
-    <Box px={12} py={10}>
-      <Heading as="h1" size="xl" textAlign="center">
-        {question.title}
-      </Heading>
-      <Text fontSize="md" color={useColorModeValue('gray.600', 'gray.400')} mt={2}>
-        <span style={{ fontWeight: 'bold' }}>Complexity: </span>
-        <QuestionComplexityTag questionComplexity={question.complexity} />
-      </Text>
-      <Text fontSize="md" color={useColorModeValue('gray.600', 'gray.400')} mt={2}>
-        <span style={{ fontWeight: 'bold' }}>Categories:</span> {question.categories.join(', ')}
-      </Text>
-      <Text fontSize="md" color={useColorModeValue('gray.600', 'gray.400')} mt={2}>
-        <span style={{ fontWeight: 'bold' }}>Link to Question: </span>
-        <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
-      </Text>
-      <Divider mt={4} />
-      <VStack align="start" spacing={4} mt={4}>
-        <Heading as="h2" size="md">
-          Description
-        </Heading>
-        <Box
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(question.questionDescription),
-          }}
-          width="100%"
-        />
-      </VStack>
-=======
     <Box width="100%" height="85vh" my={5}>
       <Allotment>
         <Allotment.Pane>
@@ -102,7 +70,12 @@ const ViewQuestion: React.FC = () => {
               <Heading as="h2" size="md">
                 Description
               </Heading>
-              <Text whiteSpace="pre-line">{question.questionDescription}</Text>
+              <Box
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(question.questionDescription),
+                }}
+                width="100%"
+              />
             </VStack>
           </VStack>
         </Allotment.Pane>
@@ -112,7 +85,6 @@ const ViewQuestion: React.FC = () => {
           </Box>
         </Allotment.Pane>
       </Allotment>
->>>>>>> 47f5503b40487c33824374393e71d913bec87be3
     </Box>
   );
 };
