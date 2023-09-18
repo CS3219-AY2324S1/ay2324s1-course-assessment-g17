@@ -35,7 +35,10 @@ export const theme = extendTheme({
       },
       blockquote: {
         borderLeft: '3px solid #ccc',
-        padding: '1rem',
+        float: 'left',
+        padding: '0.25rem',
+        margin: '0.5rem',
+        width: 'auto',
       },
     },
   },
