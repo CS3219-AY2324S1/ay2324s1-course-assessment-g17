@@ -1,7 +1,7 @@
 import { Prisma, Role } from "@prisma/client";
 import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
-import { Request, RequestHandler, Response } from "express";
+import { Request, RequestHandler, Response, NextFunction } from "express";
 import { comparePassword, hashPassword } from "../utils/auth";
 import jwt from "jsonwebtoken";
 
@@ -56,7 +56,7 @@ export const signUp: RequestHandler[] = [
         err instanceof Prisma.PrismaClientKnownRequestError &&
         err.code === "P2002"
       ) {
-        res.status(400).json({
+        res.status(409).json({
           errors: [
             { msg: `${err.meta?.target} is already taken by another user.` },
           ],
@@ -102,8 +102,16 @@ export const logIn: RequestHandler[] = [
     }
 
     const { password: _, ...userWithoutPassword } = user;
+    
+    // Calculate the token expiration time (30 days from now)
+    const expirationTimeInSeconds = 30 * 24 * 60 * 60; 
+    const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+    const expirationTimestamp = currentTimestamp + expirationTimeInSeconds;
+    
     jwt.sign(
-      { user: userWithoutPassword },
+      { user: userWithoutPassword,
+        exp: expirationTimestamp,
+      },
       JWT_SECRET,
       (err: Error | null, token: string | undefined) => {
         if (err) {
@@ -112,12 +120,31 @@ export const logIn: RequestHandler[] = [
         res
           .cookie("jwt", token, { httpOnly: true, secure: false })
           .json({ user: userWithoutPassword });
-      }
+      },
     );
   },
 ];
 
+export async function protect(req: Request, res: Response, next: NextFunction) {
+  const token = req.cookies["jwt"]; // If JWT token is stored in a cookie
+
+  if (!token) {
+    res.status(401).json({ errors: [{ msg: 'Not authorized, no token' }] });
+  } else {
+    try{
+      const decoded = jwt.verify(token, JWT_SECRET);
+      next();
+    } catch (err) {
+      res.status(401).json({ errors: [{msg: 'Not authorized, token failed'}] });
+    }
+  }
+}
+
 export async function logOut(req: Request, res: Response) {
+  if (res.headersSent) {
+    // Response headers have already been sent by the protect middleware, so don't send another response
+    return;
+  }
   res.clearCookie("jwt").end();
 }
 
