@@ -4,6 +4,7 @@ import questionRoutes from "./routes/questions";
 import morgan from "morgan";
 import createHttpError, { isHttpError } from "http-errors";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -12,6 +13,9 @@ app.use(cors());
 app.use(morgan("dev"));
 
 app.use(express.json());
+
+// Use cookie-parser middleware before your routes and middleware that need to access cookies
+app.use(cookieParser());
 
 app.use("/api/questions", questionRoutes);
 
