@@ -2,6 +2,20 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 // import "dotenv/config";
 
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  languages: string[];
+}
+
+interface JwtPayload {
+  user: User;
+  exp: number;
+  iat: number;
+}
+
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export async function protect(req: Request, res: Response, next: NextFunction) {
@@ -19,16 +33,13 @@ export async function protect(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function getCurrentUser(req: Request, res: Response) {
-  jwt.verify(
-    req.cookies["jwt"],
-    JWT_SECRET,
-    (err: Error | null, decoded: Object | undefined) => {
-      if (err) {
-        res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
-      } else {
-        res.json(decoded);
-      }
-    }
-  );
+export async function protectAdmin(req: Request, res: Response, next: NextFunction) {
+  const token = req.cookies["jwt"]; // If JWT token is stored in a cookie
+  const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+
+  if (decoded.user.role == "ADMIN") {
+    next();
+  } else {
+    res.status(401).json({ errors: [{msg: 'Not admin authorized, token failed'}] });
+  };
 }

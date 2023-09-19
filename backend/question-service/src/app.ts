@@ -1,23 +1,41 @@
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import questionRoutes from "./routes/questions";
+import adminQuestionRoutes from "./routes/adminQuestions";
 import morgan from "morgan";
 import createHttpError, { isHttpError } from "http-errors";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import * as AuthMiddleWare from "./middleware/authMiddleware";
 
 const app = express();
 
-app.use(cors());
+const FRONTEND_URL = process.env.FRONTEND_URL as string;
+
+// CORS Important Specifications (START)
+app.use(
+  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })
+);
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', FRONTEND_URL);
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
+// CORS Important Specifications (END)
 
 app.use(morgan("dev"));
 
 app.use(express.json());
 
-// Use cookie-parser middleware before your routes and middleware that need to access cookies
+// Use cookie-parser middleware before routes and middleware that need to access cookies
 app.use(cookieParser());
 
-app.use("/api/questions", questionRoutes);
+// Protected API routes and respective protect middleware
+app.use("/api/questions", AuthMiddleWare.protect, questionRoutes);
+app.use("/api/questions", AuthMiddleWare.protect, AuthMiddleWare.protectAdmin, adminQuestionRoutes);
 
 app.use((req, res, next) => {
   next(createHttpError(404, "Not found"));
