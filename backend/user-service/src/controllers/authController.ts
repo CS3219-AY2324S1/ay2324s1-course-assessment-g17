@@ -15,6 +15,20 @@ interface SignUpData extends LogInData {
   confirmPassword: string;
 }
 
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  languages: string[];
+}
+
+interface JwtPayload {
+  user: User;
+  exp: number;
+  iat: number;
+}
+
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export const signUp: RequestHandler[] = [
@@ -103,10 +117,7 @@ export const logIn: RequestHandler[] = [
 
     const { password: _, ...userWithoutPassword } = user;
     
-    // Calculate the token expiration time (30 days from now)
-    const expirationTimeInSeconds = 30 * 24 * 60 * 60; 
-    const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-    const expirationTimestamp = currentTimestamp + expirationTimeInSeconds;
+    const expirationTimestamp = getExpirationTimestamp(30);
     
     jwt.sign(
       { user: userWithoutPassword,
@@ -125,19 +136,51 @@ export const logIn: RequestHandler[] = [
   },
 ];
 
+export function getExpirationTimestamp(expirationTimeInMinutes: number) {
+  // Calculate the token expiration time (30 minutes)
+  const expirationTimeInSeconds = 30 * 60; 
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+  const expirationTimestamp = currentTimestamp + expirationTimeInSeconds;
+  return expirationTimestamp;
+}
+
 export async function protect(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies["jwt"]; // If JWT token is stored in a cookie
 
   if (!token) {
     res.status(401).json({ errors: [{ msg: 'Not authorized, no token' }] });
   } else {
-    try{
-      const decoded = jwt.verify(token, JWT_SECRET);
+    try {
+      jwt.verify(token, JWT_SECRET);
       next();
     } catch (err) {
       res.status(401).json({ errors: [{msg: 'Not authorized, token failed'}] });
     }
   }
+}
+
+// refresh function, to be done BEFORE JWT expires
+export async function refreshToken(req: Request, res: Response) {
+  const token = req.cookies["jwt"]; // If JWT token is stored in a cookie
+
+  const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+  const userWithoutPassword = decoded.user;
+  const expirationTimestamp = getExpirationTimestamp(30);
+
+  jwt.sign(
+    { user: userWithoutPassword,
+      exp: expirationTimestamp,
+    },
+    JWT_SECRET,
+    (err: Error | null, token: string | undefined) => {
+      if (err) {
+        res.status(500).json({ errors: [{msg: 'Unable to refresh JWT'}] });
+      }
+      res
+        .cookie("jwt", token, { httpOnly: true, secure: false })
+        .json({ user: userWithoutPassword });
+    },
+  );
 }
 
 export async function logOut(req: Request, res: Response) {
