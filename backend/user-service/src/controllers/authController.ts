@@ -15,20 +15,6 @@ interface SignUpData extends LogInData {
   confirmPassword: string;
 }
 
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-  languages: string[];
-}
-
-interface JwtPayload {
-  user: User;
-  exp: number;
-  iat: number;
-}
-
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export const signUp: RequestHandler[] = [
@@ -117,31 +103,27 @@ export const logIn: RequestHandler[] = [
 
     const { password: _, ...userWithoutPassword } = user;
     
-    try {
-      const token = await generateToken(userWithoutPassword);
-      res
-        .cookie("jwt", token, { httpOnly: true, secure: false })
-        .json({ user: userWithoutPassword });
-    } catch (err) {
-      return next(err);
-    }
-
+    // Calculate the token expiration time (30 days from now)
+    const expirationTimeInSeconds = 30 * 24 * 60 * 60; 
+    const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+    const expirationTimestamp = currentTimestamp + expirationTimeInSeconds;
+    
+    jwt.sign(
+      { user: userWithoutPassword,
+        exp: expirationTimestamp,
+      },
+      JWT_SECRET,
+      (err: Error | null, token: string | undefined) => {
+        if (err) {
+          return next(err);
+        }
+        res
+          .cookie("jwt", token, { httpOnly: true, secure: false })
+          .json({ user: userWithoutPassword });
+      },
+    );
   },
 ];
-
-export async function generateToken(userWithoutPassword: Object) {
-  // Calculate the token expiration time (30 minutes from now)
-  const expirationTimeInSeconds = 30 * 60; 
-  const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-  const expirationTimestamp = currentTimestamp + expirationTimeInSeconds;
-
-  jwt.sign(
-    { user: userWithoutPassword,
-      exp: expirationTimestamp,
-    },
-    JWT_SECRET,
-  );
-}
 
 export async function protect(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies["jwt"]; // If JWT token is stored in a cookie
@@ -149,22 +131,9 @@ export async function protect(req: Request, res: Response, next: NextFunction) {
   if (!token) {
     res.status(401).json({ errors: [{ msg: 'Not authorized, no token' }] });
   } else {
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-
-      // Generate a new token whenever the protect function is called!
-      const userWithoutPassword = decoded.user;
-      try {
-        const token = await generateToken(userWithoutPassword);
-        res
-          .cookie("jwt", token, { httpOnly: true, secure: false })
-          .json({ user: userWithoutPassword });
-        next();
-      } catch (err) {
-        // Probably a 500 Internal Server Error response?
-        res.status(500).json({ errors: [{msg: 'Internal server error'}] });
-      }
-
+    try{
+      const decoded = jwt.verify(token, JWT_SECRET);
+      next();
     } catch (err) {
       res.status(401).json({ errors: [{msg: 'Not authorized, token failed'}] });
     }
