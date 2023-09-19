@@ -20,6 +20,10 @@ export default class AuthAPI {
     return await userServiceClient.post(this.getAuthUrl() + 'signup', data);
   }
 
+  public async deregister(): Promise<never> {
+    return await userServiceClient.get(this.getAuthUrl() + 'deregister');
+  }
+
   public async getCurrentUser(): Promise<User> {
     const response = await userServiceClient.get(this.getAuthUrl() + 'currentUser');
     return response.data.user;

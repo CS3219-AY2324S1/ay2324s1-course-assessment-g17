@@ -3,7 +3,7 @@ import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
 import { Request, RequestHandler, Response, NextFunction } from "express";
 import { comparePassword, hashPassword } from "../utils/auth";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 interface LogInData {
   username: string;
@@ -102,16 +102,14 @@ export const logIn: RequestHandler[] = [
     }
 
     const { password: _, ...userWithoutPassword } = user;
-    
+
     // Calculate the token expiration time (30 days from now)
-    const expirationTimeInSeconds = 30 * 24 * 60 * 60; 
+    const expirationTimeInSeconds = 30 * 24 * 60 * 60;
     const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
     const expirationTimestamp = currentTimestamp + expirationTimeInSeconds;
-    
+
     jwt.sign(
-      { user: userWithoutPassword,
-        exp: expirationTimestamp,
-      },
+      { user: userWithoutPassword, exp: expirationTimestamp },
       JWT_SECRET,
       (err: Error | null, token: string | undefined) => {
         if (err) {
@@ -120,7 +118,7 @@ export const logIn: RequestHandler[] = [
         res
           .cookie("jwt", token, { httpOnly: true, secure: false })
           .json({ user: userWithoutPassword });
-      },
+      }
     );
   },
 ];
@@ -129,13 +127,16 @@ export async function protect(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies["jwt"]; // If JWT token is stored in a cookie
 
   if (!token) {
-    res.status(401).json({ errors: [{ msg: 'Not authorized, no token' }] });
+    res.status(401).json({ errors: [{ msg: "Not authorized, no token" }] });
   } else {
-    try{
-      const decoded = jwt.verify(token, JWT_SECRET);
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+      req.user = decoded.user;
       next();
     } catch (err) {
-      res.status(401).json({ errors: [{msg: 'Not authorized, token failed'}] });
+      res
+        .status(401)
+        .json({ errors: [{ msg: "Not authorized, token failed" }] });
     }
   }
 }
@@ -147,6 +148,24 @@ export async function logOut(req: Request, res: Response) {
   }
   res.clearCookie("jwt").end();
 }
+
+export const deregister = [
+  protect,
+  async (req: Request, res: Response) => {
+    const user = req.user!;
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        userLanguage: {
+          deleteMany: {},
+        },
+        languages: { set: [] },
+      },
+    });
+    await prisma.user.delete({ where: { id: user.id } });
+    res.clearCookie("jwt").end();
+  },
+];
 
 export async function getCurrentUser(req: Request, res: Response) {
   jwt.verify(
