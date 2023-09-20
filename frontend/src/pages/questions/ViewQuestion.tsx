@@ -47,35 +47,39 @@ const ViewQuestion: React.FC = () => {
   }
 
   return (
-    <Box width="100%" height="85vh" my={5}>
+    <Box width="100%" height="100vh" my={5}>
       <Allotment>
         <Allotment.Pane>
-          <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
-            <Heading as="h1" size="xl" textAlign="center">
-              {question.title}
-            </Heading>
-            <Text fontSize="md" color={colourScheme} mt={2}>
-              <span style={{ fontWeight: 'bold' }}>Complexity: </span>
-              <QuestionComplexityTag questionComplexity={question.complexity} />
-            </Text>
-            <Text fontSize="md" color={colourScheme} mt={2}>
-              <span style={{ fontWeight: 'bold' }}>Categories:</span> {question.categories.join(', ')}
-            </Text>
-            <Text fontSize="md" color={colourScheme} mt={2}>
-              <span style={{ fontWeight: 'bold' }}>Link to Question: </span>
-              <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
-            </Text>
-            <Divider mt={4} />
-            <VStack align="start" spacing={4} mt={4}>
-              <Heading as="h2" size="md">
-                Description
+          <VStack as="div" alignItems="start" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
+            <VStack alignSelf="center" alignItems="center">
+              <Heading as="h1" size="xl" textAlign="center">
+                {question.title}
               </Heading>
-              <Text
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(question.questionDescription),
-                }}
-              />
+              <Text fontSize="md" color={colourScheme} mt={2}>
+                <span style={{ fontWeight: 'bold' }}>Complexity: </span>
+                <QuestionComplexityTag questionComplexity={question.complexity} />
+              </Text>
+              <Text fontSize="md" color={colourScheme} mt={2}>
+                <span style={{ fontWeight: 'bold' }}>Categories:</span> {question.categories.join(', ')}
+              </Text>
+              <Text fontSize="md" color={colourScheme} mt={2}>
+                <span style={{ fontWeight: 'bold' }}>Link to Question: </span>
+                <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
+              </Text>
             </VStack>
+            <Divider mt={4} />
+            <Box ml="8px">
+              <VStack align="start" spacing={4} mt={4}>
+                <Heading as="h2" size="md">
+                  Description
+                </Heading>
+                <Text
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(question.questionDescription),
+                  }}
+                />
+              </VStack>
+            </Box>
           </VStack>
         </Allotment.Pane>
         <Allotment.Pane>
