@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Text, useColorModeValue } from '@chakra-ui/react';
 import AuthAPI from '../../api/users/auth';
 import type { Language } from '../../types/users/users';
 
@@ -27,17 +27,33 @@ const ViewProfile: React.FC = () => {
   }, []);
 
   return (
-    <Box width="100%" height="85vh" my={5} textAlign="center">
-      <Text fontSize="xl" fontWeight="bold">
-        {userData.username}
-      </Text>
-      <Box mt={4}>
-        <Text>Email: {userData.email}</Text>
-        <Text>Role: {userData.role}</Text>
-        <Text>
-          Languages:
-          {userData.languages.length > 0 ? userData.languages.map((lang) => lang.language).join(', ') : ' None'}
+    <Box width="100%" height="85vh" my={5}>
+      <Box
+        bg={useColorModeValue('gray.50', 'gray.700')}
+        boxShadow="lg"
+        borderWidth="2px"
+        borderRadius="lg"
+        p={4}
+        width={['90%', '80%', '70%', '50%']} /* sm, md, lg, xl screens */
+        mx="auto"
+      >
+        <Text fontSize="xl" fontWeight="bold" textAlign="center">
+          {userData.username}
         </Text>
+        <Box mt={4} textAlign="left" pl={12} pr={12} pt={2} pb={8}>
+          <Text>
+            <span style={{ fontWeight: 'bold' }}>Email: </span>
+            {userData.email}
+          </Text>
+          <Text>
+            <span style={{ fontWeight: 'bold' }}>Role: </span>
+            {userData.role}
+          </Text>
+          <Text>
+            <span style={{ fontWeight: 'bold' }}>Languages: </span>
+            {userData.languages.length > 0 ? userData.languages.map((lang) => lang.language).join(', ') : 'None'}
+          </Text>
+        </Box>
       </Box>
     </Box>
   );
