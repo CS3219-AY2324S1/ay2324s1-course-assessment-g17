@@ -34,7 +34,10 @@ const ViewProfile: React.FC = () => {
       <Box mt={4}>
         <Text>Email: {userData.email}</Text>
         <Text>Role: {userData.role}</Text>
-        <Text>Languages: {userData.languages.map((lang) => lang.language).join(', ')}</Text>
+        <Text>
+          Languages:
+          {userData.languages.length > 0 ? userData.languages.map((lang) => lang.language).join(', ') : ' None'}
+        </Text>
       </Box>
     </Box>
   );
