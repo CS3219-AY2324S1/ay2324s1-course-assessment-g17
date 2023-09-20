@@ -34,8 +34,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Protected API routes and respective protect middleware
-app.use("/api/questions", AuthMiddleWare.protect, questionRoutes);
-app.use("/api/questions", AuthMiddleWare.protect, AuthMiddleWare.protectAdmin, adminQuestionRoutes);
+app.use("/api/questions", AuthMiddleWare.verifyAccessToken, questionRoutes);
+app.use("/api/questions", AuthMiddleWare.verifyAccessToken, AuthMiddleWare.protectAdmin, adminQuestionRoutes);
 
 app.use((req, res, next) => {
   next(createHttpError(404, "Not found"));

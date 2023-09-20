@@ -29,7 +29,12 @@ interface JwtPayload {
   iat: number;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
+
+const storedRefreshTokens: string[] = [];
+// TODO: Make a MongoDB for refresh tokens
+// IF TIME PERMITS
 
 export const signUp: RequestHandler[] = [
   body("username").notEmpty(),
@@ -117,84 +122,95 @@ export const logIn: RequestHandler[] = [
 
     const { password: _, ...userWithoutPassword } = user;
     
-    const expirationTimestamp = getExpirationTimestamp(30);
-    
-    jwt.sign(
-      { user: userWithoutPassword,
-        exp: expirationTimestamp,
-      },
-      JWT_SECRET,
-      (err: Error | null, token: string | undefined) => {
-        if (err) {
-          return next(err);
-        }
-        res
-          .cookie("jwt", token, { httpOnly: true, secure: false })
-          .json({ user: userWithoutPassword });
-      },
-    );
+    try {
+      const accessToken = await generateAccessToken(userWithoutPassword);
+      const refreshToken = await generateRefreshToken(userWithoutPassword);
+      storedRefreshTokens.push(refreshToken);
+
+      res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+      res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
+      
+      return res.status(200).json({
+        message: `${user.username} has been authenticated`,
+        accessToken,
+        refreshToken,
+      });
+
+    } catch (err) {
+      return next(err);
+
+    }
   },
 ];
 
-export function getExpirationTimestamp(expirationTimeInMinutes: number) {
-  // Calculate the token expiration time (30 minutes)
-  const expirationTimeInSeconds = 30 * 60; 
-  const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-  const expirationTimestamp = currentTimestamp + expirationTimeInSeconds;
-  return expirationTimestamp;
+export async function generateAccessToken(userWithoutPassword: object) {
+  return jwt.sign( 
+    { user: userWithoutPassword }, 
+    ACCESS_TOKEN_SECRET, 
+    { expiresIn: '30m' }
+    );
 }
 
-export async function protect(req: Request, res: Response, next: NextFunction) {
-  const token = req.cookies["jwt"]; // If JWT token is stored in a cookie
+export async function generateRefreshToken(userWithoutPassword: object) {
+  return jwt.sign( 
+    { user: userWithoutPassword }, 
+    REFRESH_TOKEN_SECRET, 
+    );
+}
 
-  if (!token) {
-    res.status(401).json({ errors: [{ msg: 'Not authorized, no token' }] });
+// This verify refresh token function also generates new access token after verification
+export async function verifyRefreshToken(req: Request, res: Response) {
+  const refreshToken = req.cookies["refreshToken"]; // accessToken is stored in a cookie
+
+  if (!refreshToken) {
+    res.status(401).json({ errors: [{ msg: 'Not authorized, no refresh token' }] });
   } else {
-    try {
-      jwt.verify(token, JWT_SECRET);
-      next();
-    } catch (err) {
-      res.status(401).json({ errors: [{msg: 'Not authorized, token failed'}] });
-    }
-  }
-}
+    jwt.verify(
+      refreshToken, 
+      REFRESH_TOKEN_SECRET,
+      async (err: Error | null, decoded: Object | undefined) => {
+        // If error, or if refresh token is NOT in server storage
+        if (err) { 
+          res.status(401).json({ errors: [{ msg: 'Not authorized, invalid refresh token' }] });
+        } else if (!storedRefreshTokens.includes(refreshToken)) {
+          res.status(401).json({ errors: [{ msg: 'Not authorized, refresh token not found in server' }] });
+        } else {
+          const payload = decoded as JwtPayload;
+          const userWithoutPassword = payload.user;
+          const accessToken = await generateAccessToken(userWithoutPassword);
+          res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
 
-// refresh function, to be done BEFORE JWT expires
-export async function refreshToken(req: Request, res: Response) {
-  const token = req.cookies["jwt"]; // If JWT token is stored in a cookie
-
-  const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-  const userWithoutPassword = decoded.user;
-  const expirationTimestamp = getExpirationTimestamp(30);
-
-  jwt.sign(
-    { user: userWithoutPassword,
-      exp: expirationTimestamp,
-    },
-    JWT_SECRET,
-    (err: Error | null, token: string | undefined) => {
-      if (err) {
-        res.status(500).json({ errors: [{msg: 'Unable to refresh JWT'}] });
+          return res.status(200).json({
+            message: `Authorised, access token refreshed`,
+            accessToken,
+          });
+        }
       }
-      res
-        .cookie("jwt", token, { httpOnly: true, secure: false })
-        .json({ user: userWithoutPassword });
-    },
-  );
+    );
+  }
 }
 
 export async function logOut(req: Request, res: Response) {
   if (res.headersSent) {
-    // Response headers have already been sent by the protect middleware, so don't send another response
+    // Response headers have already been sent by verifyAccessToken middleware, so don't send another response
     return;
   }
-  res.clearCookie("jwt").end();
+
+  // Clear server storage of refresh token
+  const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
+  // Remove only one item
+  storedRefreshTokens.splice(index, 1);
+ 
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+
+  res.end();
 }
 
 export async function getCurrentUser(req: Request, res: Response) {
   jwt.verify(
-    req.cookies["jwt"],
-    JWT_SECRET,
+    req.cookies["accessToken"],
+    ACCESS_TOKEN_SECRET,
     (err: Error | null, decoded: Object | undefined) => {
       if (err) {
         res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
