@@ -74,6 +74,7 @@ const ViewQuestion: React.FC = () => {
                   Description
                 </Heading>
                 <Text
+                  whiteSpace="pre-line"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(question.questionDescription),
                   }}
