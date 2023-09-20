@@ -1,4 +1,4 @@
-import { Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue } from '@chakra-ui/react';
+import { Avatar, Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import React from 'react';
 import { FaCode } from 'react-icons/fa';
@@ -33,6 +33,15 @@ const Navbar: React.FC = () => {
           </HStack>
         </Link>
         <HStack>
+          <Link to="/profile">
+            <Avatar
+              size="sm"
+              // name="User Name" // Replace with the user's name
+              // src="https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250" // Replace with the user's avatar image URL
+              bg="gray.500"
+              _hover={{ cursor: 'pointer' }}
+            />
+          </Link>
           <Button onClick={toggleColorMode}>{colorMode === 'light' ? <MoonIcon /> : <SunIcon />}</Button>
           {isLoggedIn && <Button onClick={handleLogout}>Log Out</Button>}
         </HStack>
