@@ -40,7 +40,6 @@ const Navbar: React.FC = () => {
                 // name="User Name" // Replace with the user's name
                 // src="https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250" // Replace with the user's avatar image URL
                 bg="gray.500"
-                _hover={{ cursor: 'pointer' }}
               />
             </Tooltip>
           </Link>
