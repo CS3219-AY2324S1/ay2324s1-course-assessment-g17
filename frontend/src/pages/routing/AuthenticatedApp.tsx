@@ -4,6 +4,7 @@ import { CreateQuestion } from '../questions/CreateQuestion';
 import Questions from '../questions/Questions';
 import { UpdateQuestion } from '../questions/UpdateQuestion';
 import ViewQuestion from '../questions/ViewQuestion';
+import ViewProfile from '../users/ViewProfile';
 
 const AuthenticatedApp: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ const AuthenticatedApp: React.FC = () => {
       <Route path="/" element={<Questions />} />
       <Route path="question/:questionId/edit" element={<UpdateQuestion />} />
       <Route path="/question/:questionId" element={<ViewQuestion />} />
+      <Route path="/profile" element={<ViewProfile />} />
     </Routes>
   );
 };
