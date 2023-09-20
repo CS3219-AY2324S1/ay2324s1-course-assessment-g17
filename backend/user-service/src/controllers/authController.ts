@@ -17,14 +17,23 @@ interface SignUpData extends LogInData {
 
 interface User {
   id: number;
+  password: string;
   username: string;
   email: string;
   role: string;
-  languages: string[];
+  languages: { id: number; language: string; }[];
+}
+
+interface UserWithoutPassword {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  languages: { id: number; language: string; }[];
 }
 
 interface JwtPayload {
-  user: User;
+  user: UserWithoutPassword;
   exp: number;
   iat: number;
 }
@@ -120,21 +129,22 @@ export const logIn: RequestHandler[] = [
       return;
     }
 
-    const { password: _, ...userWithoutPassword } = user;
+    // const { password: _, ...userWithoutPassword } = user;
     
     try {
-      const accessToken = await generateAccessToken(userWithoutPassword);
-      const refreshToken = await generateRefreshToken(userWithoutPassword);
-      storedRefreshTokens.push(refreshToken);
+      // const accessToken = await generateAccessToken(userWithoutPassword);
+      // const refreshToken = await generateRefreshToken(userWithoutPassword);
+      // storedRefreshTokens.push(refreshToken);
 
-      res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
-      res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
+      // res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+      // res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
       
-      return res.status(200).json({
-        message: `${user.username} has been authenticated`,
-        accessToken,
-        refreshToken,
-      });
+      // return res.status(200).json({
+      //   message: `${user.username} has been authenticated`,
+      //   accessToken,
+      //   refreshToken,
+      // });
+      return await generateBothTokens(req, res, user);
 
     } catch (err) {
       return next(err);
@@ -142,6 +152,59 @@ export const logIn: RequestHandler[] = [
     }
   },
 ];
+
+export async function generateBothTokens(req: Request, res: Response, user: User) {
+  try {
+    const { password: _, ...userWithoutPassword } = user;
+
+    const accessToken = await generateAccessToken(userWithoutPassword);
+    const refreshToken = await generateRefreshToken(userWithoutPassword);
+    storedRefreshTokens.push(refreshToken);
+
+    res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
+    
+    return res.status(200).json({
+      message: `${userWithoutPassword.username} has been authenticated`,
+      accessToken,
+      refreshToken,
+    });
+
+  } catch (err) {
+    return err;
+
+  }
+}
+
+// update after updating user profile
+export async function updateBothTokens(req: Request, res: Response) {
+  const refreshToken = req.cookies["refreshToken"];
+
+  jwt.verify(
+    refreshToken, 
+    REFRESH_TOKEN_SECRET,
+    async (err: Error | null, decoded: Object | undefined) => {
+      // If error, or if refresh token is NOT in server storage
+      if (err) { 
+        res.status(401).json({ errors: [{ msg: 'Not authorized, invalid refresh token' }] });
+      } else if (!storedRefreshTokens.includes(refreshToken)) {
+        res.status(401).json({ errors: [{ msg: 'Not authorized, refresh token not found in server' }] });
+      } else {
+        const payload = decoded as JwtPayload;
+        const userId = payload.user.id;
+        const user = await prisma.user.findFirst({ where: { id: userId } }) as User;
+      
+        if (!user) {
+          res
+            .status(401)
+            .json({ errors: [{ msg: "This username does not exist." }] });
+          return;
+        }
+        return await generateBothTokens(req, res, user);
+      }
+    }
+  );
+}
 
 export async function generateAccessToken(userWithoutPassword: object) {
   return jwt.sign( 
@@ -196,6 +259,19 @@ export async function logOut(req: Request, res: Response) {
     return;
   }
 
+  // // Clear server storage of refresh token
+  // const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
+  // // Remove only one item
+  // storedRefreshTokens.splice(index, 1);
+ 
+  // res.clearCookie("accessToken");
+  // res.clearCookie("refreshToken");
+  await purgeBothTokens(req, res);
+
+  res.end();
+}
+
+export async function purgeBothTokens(req: Request, res: Response) {
   // Clear server storage of refresh token
   const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
   // Remove only one item
@@ -203,8 +279,6 @@ export async function logOut(req: Request, res: Response) {
  
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
-
-  res.end();
 }
 
 export async function getCurrentUser(req: Request, res: Response) {
