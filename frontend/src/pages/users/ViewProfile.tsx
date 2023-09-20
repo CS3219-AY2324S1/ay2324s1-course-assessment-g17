@@ -42,22 +42,22 @@ const ViewProfile: React.FC = () => {
         <Text fontSize="xl" fontWeight="bold" textAlign="center">
           {userData.username}
         </Text>
-        <Box mt={4} textAlign="left" pl={12} pr={12} pt={2} pb={8}>
-          <HStack spacing={4} align="center">
-            <EmailIcon boxSize={6} /> {/* Email Icon */}
+        <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
+          <HStack spacing={5} align="center" mt={4}>
+            <EmailIcon boxSize={6} />
             <Text>
               <span style={{ fontWeight: 'bold' }}>Email: </span>
               {userData.email}
             </Text>
           </HStack>
-          <HStack spacing={4} align="center">
+          <HStack spacing={5} align="center" mt={4}>
             <FaUserGroup fontSize="24px" />
             <Text>
               <span style={{ fontWeight: 'bold' }}>Role: </span>
               {userData.role}
             </Text>
           </HStack>
-          <HStack spacing={4} align="center">
+          <HStack spacing={5} align="center" mt={4}>
             <FaCode fontSize="24px" />
             <Text>
               <span style={{ fontWeight: 'bold' }}>Languages: </span>
