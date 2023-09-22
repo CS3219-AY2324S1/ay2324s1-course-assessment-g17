@@ -38,10 +38,21 @@ const ViewProfile: React.FC = () => {
         p={4}
         width={['90%', '80%', '70%', '50%']} /* sm, md, lg, xl screens */
         mx="auto"
+        position="relative"
       >
         <Text fontSize="xl" fontWeight="bold" textAlign="center">
           {userData.username}
         </Text>
+        <Button
+          leftIcon={<EditIcon />}
+          colorScheme="teal"
+          position="absolute"
+          top="4"
+          right="4"
+          zIndex="1"
+        >
+          Edit Profile
+        </Button>
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
           <HStack spacing={5} align="center" mt={4}>
             <EmailIcon boxSize={6} />
@@ -64,9 +75,6 @@ const ViewProfile: React.FC = () => {
               {userData.languages.length > 0 ? userData.languages.map((lang) => lang.language).join(', ') : 'None'}
             </Text>
           </HStack>
-          <Button mt={4} leftIcon={<EditIcon />} colorScheme="teal">
-            Edit Profile
-          </Button>
         </Box>
       </Box>
     </Box>
