@@ -30,7 +30,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
           <Input type="text" placeholder="Languages" />
         </ModalBody>
         <ModalFooter>
-          <Button variant="solid" colorScheme="green" mr={4}>
+          <Button variant="solid" colorScheme="teal" mr={4}>
             Save
           </Button>
         </ModalFooter>
