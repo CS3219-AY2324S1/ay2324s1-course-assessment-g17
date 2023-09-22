@@ -4,6 +4,7 @@ import { EmailIcon, EditIcon } from '@chakra-ui/icons';
 import { FaUserGroup, FaCode } from 'react-icons/fa6';
 import AuthAPI from '../../api/users/auth';
 import type { Language } from '../../types/users/users';
+import EditProfile from './EditProfile';
 
 const ViewProfile: React.FC = () => {
   const [userData, setUserData] = useState({
@@ -12,6 +13,8 @@ const ViewProfile: React.FC = () => {
     role: '',
     languages: [] as Language[],
   });
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async (): Promise<void> => {
@@ -36,7 +39,7 @@ const ViewProfile: React.FC = () => {
         borderWidth="2px"
         borderRadius="lg"
         p={4}
-        width={['90%', '80%', '70%', '50%']} /* sm, md, lg, xl screens */
+        width={['90%', '80%', '70%', '50%']}
         mx="auto"
         position="relative"
       >
@@ -53,7 +56,9 @@ const ViewProfile: React.FC = () => {
           top="4"
           right="4"
           zIndex="1"
+          onClick={() => setIsEditModalOpen(true)}
         />
+        <EditProfile isOpen={isEditModalOpen} onCloseModal={() => setIsEditModalOpen(false)} />
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
           <HStack spacing={5} align="center" mt={4}>
             <EmailIcon boxSize={6} />
