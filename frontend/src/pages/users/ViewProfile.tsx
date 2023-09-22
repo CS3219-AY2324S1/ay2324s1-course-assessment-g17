@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text, useColorModeValue, HStack } from '@chakra-ui/react';
-import { EmailIcon } from '@chakra-ui/icons';
+import { Box, Text, useColorModeValue, HStack, Button } from '@chakra-ui/react';
+import { EmailIcon, EditIcon } from '@chakra-ui/icons';
 import { FaUserGroup, FaCode } from 'react-icons/fa6';
 import AuthAPI from '../../api/users/auth';
 import type { Language } from '../../types/users/users';
@@ -64,6 +64,9 @@ const ViewProfile: React.FC = () => {
               {userData.languages.length > 0 ? userData.languages.map((lang) => lang.language).join(', ') : 'None'}
             </Text>
           </HStack>
+          <Button mt={4} leftIcon={<EditIcon />} colorScheme="teal">
+            Edit Profile
+          </Button>
         </Box>
       </Box>
     </Box>
