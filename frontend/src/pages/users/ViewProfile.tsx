@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text, useColorModeValue, HStack, Button } from '@chakra-ui/react';
+import { Box, Text, useColorModeValue, HStack, IconButton } from '@chakra-ui/react';
 import { EmailIcon, EditIcon } from '@chakra-ui/icons';
 import { FaUserGroup, FaCode } from 'react-icons/fa6';
 import AuthAPI from '../../api/users/auth';
@@ -43,16 +43,17 @@ const ViewProfile: React.FC = () => {
         <Text fontSize="xl" fontWeight="bold" textAlign="center">
           {userData.username}
         </Text>
-        <Button
-          leftIcon={<EditIcon />}
-          colorScheme="teal"
+        <IconButton
+          isRound={true}
+          variant="solid"
+          colorScheme="gray"
+          aria-label="Edit Profile"
+          icon={<EditIcon />}
           position="absolute"
           top="4"
           right="4"
           zIndex="1"
-        >
-          Edit Profile
-        </Button>
+        />
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
           <HStack spacing={5} align="center" mt={4}>
             <EmailIcon boxSize={6} />
