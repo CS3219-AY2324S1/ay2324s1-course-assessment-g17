@@ -9,13 +9,6 @@ export const theme = extendTheme({
         borderRadius: '4px',
         fontFamily: 'monospace',
       },
-      '.ql-align-center': {
-        textAlign: 'center',
-      },
-
-      '.ql-align-right': {
-        textAlign: 'right',
-      },
       h1: {
         fontSize: 'xl',
         fontWeight: 'bold',

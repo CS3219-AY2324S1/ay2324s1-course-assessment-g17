@@ -21,7 +21,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, useCol
           ['bold', 'italic', 'underline', 'link', 'code', 'blockquote'],
           ['unorderedList', 'orderedList', 'h1', 'h2', 'h3'],
           ['sup', 'sub'],
-          ['alignLeft', 'alignCenter', 'alignRight'],
         ]}
       />
     </MantineProvider>
