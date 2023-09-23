@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -34,6 +34,19 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
   const [role, setRole] = useState('');
   const [languages, setLanguages] = useState<string[]>([]);
   const allLanguages = Object.values(EditorLanguageEnum);
+
+  // Create a ref for the AutoCompleteInput
+  const autoCompleteInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAutoCompleteSelect = (selectedLanguages: string[]): void => {
+    setLanguages(selectedLanguages);
+    // Unfocus the input field after a short delay to prevent cursor flashing
+    if (autoCompleteInputRef.current !== null) {
+      setTimeout(() => {
+        autoCompleteInputRef.current?.blur();
+      }, 100);
+    }
+  };
 
   // Reset the form fields when the modal is closed.
   useEffect(() => {
@@ -90,15 +103,13 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
                 openOnFocus
                 closeOnSelect
                 multiple
-                onChange={(selectedLanguages) => {
-                  setLanguages(selectedLanguages as string[]);
-                }}
+                onChange={handleAutoCompleteSelect}
                 isLoading={allLanguages.length === 0}
                 suggestWhenEmpty
                 restoreOnBlurIfEmpty={false}
                 value={languages}
               >
-                <AutoCompleteInput variant="filled" isRequired={false}>
+                <AutoCompleteInput variant="filled" isRequired={false} ref={autoCompleteInputRef}>
                   {({ tags }) =>
                     tags.map((tag, tid) => (
                       <AutoCompleteTag key={tid} label={tag.label as string} onRemove={tag.onRemove} />
