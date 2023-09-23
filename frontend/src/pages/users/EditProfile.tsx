@@ -87,7 +87,6 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
                 suggestWhenEmpty
                 restoreOnBlurIfEmpty={false}
                 value={languages}
-                placement="bottom-start"
               >
                 <AutoCompleteInput variant="filled" isRequired={false}>
                   {({ tags }) =>
@@ -96,12 +95,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
                     ))
                   }
                 </AutoCompleteInput>
-                <AutoCompleteList
-                  _before={{
-                    top: 'auto',
-                    bottom: 0,
-                  }}
-                >
+                <AutoCompleteList>
                   {allLanguages.map((language, lid) => (
                     <AutoCompleteItem
                       key={`option-${lid}`}
