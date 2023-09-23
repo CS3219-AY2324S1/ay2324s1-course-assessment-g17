@@ -31,7 +31,6 @@ interface EditProfileProps {
 const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('');
   const [languages, setLanguages] = useState<string[]>([]);
   const allLanguages = Object.values(EditorLanguageEnum);
 
@@ -40,7 +39,6 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
     if (!isOpen) {
       setUsername('');
       setEmail('');
-      setRole('');
       setLanguages([]);
     }
   }, [isOpen]);
@@ -71,16 +69,6 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                }}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Role</FormLabel>
-              <Input
-                type="text"
-                value={role}
-                onChange={(e) => {
-                  setRole(e.target.value);
                 }}
               />
             </FormControl>
