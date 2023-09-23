@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -34,6 +34,16 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
   const [role, setRole] = useState('');
   const [languages, setLanguages] = useState<string[]>([]);
   const allLanguages = Object.values(EditorLanguageEnum);
+
+  // Reset the form fields when the modal is closed.
+  useEffect(() => {
+    if (!isOpen) {
+      setUsername('');
+      setEmail('');
+      setRole('');
+      setLanguages([]);
+    }
+  }, [isOpen]);
 
   return (
     <Modal isOpen={isOpen} onClose={onCloseModal}>
