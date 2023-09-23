@@ -1,4 +1,3 @@
-// RichTextEditor.tsx
 import React from 'react';
 import { MantineProvider } from '@mantine/core';
 import { RichTextEditor as MantineRichTextEditor } from '@mantine/rte';

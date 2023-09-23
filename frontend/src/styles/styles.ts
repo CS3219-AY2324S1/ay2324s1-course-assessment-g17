@@ -28,9 +28,8 @@ export const theme = extendTheme({
       },
       blockquote: {
         borderLeft: '3px solid #ccc',
-        float: 'left',
-        padding: '0.25rem',
-        margin: '0.5rem',
+        padding: '0.3rem',
+        margin: '0.55rem',
         width: 'auto',
       },
     },
