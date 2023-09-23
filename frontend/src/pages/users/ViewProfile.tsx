@@ -65,6 +65,9 @@ const ViewProfile: React.FC = () => {
           onCloseModal={() => {
             setIsEditModalOpen(false);
           }}
+          initialUsername={userData.username}
+          initialEmail={userData.email}
+          initialLanguages={userData.languages}
         />
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
           <HStack spacing={5} align="center" mt={4}>

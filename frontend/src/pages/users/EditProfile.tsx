@@ -22,26 +22,41 @@ import {
   AutoCompleteTag,
 } from '@choc-ui/chakra-autocomplete';
 import { EditorLanguageEnum } from '../../types/code/languages';
+import type { Language } from '../../types/users/users';
 
 interface EditProfileProps {
   isOpen: boolean;
   onCloseModal: () => void;
+  initialUsername: string;
+  initialEmail: string;
+  initialLanguages: Language[];
 }
 
-const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [languages, setLanguages] = useState<string[]>([]);
+const EditProfile: React.FC<EditProfileProps> = ({
+  isOpen,
+  onCloseModal,
+  initialUsername,
+  initialEmail,
+  initialLanguages,
+}) => {
+  const [username, setUsername] = useState(initialUsername);
+  const [email, setEmail] = useState(initialEmail);
+  const [languages, setLanguages] = useState<Language[]>(initialLanguages);
   const allLanguages = Object.values(EditorLanguageEnum);
 
-  // Reset the form fields when the modal is closed.
+  // Prefill form with initial data whenever form is opened.
   useEffect(() => {
-    if (!isOpen) {
-      setUsername('');
-      setEmail('');
-      setLanguages([]);
+    // Check if data is being fetched correctly.
+    console.log('initialUsername:', initialUsername);
+    console.log('initialEmail:', initialEmail);
+    console.log('initialLanguages:', initialLanguages);
+
+    if (isOpen) {
+      setUsername(initialUsername);
+      setEmail(initialEmail);
+      setLanguages(initialLanguages);
     }
-  }, [isOpen]);
+  }, [isOpen, initialUsername, initialEmail, initialLanguages]);
 
   return (
     <Modal isOpen={isOpen} onClose={onCloseModal}>
@@ -79,14 +94,14 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
                 closeOnSelect
                 multiple
                 onChange={(selectedLanguages) => {
-                  setLanguages(selectedLanguages as string[]);
+                  setLanguages(selectedLanguages as Language[]);
                 }}
                 isLoading={allLanguages.length === 0}
                 suggestWhenEmpty
                 restoreOnBlurIfEmpty={false}
                 value={languages}
               >
-                <AutoCompleteInput variant="filled" isRequired={false}>
+                <AutoCompleteInput variant="filled">
                   {({ tags }) =>
                     tags.map((tag, tid) => (
                       <AutoCompleteTag key={tid} label={tag.label as string} onRemove={tag.onRemove} />
