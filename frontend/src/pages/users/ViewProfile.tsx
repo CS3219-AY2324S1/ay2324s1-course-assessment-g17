@@ -56,9 +56,16 @@ const ViewProfile: React.FC = () => {
           top="4"
           right="4"
           zIndex="1"
-          onClick={() => setIsEditModalOpen(true)}
+          onClick={() => {
+            setIsEditModalOpen(true);
+          }}
         />
-        <EditProfile isOpen={isEditModalOpen} onCloseModal={() => setIsEditModalOpen(false)} />
+        <EditProfile
+          isOpen={isEditModalOpen}
+          onCloseModal={() => {
+            setIsEditModalOpen(false);
+          }}
+        />
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
           <HStack spacing={5} align="center" mt={4}>
             <EmailIcon boxSize={6} />

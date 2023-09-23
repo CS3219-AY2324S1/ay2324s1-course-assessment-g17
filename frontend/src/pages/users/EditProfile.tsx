@@ -9,6 +9,9 @@ import {
   ModalFooter,
   Button,
   Input,
+  FormControl,
+  FormLabel,
+  Stack, // Add Stack for spacing between fields
 } from '@chakra-ui/react';
 
 interface EditProfileProps {
@@ -24,10 +27,24 @@ const EditProfile: React.FC<EditProfileProps> = ({ isOpen, onCloseModal }) => {
         <ModalHeader>Edit Profile</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Input type="text" placeholder="Username" />
-          <Input type="text" placeholder="Email" />
-          <Input type="text" placeholder="Role" />
-          <Input type="text" placeholder="Languages" />
+          <Stack spacing={4}>
+            <FormControl>
+              <FormLabel>Username</FormLabel>
+              <Input type="text" placeholder="Username" />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Input type="text" placeholder="Email" />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Role</FormLabel>
+              <Input type="text" placeholder="Role" />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Languages</FormLabel>
+              <Input type="text" placeholder="Languages" />
+            </FormControl>
+          </Stack>
         </ModalBody>
         <ModalFooter>
           <Button variant="solid" colorScheme="teal" mr={4}>
