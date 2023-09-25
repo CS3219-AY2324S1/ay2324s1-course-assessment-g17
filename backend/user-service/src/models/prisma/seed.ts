@@ -4,6 +4,10 @@ import { hashPassword } from "../../utils/auth";
 async function seed() {
   try {
     // Seed the User and Language tables
+    await prisma.userLanguage.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.language.deleteMany();
+
     const user1 = await prisma.user.create({
       data: {
         username: "admin_user",
