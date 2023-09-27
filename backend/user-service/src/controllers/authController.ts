@@ -112,7 +112,7 @@ export const logIn: RequestHandler[] = [
         res
           .cookie("jwt", token, { httpOnly: true, secure: false })
           .json({ user: userWithoutPassword });
-      }
+      },
     );
   },
 ];
@@ -131,6 +131,6 @@ export async function getCurrentUser(req: Request, res: Response) {
       } else {
         res.json(decoded);
       }
-    }
+    },
   );
 }

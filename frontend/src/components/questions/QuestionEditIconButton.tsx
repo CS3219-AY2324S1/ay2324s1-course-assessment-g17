@@ -19,8 +19,9 @@ const QuestionEditIconButton: React.FC<QuestionEditIconButtonProps> = ({
         aria-label="Edit Question"
         value={questionId}
         onClick={() => {
-          navigate(`/question/edit/${questionId}`);
+          navigate(`/question/${questionId}/edit`);
         }}
+        ml={4}
       >
         <EditIcon />
       </IconButton>

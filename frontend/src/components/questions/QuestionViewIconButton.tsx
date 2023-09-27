@@ -16,7 +16,6 @@ const QuestionViewIconButton: React.FC<QuestionViewIconButtonProps> = ({
   return (
     <Tooltip label={`View Question ${questionId}: ${title}`}>
       <IconButton
-        colorScheme="blue"
         aria-label="View Question"
         value={questionId}
         onClick={() => {
