@@ -7,6 +7,7 @@ import QuestionComplexityTag from '../../components/questions/QuestionComplexity
 import CodeEditor from '../../components/code/CodeEditor';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
+import QuestionEditIconButton from '../../components/questions/QuestionEditIconButton';
 
 const ViewQuestion: React.FC = () => {
   const { questionId } = useParams(); // Get questionId from URL parameters
@@ -52,6 +53,7 @@ const ViewQuestion: React.FC = () => {
           <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
             <Heading as="h1" size="xl" textAlign="center">
               {question.title}
+              <QuestionEditIconButton questionId={question.questionID} title={question.title} />
             </Heading>
             <Text fontSize="md" color={colourScheme} mt={2}>
               <span style={{ fontWeight: 'bold' }}>Complexity: </span>
