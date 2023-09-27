@@ -291,6 +291,6 @@ export async function getCurrentUser(req: Request, res: Response) {
       } else {
         res.json(decoded);
       }
-    }
+    },
   );
 }
