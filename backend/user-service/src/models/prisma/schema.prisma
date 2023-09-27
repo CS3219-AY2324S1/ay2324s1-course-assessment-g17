@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  email    String   @unique
+  password String
+  role     Role
+  languages    Language[]    
+  userLanguage UserLanguage[]
+}
+
+model Language {
+  id          Int      @id @default(autoincrement())
+  language    String
+  users       User[]
+  userLanguages UserLanguage[]
+}
+
+model UserLanguage {
+  user_id     Int
+  language_id Int
+
+  user        User     @relation(fields: [user_id], references: [id])
+  language    Language @relation(fields: [language_id], references: [id])
+
+  @@id([user_id, language_id])
+}
