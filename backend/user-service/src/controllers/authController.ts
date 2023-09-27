@@ -259,13 +259,6 @@ export async function logOut(req: Request, res: Response) {
     return;
   }
 
-  // // Clear server storage of refresh token
-  // const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
-  // // Remove only one item
-  // storedRefreshTokens.splice(index, 1);
- 
-  // res.clearCookie("accessToken");
-  // res.clearCookie("refreshToken");
   await purgeBothTokens(req, res);
 
   res.end();
