@@ -128,22 +128,8 @@ export const logIn: RequestHandler[] = [
       res.status(401).json({ errors: [{ msg: "Wrong password." }] });
       return;
     }
-
-    // const { password: _, ...userWithoutPassword } = user;
     
     try {
-      // const accessToken = await generateAccessToken(userWithoutPassword);
-      // const refreshToken = await generateRefreshToken(userWithoutPassword);
-      // storedRefreshTokens.push(refreshToken);
-
-      // res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
-      // res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
-      
-      // return res.status(200).json({
-      //   message: `${user.username} has been authenticated`,
-      //   accessToken,
-      //   refreshToken,
-      // });
       return await generateBothTokens(req, res, user);
 
     } catch (err) {
@@ -259,13 +245,6 @@ export async function logOut(req: Request, res: Response) {
     return;
   }
 
-  // // Clear server storage of refresh token
-  // const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
-  // // Remove only one item
-  // storedRefreshTokens.splice(index, 1);
- 
-  // res.clearCookie("accessToken");
-  // res.clearCookie("refreshToken");
   await purgeBothTokens(req, res);
 
   res.end();
