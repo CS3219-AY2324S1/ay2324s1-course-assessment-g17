@@ -8,6 +8,7 @@ import DOMPurify from 'dompurify';
 import CodeEditor from '../../components/code/CodeEditor';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
+import QuestionEditIconButton from '../../components/questions/QuestionEditIconButton';
 
 const ViewQuestion: React.FC = () => {
   const { questionId } = useParams();
@@ -50,10 +51,33 @@ const ViewQuestion: React.FC = () => {
     <Box width="100%" height="100vh" my={5}>
       <Allotment>
         <Allotment.Pane>
+<<<<<<< HEAD
           <VStack as="div" alignItems="start" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
             <VStack alignSelf="center" alignItems="center">
               <Heading as="h1" size="xl" textAlign="center">
                 {question.title}
+=======
+          <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
+            <Heading as="h1" size="xl" textAlign="center">
+              {question.title}
+              <QuestionEditIconButton questionId={question.questionID} title={question.title} />
+            </Heading>
+            <Text fontSize="md" color={colourScheme} mt={2}>
+              <span style={{ fontWeight: 'bold' }}>Complexity: </span>
+              <QuestionComplexityTag questionComplexity={question.complexity} />
+            </Text>
+            <Text fontSize="md" color={colourScheme} mt={2}>
+              <span style={{ fontWeight: 'bold' }}>Categories:</span> {question.categories.join(', ')}
+            </Text>
+            <Text fontSize="md" color={colourScheme} mt={2}>
+              <span style={{ fontWeight: 'bold' }}>Link to Question: </span>
+              <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
+            </Text>
+            <Divider mt={4} />
+            <VStack align="start" spacing={4} mt={4}>
+              <Heading as="h2" size="md">
+                Description
+>>>>>>> master
               </Heading>
               <Text fontSize="md" color={colourScheme} mt={2}>
                 <span style={{ fontWeight: 'bold' }}>Complexity: </span>
