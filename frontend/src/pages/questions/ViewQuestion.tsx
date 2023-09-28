@@ -51,12 +51,6 @@ const ViewQuestion: React.FC = () => {
     <Box width="100%" height="100vh" my={5}>
       <Allotment>
         <Allotment.Pane>
-<<<<<<< HEAD
-          <VStack as="div" alignItems="start" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
-            <VStack alignSelf="center" alignItems="center">
-              <Heading as="h1" size="xl" textAlign="center">
-                {question.title}
-=======
           <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
             <Heading as="h1" size="xl" textAlign="center">
               {question.title}
@@ -77,7 +71,6 @@ const ViewQuestion: React.FC = () => {
             <VStack align="start" spacing={4} mt={4}>
               <Heading as="h2" size="md">
                 Description
->>>>>>> master
               </Heading>
               <Text fontSize="md" color={colourScheme} mt={2}>
                 <span style={{ fontWeight: 'bold' }}>Complexity: </span>
