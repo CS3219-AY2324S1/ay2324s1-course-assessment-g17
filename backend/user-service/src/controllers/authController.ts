@@ -240,10 +240,6 @@ export async function verifyRefreshToken(req: Request, res: Response) {
 }
 
 export async function logOut(req: Request, res: Response) {
-  if (res.headersSent) {
-    // Response headers have already been sent by verifyAccessToken middleware, so don't send another response
-    return;
-  }
 
   await purgeBothTokens(req, res);
 

@@ -31,6 +31,7 @@ export async function verifyAccessToken(req: Request, res: Response, next: NextF
       (err: Error | null) => {
         if (err) {
           res.status(401).json({ errors: [{msg: 'Not authorized, access token failed'}] });
+          return;
         }
         next();
       }
