@@ -13,7 +13,7 @@ const app = express();
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 
 app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })
+  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
 );
 
 app.use(morgan("dev"));
@@ -25,7 +25,12 @@ app.use(cookieParser());
 
 // Protected API routes and respective protect middleware
 app.use("/api/questions", AuthMiddleWare.verifyAccessToken, questionRoutes);
-app.use("/api/questions", AuthMiddleWare.verifyAccessToken, AuthMiddleWare.protectAdmin, adminQuestionRoutes);
+app.use(
+  "/api/questions",
+  AuthMiddleWare.verifyAccessToken,
+  AuthMiddleWare.protectAdmin,
+  adminQuestionRoutes,
+);
 
 app.use((req, res, next) => {
   next(createHttpError(404, "Not found"));

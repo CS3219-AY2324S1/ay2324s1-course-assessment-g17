@@ -13,7 +13,9 @@ const FRONTEND_URL = process.env.FRONTEND_URL as string;
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })); // Handles cookies from frontend
+app.use(
+  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
+); // Handles cookies from frontend
 
 app.use("/api", userRoutes);
 app.use("/", authRoutes);
