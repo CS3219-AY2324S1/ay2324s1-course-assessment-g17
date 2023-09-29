@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { authenticateAccessToken } from "../utils/jwt";
 
 interface User {
   id: number;
@@ -15,9 +15,6 @@ interface JwtPayload {
   iat: number;
 }
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
-
 // basically verify access token
 export async function verifyAccessToken(req: Request, res: Response, next: NextFunction) {
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
@@ -25,23 +22,18 @@ export async function verifyAccessToken(req: Request, res: Response, next: NextF
   if (!accessToken) {
     res.status(401).json({ errors: [{ msg: 'Not authorized, no access token' }] });
   } else {
-    jwt.verify(
-      accessToken, 
-      ACCESS_TOKEN_SECRET,
-      (err: Error | null) => {
-        if (err) {
-          res.status(401).json({ errors: [{msg: 'Not authorized, access token failed'}] });
-          return;
-        }
-        next();
-      }
-    );
+    try {
+      await authenticateAccessToken(accessToken);
+      next();
+    } catch (error) {
+      res.status(401).json({ errors: [{ msg: 'Not authorized, access token failed' }] });
+    }
   }
 }
 
 export async function protectAdmin(req: Request, res: Response, next: NextFunction) {
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
-  const decoded = jwt.verify(accessToken, ACCESS_TOKEN_SECRET) as JwtPayload;
+  const decoded = await authenticateAccessToken(accessToken) as JwtPayload;
 
   if (decoded.user.role == "ADMIN") {
     next();

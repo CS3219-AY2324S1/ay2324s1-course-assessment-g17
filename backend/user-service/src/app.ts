@@ -14,7 +14,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })); // Handles cookies from frontend
-app.options('*', cors()); // handles preflight (OPTIONS) requests for any route ('*'), 
 
 app.use("/api", userRoutes);
 app.use("/", authRoutes);

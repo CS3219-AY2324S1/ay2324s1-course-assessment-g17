@@ -3,7 +3,12 @@ import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
 import { Request, RequestHandler, Response, NextFunction } from "express";
 import { comparePassword, hashPassword } from "../utils/auth";
-import jwt from "jsonwebtoken";
+import { 
+  generateAccessToken, 
+  generateRefreshToken,
+  authenticateAccessToken, 
+  authenticateRefreshToken 
+} from "../utils/jwt";
 
 interface LogInData {
   username: string;
@@ -38,9 +43,6 @@ interface JwtPayload {
   iat: number;
 }
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
-
 const storedRefreshTokens: string[] = [];
 // TODO: Make a MongoDB for refresh tokens
 // IF TIME PERMITS
@@ -67,7 +69,6 @@ export const signUp: RequestHandler[] = [
     }
 
     const formData = matchedData(req) as SignUpData;
-
     const hashedPassword = hashPassword(formData.password);
 
     try {
@@ -92,7 +93,6 @@ export const signUp: RequestHandler[] = [
       }
       return;
     }
-
     res.sendStatus(200);
   },
 ];
@@ -105,60 +105,78 @@ export const logIn: RequestHandler[] = [
       res.status(400).json({ errors: validationResult(req).array() });
       return;
     }
-
     const formData = matchedData(req) as LogInData;
-
     const user = await prisma.user.findFirst({
-      where: {
-        username: formData.username,
+      where: { 
+        username: formData.username, 
       },
-      include: {
-        languages: true,
+      include: { 
+        languages: true, 
       },
     });
-
     if (!user) {
       res
         .status(401)
         .json({ errors: [{ msg: "This username does not exist." }] });
       return;
     }
-
     if (!comparePassword(formData.password, user.password)) {
       res.status(401).json({ errors: [{ msg: "Wrong password." }] });
       return;
-    }
-    
+    }  
     try {
-      return await generateBothTokens(req, res, user);
-
+      const { password: _, ...userWithoutPassword } = user;
+      const accessToken = await generateAccessToken(userWithoutPassword);
+      const refreshToken = await generateRefreshToken(userWithoutPassword);
+      storedRefreshTokens.push(refreshToken);
+  
+      res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+      res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
+      
+      return res.status(200).json({
+        message: `${userWithoutPassword.username} has been authenticated`,
+        accessToken,
+        refreshToken,
+      });
     } catch (err) {
       return next(err);
-
     }
   },
 ];
 
-export async function generateBothTokens(req: Request, res: Response, user: User) {
+export async function logOut(req: Request, res: Response) {
+  // Clear server storage of refresh token
+  const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
+  storedRefreshTokens.splice(index, 1);
+ 
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.end();
+}
+
+// export async function getCurrentUser(req: Request, res: Response) {
+//   jwt.verify(
+//     req.cookies["accessToken"],
+//     ACCESS_TOKEN_SECRET,
+//     (err: Error | null, decoded: Object | undefined) => {
+//       if (err) {
+//         res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
+//       } else {
+//         res.json(decoded);
+//       }
+//     },
+//   );
+// }
+
+export async function getCurrentUser(req: Request, res: Response) {
+  const accessToken = req.cookies["accessToken"];
+
   try {
-    const { password: _, ...userWithoutPassword } = user;
+    const decoded = await authenticateAccessToken(accessToken);
 
-    const accessToken = await generateAccessToken(userWithoutPassword);
-    const refreshToken = await generateRefreshToken(userWithoutPassword);
-    storedRefreshTokens.push(refreshToken);
-
-    res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
-    
-    return res.status(200).json({
-      message: `${userWithoutPassword.username} has been authenticated`,
-      accessToken,
-      refreshToken,
-    });
-
-  } catch (err) {
-    return err;
-
+    res.json(decoded);
+  } catch (error) {
+    res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
   }
 }
 
@@ -166,106 +184,76 @@ export async function generateBothTokens(req: Request, res: Response, user: User
 export async function updateBothTokens(req: Request, res: Response) {
   const refreshToken = req.cookies["refreshToken"];
 
-  jwt.verify(
-    refreshToken, 
-    REFRESH_TOKEN_SECRET,
-    async (err: Error | null, decoded: Object | undefined) => {
-      // If error, or if refresh token is NOT in server storage
-      if (err) { 
-        res.status(401).json({ errors: [{ msg: 'Not authorized, invalid refresh token' }] });
-      } else if (!storedRefreshTokens.includes(refreshToken)) {
+  if (!refreshToken) {
+    res.status(401).json({ errors: [{ msg: 'Not authorized, no refresh token' }] });
+  } else {
+    try {
+      const decoded = await authenticateRefreshToken(refreshToken);
+
+      if (!storedRefreshTokens.includes(refreshToken)) {
         res.status(401).json({ errors: [{ msg: 'Not authorized, refresh token not found in server' }] });
       } else {
         const payload = decoded as JwtPayload;
         const userId = payload.user.id;
         const user = await prisma.user.findFirst({ where: { id: userId } }) as User;
-      
         if (!user) {
           res
             .status(401)
             .json({ errors: [{ msg: "This username does not exist." }] });
           return;
         }
-        return await generateBothTokens(req, res, user);
+        try {
+          const { password: _, ...userWithoutPassword } = user;
+          const accessToken = await generateAccessToken(userWithoutPassword);
+          const refreshToken = await generateRefreshToken(userWithoutPassword);
+          storedRefreshTokens.push(refreshToken);
+      
+          res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+          res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
+          
+          return res.status(200).json({
+            message: `Authorised, both refresh and access tokens refreshed.`,
+            accessToken,
+            refreshToken,
+          });
+        } catch (err) {
+          res.status(500).json({ errors: [{ msg: 'Internal Server Error' }] });
+        }
       }
+    } catch (error) {
+      res.status(401).json({ errors: [{ msg: 'Not authorized, invalid refresh token' }] });
     }
-  );
-}
-
-export async function generateAccessToken(userWithoutPassword: object) {
-  return jwt.sign( 
-    { user: userWithoutPassword }, 
-    ACCESS_TOKEN_SECRET, 
-    { expiresIn: '30m' }
-    );
-}
-
-export async function generateRefreshToken(userWithoutPassword: object) {
-  return jwt.sign( 
-    { user: userWithoutPassword }, 
-    REFRESH_TOKEN_SECRET, 
-    );
+  }
 }
 
 // This verify refresh token function also generates new access token after verification
+// This verify refresh token function also generates a new access token after verification
 export async function verifyRefreshToken(req: Request, res: Response) {
   const refreshToken = req.cookies["refreshToken"]; // accessToken is stored in a cookie
 
   if (!refreshToken) {
     res.status(401).json({ errors: [{ msg: 'Not authorized, no refresh token' }] });
   } else {
-    jwt.verify(
-      refreshToken, 
-      REFRESH_TOKEN_SECRET,
-      async (err: Error | null, decoded: Object | undefined) => {
-        // If error, or if refresh token is NOT in server storage
-        if (err) { 
-          res.status(401).json({ errors: [{ msg: 'Not authorized, invalid refresh token' }] });
-        } else if (!storedRefreshTokens.includes(refreshToken)) {
-          res.status(401).json({ errors: [{ msg: 'Not authorized, refresh token not found in server' }] });
-        } else {
-          const payload = decoded as JwtPayload;
-          const userWithoutPassword = payload.user;
-          const accessToken = await generateAccessToken(userWithoutPassword);
-          res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+    try {
+      const decoded = await authenticateRefreshToken(refreshToken);
 
-          return res.status(200).json({
-            message: `Authorised, access token refreshed`,
-            accessToken,
-          });
-        }
+      if (!storedRefreshTokens.includes(refreshToken)) {
+        res.status(401).json({ errors: [{ msg: 'Not authorized, refresh token not found in server' }] });
+      } else {
+        const payload = decoded as JwtPayload;
+        const userWithoutPassword = payload.user;
+        const accessToken = await generateAccessToken(userWithoutPassword);
+
+        res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+
+        return res.status(200).json({
+          message: `Authorized, access token refreshed`,
+          accessToken,
+        });
       }
-    );
+    } catch (error) {
+      res.status(401).json({ errors: [{ msg: 'Not authorized, invalid refresh token' }] });
+    }
   }
 }
 
-export async function logOut(req: Request, res: Response) {
-
-  await purgeBothTokens(req, res);
-
-  res.end();
-}
-
-export async function purgeBothTokens(req: Request, res: Response) {
-  // Clear server storage of refresh token
-  const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
-  // Remove only one item
-  storedRefreshTokens.splice(index, 1);
- 
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-}
-
-export async function getCurrentUser(req: Request, res: Response) {
-  jwt.verify(
-    req.cookies["accessToken"],
-    ACCESS_TOKEN_SECRET,
-    (err: Error | null, decoded: Object | undefined) => {
-      if (err) {
-        res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
-      } else {
-        res.json(decoded);
-      }
-    },
-  );
-}
