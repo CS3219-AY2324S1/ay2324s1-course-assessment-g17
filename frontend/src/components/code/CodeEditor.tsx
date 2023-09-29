@@ -8,17 +8,27 @@ import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
 import { editorLanguageToAcceptedFileExtensionMap, editorLanguageToFileExtensionMap } from '../../utils/code';
 import useAwaitableConfirmationDialog from '../content/AwaitableConfirmationDialog';
+import { WebrtcProvider } from 'y-webrtc';
+import * as Y from 'yjs';
+import { useParams } from 'react-router-dom';
+import { MonacoBinding } from 'y-monaco';
 
 interface CodeEditorProps {
   defaultTheme: string;
   defaultDownloadedFileName: string;
+  enableRealTimeEditing?: boolean;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloadedFileName }: CodeEditorProps) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({
+  defaultTheme,
+  defaultDownloadedFileName,
+  enableRealTimeEditing = false,
+}: CodeEditorProps) => {
   const toast = useToast();
   const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
   const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { roomId } = useParams();
 
   const { Confirmation, getConfirmation } = useAwaitableConfirmationDialog();
   const [isCopying, setIsCopying] = useState(false);
@@ -215,6 +225,25 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
           language={selectedLanguage}
           onMount={(editor) => {
             codeEditor.current = editor;
+            const editorModel = editor.getModel();
+            if (enableRealTimeEditing && editorModel !== null) {
+              if (roomId === undefined) {
+                toast({
+                  title: 'Could not create room',
+                  description: 'Invalid room ID',
+                  status: 'error',
+                  duration: 2000,
+                  isClosable: true,
+                });
+                return;
+              }
+              const ydoc = new Y.Doc();
+              const provider = new WebrtcProvider(roomId, ydoc);
+              const ycontent = ydoc.getText('monaco');
+              // eslint-disable-next-line no-new
+              new MonacoBinding(ycontent, editorModel, new Set([editor]), provider.awareness);
+              console.log('binded!');
+            }
           }}
           options={{
             scrollBeyondLastLine: false,

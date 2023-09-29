@@ -5,6 +5,7 @@ import { UpdateQuestion } from '../questions/UpdateQuestion';
 import ViewQuestion from '../questions/ViewQuestion';
 import PageNotFound from './NotFound';
 import Home from '../home/Home';
+import CollaborationRoom from '../collaboration/CollaborationRoom';
 
 const AuthenticatedApp: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ const AuthenticatedApp: React.FC = () => {
       <Route path="questions/new" element={<CreateQuestion />} />
       <Route path="question/:questionId/edit" element={<UpdateQuestion />} />
       <Route path="/question/:questionId" element={<ViewQuestion />} />
+      <Route path="/collaborate/:roomId" element={<CollaborationRoom />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
