@@ -8,7 +8,7 @@ import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
 import { editorLanguageToAcceptedFileExtensionMap, editorLanguageToFileExtensionMap } from '../../utils/code';
 import useAwaitableConfirmationDialog from '../content/AwaitableConfirmationDialog';
-import { WebrtcProvider } from 'y-webrtc';
+import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import { useParams } from 'react-router-dom';
 import { MonacoBinding } from 'y-monaco';
@@ -237,12 +237,32 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                 });
                 return;
               }
-              const ydoc = new Y.Doc();
-              const provider = new WebrtcProvider(roomId, ydoc);
-              const ycontent = ydoc.getText('monaco');
-              // eslint-disable-next-line no-new
-              new MonacoBinding(ycontent, editorModel, new Set([editor]), provider.awareness);
-              console.log('binded!');
+
+              try {
+                if (process.env.REACT_APP_COLLABORATION_SERVICE_BACKEND_URL === undefined) {
+                  toast({
+                    title: 'Server Error',
+                    description: 'Could not connect to server',
+                    status: 'error',
+                    duration: 2000,
+                    isClosable: true,
+                  });
+                  return;
+                }
+
+                const ydoc = new Y.Doc();
+                const provider = new WebsocketProvider(
+                  process.env.REACT_APP_COLLABORATION_SERVICE_BACKEND_URL,
+                  roomId,
+                  ydoc,
+                );
+                const ycontent = ydoc.getText('monaco');
+                // eslint-disable-next-line no-new
+                new MonacoBinding(ycontent, editorModel, new Set([editor]), provider.awareness);
+                console.log('binded');
+              } catch (error) {
+                console.log('unexpected error', error);
+              }
             }
           }}
           options={{
