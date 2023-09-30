@@ -22,6 +22,9 @@ const AuthenticatedApp: React.FC = () => {
       {/* Matching routes */}
       <Route path="/matching" element={<Matching />} />
 
+      {/* Collaboration routes */}
+      <Route path="/collaborate/:roomId" element={<CollaborationRoom />} />
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
