@@ -1,20 +1,27 @@
 import express from "express";
-import * as authController from "../controllers/authController";
+import * as AuthController from "../controllers/authController";
+import * as AuthMiddleWare from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.post("/login", authController.logIn);
-router.post("/signup", authController.signUp);
-router.get("/deregister", authController.deregister);
+router.post("/login", AuthController.logIn);
+router.post("/signup", AuthController.signUp);
 
-// Protect the /logout route
-router.get("/logout", authController.protect, authController.logOut);
+// Protected refresh token routes
+router.get("/bothToken", AuthController.updateBothTokens);
+router.get("/token", AuthController.updateAccessToken);
 
-// Protect the /currentUser route
+// Protected access token routes
+router.get("/logout", AuthMiddleWare.verifyAccessToken, AuthController.logOut);
 router.get(
   "/currentUser",
-  authController.protect,
-  authController.getCurrentUser
+  AuthMiddleWare.verifyAccessToken,
+  AuthController.getCurrentUser
+);
+router.get(
+  "/deregister",
+  AuthMiddleWare.verifyAccessToken,
+  AuthController.deregister
 );
 
 export default router;

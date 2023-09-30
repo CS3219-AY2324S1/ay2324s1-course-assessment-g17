@@ -23,7 +23,7 @@ const DataTableSearch = <T extends object>({ table }: DataTableSearchProps<T>): 
   }, [searchValue]);
 
   return (
-    <InputGroup minWidth={700}>
+    <InputGroup minWidth="fit-content">
       <InputLeftElement paddingLeft={8} pointerEvents="none">
         <SearchIcon color="gray.400" />
       </InputLeftElement>
@@ -40,12 +40,14 @@ const DataTableSearch = <T extends object>({ table }: DataTableSearchProps<T>): 
       />
 
       <InputRightElement
-        paddingRight={8}
+        _hover={{ cursor: 'pointer', color: 'gray.600' }} // Change color on hover
+        color="gray.400"
+        _active={{ transform: 'scale(0.9)' }} // Scale down on click
         onClick={() => {
           setSearchValue('');
         }}
       >
-        <CloseIcon color="gray.400" />
+        <CloseIcon />
       </InputRightElement>
     </InputGroup>
   );

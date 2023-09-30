@@ -1,4 +1,4 @@
-import { DeleteIcon } from '@chakra-ui/icons';
+import { CloseIcon } from '@chakra-ui/icons';
 import { Tooltip, IconButton, useToast } from '@chakra-ui/react';
 import React from 'react';
 import QuestionsAPI from '../../api/questions/questions';
@@ -34,12 +34,8 @@ const QuestionDeleteIconButton: React.FC<QuestionDeleteIconButtonProps> = ({
 
   return (
     <Tooltip label={`Delete Question ${questionId}`}>
-      <IconButton
-        aria-label="Delete Question"
-        colorScheme="red" // Adjust the color scheme as needed
-        onClick={handleDelete} // Use the handleDelete function as the onClick handler
-      >
-        <DeleteIcon />
+      <IconButton aria-label="Delete Question" onClick={handleDelete} _hover={{ bg: 'transparent' }} bg="transparent">
+        <CloseIcon boxSize="3" />
       </IconButton>
     </Tooltip>
   );

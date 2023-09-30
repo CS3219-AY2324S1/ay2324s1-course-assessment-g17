@@ -12,19 +12,9 @@ const app = express();
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 
-// CORS Important Specifications (START)
 app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })
+  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
 );
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', FRONTEND_URL);
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
-
-// CORS Important Specifications (END)
 
 app.use(morgan("dev"));
 
@@ -34,8 +24,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Protected API routes and respective protect middleware
-app.use("/api/questions", AuthMiddleWare.protect, questionRoutes);
-app.use("/api/questions", AuthMiddleWare.protect, AuthMiddleWare.protectAdmin, adminQuestionRoutes);
+app.use("/api/questions", AuthMiddleWare.verifyAccessToken, questionRoutes);
+app.use(
+  "/api/questions",
+  AuthMiddleWare.verifyAccessToken,
+  AuthMiddleWare.protectAdmin,
+  adminQuestionRoutes,
+);
 
 app.use((req, res, next) => {
   next(createHttpError(404, "Not found"));
