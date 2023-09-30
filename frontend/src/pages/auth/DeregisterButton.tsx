@@ -15,6 +15,7 @@ const DeregisterButton: React.FC = () => {
         dispatch(logOut());
       })
       .catch((err) => {
+        console.log(err);
         toast({
           title: 'Account deletion failed.',
           status: 'error',
