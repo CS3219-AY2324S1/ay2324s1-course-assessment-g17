@@ -137,6 +137,7 @@ export const logIn: RequestHandler[] = [
       });
 
       return res.status(200).json({
+        user: userWithoutPassword,
         message: `${userWithoutPassword.username} has been authenticated`,
         accessToken,
         refreshToken,
@@ -181,13 +182,11 @@ export async function updateBothTokens(req: Request, res: Response) {
       const decoded = await authenticateRefreshToken(refreshToken);
 
       if (!storedRefreshTokens.includes(refreshToken)) {
-        res
-          .status(401)
-          .json({
-            errors: [
-              { msg: "Not authorized, refresh token not found in server" },
-            ],
-          });
+        res.status(401).json({
+          errors: [
+            { msg: "Not authorized, refresh token not found in server" },
+          ],
+        });
       } else {
         const payload = decoded as JwtPayload;
         const userId = payload.user.id;
@@ -245,13 +244,11 @@ export async function updateAccessToken(req: Request, res: Response) {
       const decoded = await authenticateRefreshToken(refreshToken);
 
       if (!storedRefreshTokens.includes(refreshToken)) {
-        res
-          .status(401)
-          .json({
-            errors: [
-              { msg: "Not authorized, refresh token not found in server" },
-            ],
-          });
+        res.status(401).json({
+          errors: [
+            { msg: "Not authorized, refresh token not found in server" },
+          ],
+        });
       } else {
         const payload = decoded as JwtPayload;
         const userWithoutPassword = payload.user;
