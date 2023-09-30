@@ -13,6 +13,8 @@ import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import { useParams } from 'react-router-dom';
 import { MonacoBinding } from 'y-monaco';
+import { selectUser } from '../../reducers/authSlice';
+import { useAppSelector } from '../../reducers/hooks';
 
 interface CodeEditorProps {
   defaultTheme: string;
@@ -30,6 +32,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { roomId } = useParams();
+  const user = useAppSelector(selectUser);
 
   const { Confirmation, getConfirmation } = useAwaitableConfirmationDialog();
   const [isCopying, setIsCopying] = useState(false);
@@ -260,8 +263,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                 const ycontent = ydoc.getText('monaco');
                 const awareness = provider.awareness;
                 const color = RandomColor({ luminosity: 'light' });
+
                 awareness.setLocalStateField('user', {
-                  name: 'Users Name',
+                  name: user?.username,
                   color,
                 });
 
