@@ -1,5 +1,4 @@
 import db from "./db";
-import { categoryEnum } from "../../../question-service/src/models/question";
 
 export enum QuestionComplexityEnum {
   EASY = "Easy",
@@ -8,17 +7,16 @@ export enum QuestionComplexityEnum {
 }
 
 export enum MatchStatusEnum {
-    MATCHED = "Matched",
-    PENDING = "Pending",
-    TIMEOUT = "Timeout",
+  MATCHED = "Matched",
+  PENDING = "Pending",
+  TIMEOUT = "Timeout",
 }
 
 interface MatchingInfo {
-  id: number;
   user_id: number;
   socket_id: string;
   difficulty_level: QuestionComplexityEnum[];
-topics: typeof categoryEnum[];
+  topics: string[];
   status: MatchStatusEnum;
 }
 
@@ -39,7 +37,13 @@ export const insertMatchingInfo = (info: MatchingInfo) => {
   db.run(
     `INSERT INTO matching (user_id, socket_id, difficulty_level, topics, status)
      VALUES (?, ?, ?, ?)`,
-    [info.user_id, info.socket_id, info.difficulty_level, info.topics, info.status],
+    [
+      info.user_id,
+      info.socket_id,
+      info.difficulty_level,
+      info.topics,
+      info.status,
+    ],
     function (err) {
       if (err) {
         return console.error(err.message);

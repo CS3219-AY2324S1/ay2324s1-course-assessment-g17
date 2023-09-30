@@ -12,7 +12,7 @@ enum MatchingStateEnum {
   MATCHED,
 }
 
-const Matching: React.FC = () => {
+const Matching: React.FC<{ userId: number }> = ({ userId }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const toast = useToast();
   const [matchingState, setMatchingState] = useState<MatchingStateEnum>(MatchingStateEnum.NO_REQUEST);
@@ -46,8 +46,8 @@ const Matching: React.FC = () => {
     };
   }, []);
 
-  const handleMatchRequest = (complexity: QuestionComplexityEnum, categories: string[]): void => {
-    socket?.emit('requestMatch', { complexity, categories });
+  const handleMatchRequest = (complexities: QuestionComplexityEnum[], categories: string[]): void => {
+    socket?.emit('requestMatch', { userId, complexities, categories });
     setMatchingState(MatchingStateEnum.PENDING);
   };
 

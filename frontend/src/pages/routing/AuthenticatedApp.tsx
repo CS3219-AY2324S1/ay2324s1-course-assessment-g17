@@ -7,8 +7,10 @@ import ViewQuestion from '../questions/ViewQuestion';
 import PageNotFound from './NotFound';
 import Matching from '../matching/Matching';
 import ProtectedRoute from './ProtectedRoute';
+import { useUser } from '../../context/UserContext';
 
 const AuthenticatedApp: React.FC = () => {
+  const { user } = useUser();
   return (
     <Routes>
       {/* Question routes */}
@@ -18,7 +20,7 @@ const AuthenticatedApp: React.FC = () => {
       <Route path="/question/:questionId/edit" element={<ProtectedRoute child={<UpdateQuestion />} />} />
 
       {/* Matching routes */}
-      <Route path="/matching" element={<Matching />} />
+      <Route path="/matching" element={<Matching userId={user != null ? user.id : 0} />} />
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
