@@ -175,14 +175,7 @@ export const deregister = async (req: Request, res: Response) => {
 };
 
 export async function getCurrentUser(req: Request, res: Response) {
-  const accessToken = req.cookies["accessToken"];
-
-  try {
-    const decoded = await authenticateAccessToken(accessToken);
-    res.json(decoded);
-  } catch (error) {
-    res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
-  }
+  res.json({ user: req.user! });
 }
 
 // update after updating user profile
