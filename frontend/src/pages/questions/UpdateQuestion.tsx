@@ -5,7 +5,6 @@ import QuestionForm from '../../components/content/QuestionForm';
 import { LINK_PREFIX, type QuestionPostData, type QuestionData } from '../../types/questions/questions';
 
 export const UpdateQuestion: React.FC = () => {
-  console.log('huh?');
   const { questionId } = useParams();
   const navigate = useNavigate();
 
