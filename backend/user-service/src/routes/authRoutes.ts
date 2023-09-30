@@ -18,5 +18,7 @@ router.get(
   AuthMiddleWare.verifyAccessToken,
   AuthController.getCurrentUser,
 );
+router.post("/send-reset-email", AuthController.sendResetEmail);
+router.post("/reset-password", AuthController.resetPassword);
 
 export default router;

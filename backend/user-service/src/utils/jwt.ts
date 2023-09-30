@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
+const TEMPORARY_TOKEN_SECRET = process.env.TEMPORARY_TOKEN_SECRET as string;
 
 export async function generateAccessToken(userWithoutPassword: object) {
   return jwt.sign({ user: userWithoutPassword }, ACCESS_TOKEN_SECRET, {
@@ -47,4 +48,20 @@ export async function authenticateRefreshToken(
       },
     );
   });
+}
+
+// is using email or the entire object better
+export function generateTemporaryToken(email: string): string {
+  return jwt.sign({ email }, TEMPORARY_TOKEN_SECRET, { expiresIn: "1h" });
+}
+
+export function verifyTemporaryToken(token: string): { email: string } | null {
+  try {
+    const decoded = jwt.verify(token, TEMPORARY_TOKEN_SECRET) as {
+      email: string;
+    };
+    return decoded;
+  } catch (error) {
+    return null;
+  }
 }
