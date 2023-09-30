@@ -25,6 +25,7 @@ const MatchingForm: React.FC<MatchingFormProps> = ({ handleMatchRequest }) => {
             <FormLabel>Complexity</FormLabel>
             <Select
               multiple
+              height="70px"
               value={complexities}
               onChange={(e) => {
                 setComplexities(
