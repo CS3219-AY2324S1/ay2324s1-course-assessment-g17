@@ -161,10 +161,6 @@ export const updateQuestion: RequestHandler[] = [
 
     const sameQuestionExists = await QuestionModel.exists({
       title: formData.title,
-      categories: formData.categories,
-      complexity: formData.complexity,
-      linkToQuestion: formData.linkToQuestion,
-      questionDescription: formData.questionDescription,
     });
 
     if (sameQuestionExists) {
@@ -178,7 +174,7 @@ export const updateQuestion: RequestHandler[] = [
     const finalQuestion = await QuestionModel.findByIdAndUpdate(
       existingQuestion._id,
       formData,
-      { new: true },
+      { new: true }
     );
 
     res.status(200).json({ data: finalQuestion, status: "success" });

@@ -20,7 +20,7 @@ const ViewQuestion: React.FC = () => {
   }
 
   return (
-    <Box width="100%" height="85vh" my={5}>
+    <Box width="100%" height="100vh" my={5}>
       <Allotment>
         <Allotment.Pane>
           <QuestionDetails
