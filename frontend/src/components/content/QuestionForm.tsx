@@ -15,19 +15,12 @@ import {
   useToast,
   Spinner,
 } from '@chakra-ui/react';
-import {
-  AutoComplete,
-  AutoCompleteInput,
-  AutoCompleteItem,
-  AutoCompleteList,
-  AutoCompleteTag,
-} from '@choc-ui/chakra-autocomplete';
+
 import React, { useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { FaCheck } from 'react-icons/fa6';
 import ConfirmationDialog from '../../components/content/ConfirmationDialog';
-import QuestionsAPI from '../../api/questions/questions';
 import IconWithText from './IconWithText';
 import {
   LINK_PREFIX,
@@ -37,6 +30,7 @@ import {
 } from '../../types/questions/questions';
 import { BiSolidBookAdd } from 'react-icons/bi';
 import { type AxiosError } from 'axios';
+import QuestionCategoryAutocomplete from '../../components/questions/QuestionCategoryAutocomplete';
 
 interface QuestionFormProps {
   formTitle: string;
@@ -67,16 +61,6 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   const [categories, setCategories] = useState<string[]>([]);
   const [complexity, setComplexity] = useState(QuestionComplexityEnum.EASY);
   const [linkToQuestion, setLinkToQuestion] = useState('');
-  const [allCategories, setAllCategories] = useState<string[]>([]);
-
-  useEffect(() => {
-    new QuestionsAPI()
-      .getCategories()
-      .then((categories) => {
-        setAllCategories(categories);
-      })
-      .catch(console.error);
-  }, []);
 
   useEffect(() => {
     if (initialData !== null && initialData !== undefined) {
@@ -166,39 +150,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
             <FormControl isRequired>
               <FormLabel>Categories</FormLabel>
-              <AutoComplete
-                openOnFocus
-                closeOnSelect
-                multiple
-                onChange={(categories) => {
-                  setCategories(categories as string[]);
-                }}
-                isLoading={allCategories.length === 0}
-                suggestWhenEmpty
-                restoreOnBlurIfEmpty={false}
-                value={categories}
-              >
-                <AutoCompleteInput variant="filled" isRequired={false}>
-                  {({ tags }) =>
-                    tags.map((tag, tid) => (
-                      <AutoCompleteTag key={tid} label={tag.label as string} onRemove={tag.onRemove} />
-                    ))
-                  }
-                </AutoCompleteInput>
-                <AutoCompleteList>
-                  {allCategories.map((category, cid) => (
-                    <AutoCompleteItem
-                      key={`option-${cid}`}
-                      value={category}
-                      style={{ marginTop: 4, marginBottom: 4 }}
-                      _selected={{ bg: useColorModeValue('blackAlpha.50', 'whiteAlpha.50'), color: 'gray.500' }}
-                      _focus={{ bg: useColorModeValue('blackAlpha.100', 'whiteAlpha.100') }}
-                    >
-                      {category}
-                    </AutoCompleteItem>
-                  ))}
-                </AutoCompleteList>
-              </AutoComplete>
+              <QuestionCategoryAutocomplete categories={categories} handleChange={setCategories} />
             </FormControl>
 
             <FormControl isRequired>
