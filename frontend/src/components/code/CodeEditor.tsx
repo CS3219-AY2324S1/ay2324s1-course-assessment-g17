@@ -288,18 +288,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                     const color = state?.color;
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
                     const username = state?.name;
-                    const cursor = document.querySelector(`.yRemoteSelectionHead-${clientId}`) as HTMLElement;
-                    const highlights = document.getElementsByClassName(
-                      `yRemoteSelection-${clientId}`,
-                    ) as HTMLCollectionOf<HTMLElement>;
-
-                    cursor?.setAttribute('style', `border-left: ${color} solid 2px;`);
+                    const cursorStyleElem = document.head.appendChild(document.createElement('style'));
+                    cursorStyleElem.innerHTML = `.yRemoteSelectionHead-${clientId} { border-left: ${color} solid 2px;}`;
+                    const highlightStyleElem = document.head.appendChild(document.createElement('style'));
+                    highlightStyleElem.innerHTML = `.yRemoteSelection-${clientId} { background-color: ${color}9A;}`;
                     const styleElem = document.head.appendChild(document.createElement('style'));
                     styleElem.innerHTML = `.yRemoteSelectionHead-${clientId}::after { background-color: ${color}; color: black; content: '${username}'}`;
-
-                    for (let i = 0; i < highlights.length; i++) {
-                      highlights[i].style.backgroundColor = `${color}9A`;
-                    }
                   });
                 });
 
