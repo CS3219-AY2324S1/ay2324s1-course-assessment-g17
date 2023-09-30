@@ -15,8 +15,8 @@ export enum MatchStatusEnum {
 interface MatchingInfo {
   user_id: number;
   socket_id: string;
-  difficulty_level: QuestionComplexityEnum[];
-  topics: string[];
+  difficulty_level: string;
+  topics: string;
   status: MatchStatusEnum;
 }
 
@@ -36,7 +36,7 @@ export const createMatchingTable = () => {
 export const insertMatchingInfo = (info: MatchingInfo) => {
   db.run(
     `INSERT INTO matching (user_id, socket_id, difficulty_level, topics, status)
-     VALUES (?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?)`,
     [
       info.user_id,
       info.socket_id,

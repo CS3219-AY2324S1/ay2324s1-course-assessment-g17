@@ -23,17 +23,20 @@ interface RequestMatchProps {
   categories: string[];
 }
 
+createMatchingTable();
+
 const registerMatchingHandlers = (io: Server, socket: Socket) => {
   socket.on("requestMatch", (props: RequestMatchProps) => {
-    createMatchingTable();
-
     const matchingInfo = {
       user_id: props.userId,
       socket_id: socket.id,
-      difficulty_level: props.complexities,
-      topics: props.categories,
+      difficulty_level: props.complexities.join(", "),
+      topics: props.categories.join(", "),
       status: MatchStatusEnum.PENDING,
     };
+
+    console.log(matchingInfo)
+
 
     insertMatchingInfo(matchingInfo);
 
