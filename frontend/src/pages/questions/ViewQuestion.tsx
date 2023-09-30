@@ -71,7 +71,7 @@ const ViewQuestion: React.FC = () => {
               <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
             </Text>
             <Divider mt={4} />
-            <Box ml="8px">
+            <Box ml="8px" minWidth={'80%'}>
               <VStack align="start" spacing={4} mt={4}>
                 <Heading as="h2" size="md">
                   Description
