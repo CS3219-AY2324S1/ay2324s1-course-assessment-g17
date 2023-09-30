@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../../api/questions/questions';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import QuestionForm from '../../components/content/QuestionForm';
 import { LINK_PREFIX, type QuestionPostData, type QuestionData } from '../../types/questions/questions';
 
 export const UpdateQuestion: React.FC = () => {
   const { questionId } = useParams();
+  const navigate = useNavigate();
+
   let questionIdString: string;
   if (questionId !== undefined) {
     questionIdString = questionId;
@@ -25,6 +27,7 @@ export const UpdateQuestion: React.FC = () => {
       })
       .catch((error) => {
         console.error('Error fetching question data:', error);
+        navigate('/404');
         setDataLoaded(true);
       });
   }, []);

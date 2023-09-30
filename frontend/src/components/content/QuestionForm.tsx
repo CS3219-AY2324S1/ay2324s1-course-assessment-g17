@@ -6,7 +6,6 @@ import {
   InputGroup,
   InputLeftAddon,
   Select,
-  Textarea,
   Flex,
   HStack,
   useColorModeValue,
@@ -16,6 +15,7 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 
+import RichTextEditor from './RichTextEditor';
 import React, { useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
@@ -113,6 +113,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         JSON.stringify(initialData.categories) === JSON.stringify(categories)
       : false;
 
+  const handleDescriptionChange = (newContent: React.SetStateAction<string>): void => {
+    setQuestionDescription(newContent);
+  };
+
   return (
     <Card m={12} p={8}>
       <form onSubmit={handleSubmit}>
@@ -168,15 +172,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
             <FormControl isRequired>
               <FormLabel>Description</FormLabel>
-              <Textarea
-                placeholder="Description of Leetcode question"
-                _placeholder={{ color: useColorModeValue('gray.600', 'gray.400') }}
+              <RichTextEditor
                 value={questionDescription}
-                onChange={(e) => {
-                  setQuestionDescription(e.target.value);
-                }}
-                required
-                rows={8}
+                onChange={handleDescriptionChange}
+                useColorModeValue={useColorModeValue}
               />
             </FormControl>
 

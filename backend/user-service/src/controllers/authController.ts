@@ -1,9 +1,14 @@
 import { Prisma, Role } from "@prisma/client";
 import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
-import { Request, RequestHandler, Response } from "express";
+import { Request, RequestHandler, Response, NextFunction } from "express";
 import { comparePassword, hashPassword } from "../utils/auth";
-import jwt from "jsonwebtoken";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  authenticateAccessToken,
+  authenticateRefreshToken,
+} from "../utils/jwt";
 
 interface LogInData {
   username: string;
@@ -15,7 +20,32 @@ interface SignUpData extends LogInData {
   confirmPassword: string;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+interface User {
+  id: number;
+  password: string;
+  username: string;
+  email: string;
+  role: string;
+  languages: { id: number; language: string }[];
+}
+
+interface UserWithoutPassword {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  languages: { id: number; language: string }[];
+}
+
+interface JwtPayload {
+  user: UserWithoutPassword;
+  exp: number;
+  iat: number;
+}
+
+const storedRefreshTokens: string[] = [];
+// TODO: Make a MongoDB for refresh tokens
+// IF TIME PERMITS
 
 export const signUp: RequestHandler[] = [
   body("username").notEmpty(),
@@ -39,7 +69,6 @@ export const signUp: RequestHandler[] = [
     }
 
     const formData = matchedData(req) as SignUpData;
-
     const hashedPassword = hashPassword(formData.password);
 
     try {
@@ -56,7 +85,7 @@ export const signUp: RequestHandler[] = [
         err instanceof Prisma.PrismaClientKnownRequestError &&
         err.code === "P2002"
       ) {
-        res.status(400).json({
+        res.status(409).json({
           errors: [
             { msg: `${err.meta?.target} is already taken by another user.` },
           ],
@@ -64,7 +93,6 @@ export const signUp: RequestHandler[] = [
       }
       return;
     }
-
     res.sendStatus(200);
   },
 ];
@@ -77,9 +105,7 @@ export const logIn: RequestHandler[] = [
       res.status(400).json({ errors: validationResult(req).array() });
       return;
     }
-
     const formData = matchedData(req) as LogInData;
-
     const user = await prisma.user.findFirst({
       where: {
         username: formData.username,
@@ -88,49 +114,160 @@ export const logIn: RequestHandler[] = [
         languages: true,
       },
     });
-
     if (!user) {
       res
         .status(401)
         .json({ errors: [{ msg: "This username does not exist." }] });
       return;
     }
-
     if (!comparePassword(formData.password, user.password)) {
       res.status(401).json({ errors: [{ msg: "Wrong password." }] });
       return;
     }
+    try {
+      const { password: _, ...userWithoutPassword } = user;
+      const accessToken = await generateAccessToken(userWithoutPassword);
+      const refreshToken = await generateRefreshToken(userWithoutPassword);
+      storedRefreshTokens.push(refreshToken);
 
-    const { password: _, ...userWithoutPassword } = user;
-    jwt.sign(
-      { user: userWithoutPassword },
-      JWT_SECRET,
-      (err: Error | null, token: string | undefined) => {
-        if (err) {
-          return next(err);
-        }
-        res
-          .cookie("jwt", token, { httpOnly: true, secure: false })
-          .json({ user: userWithoutPassword });
-      },
-    );
+      res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: false,
+      });
+
+      return res.status(200).json({
+        user: userWithoutPassword,
+        message: `${userWithoutPassword.username} has been authenticated`,
+        accessToken,
+        refreshToken,
+      });
+    } catch (err) {
+      return next(err);
+    }
   },
 ];
 
 export async function logOut(req: Request, res: Response) {
-  res.clearCookie("jwt").end();
+  // Clear server storage of refresh token
+  const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
+  storedRefreshTokens.splice(index, 1);
+
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.end();
 }
 
 export async function getCurrentUser(req: Request, res: Response) {
-  jwt.verify(
-    req.cookies["jwt"],
-    JWT_SECRET,
-    (err: Error | null, decoded: Object | undefined) => {
-      if (err) {
-        res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
+  const accessToken = req.cookies["accessToken"];
+
+  try {
+    const decoded = await authenticateAccessToken(accessToken);
+    res.json(decoded);
+  } catch (error) {
+    res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
+  }
+}
+
+// update after updating user profile
+export async function updateBothTokens(req: Request, res: Response) {
+  const refreshToken = req.cookies["refreshToken"];
+
+  if (!refreshToken) {
+    res
+      .status(401)
+      .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
+  } else {
+    try {
+      const decoded = await authenticateRefreshToken(refreshToken);
+
+      if (!storedRefreshTokens.includes(refreshToken)) {
+        res.status(401).json({
+          errors: [
+            { msg: "Not authorized, refresh token not found in server" },
+          ],
+        });
       } else {
-        res.json(decoded);
+        const payload = decoded as JwtPayload;
+        const userId = payload.user.id;
+        const user = (await prisma.user.findFirst({
+          where: { id: userId },
+        })) as User;
+        if (!user) {
+          res
+            .status(401)
+            .json({ errors: [{ msg: "This username does not exist." }] });
+          return;
+        }
+        try {
+          const { password: _, ...userWithoutPassword } = user;
+          const accessToken = await generateAccessToken(userWithoutPassword);
+          const refreshToken = await generateRefreshToken(userWithoutPassword);
+          storedRefreshTokens.push(refreshToken);
+
+          res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: false,
+          });
+          res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: false,
+          });
+
+          return res.status(200).json({
+            message: `Authorised, both refresh and access tokens refreshed.`,
+            accessToken,
+            refreshToken,
+          });
+        } catch (err) {
+          res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
+        }
       }
-    },
-  );
+    } catch (error) {
+      res
+        .status(401)
+        .json({ errors: [{ msg: "Not authorized, invalid refresh token" }] });
+    }
+  }
+}
+
+// This verify refresh token function also generates new access token after verification
+export async function updateAccessToken(req: Request, res: Response) {
+  const refreshToken = req.cookies["refreshToken"]; // accessToken is stored in a cookie
+
+  if (!refreshToken) {
+    res
+      .status(401)
+      .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
+  } else {
+    try {
+      const decoded = await authenticateRefreshToken(refreshToken);
+
+      if (!storedRefreshTokens.includes(refreshToken)) {
+        res.status(401).json({
+          errors: [
+            { msg: "Not authorized, refresh token not found in server" },
+          ],
+        });
+      } else {
+        const payload = decoded as JwtPayload;
+        const userWithoutPassword = payload.user;
+        const accessToken = await generateAccessToken(userWithoutPassword);
+
+        res.cookie("accessToken", accessToken, {
+          httpOnly: true,
+          secure: false,
+        });
+
+        return res.status(200).json({
+          message: `Authorized, access token refreshed`,
+          accessToken,
+        });
+      }
+    } catch (error) {
+      res
+        .status(401)
+        .json({ errors: [{ msg: "Not authorized, invalid refresh token" }] });
+    }
+  }
 }
