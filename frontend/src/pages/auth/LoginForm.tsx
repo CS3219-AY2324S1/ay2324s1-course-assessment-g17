@@ -12,6 +12,7 @@ import {
   Stack,
   Text,
   useToast,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaCode } from 'react-icons/fa';
@@ -83,12 +84,11 @@ const LoginForm: React.FC = () => {
             <Button type="submit" colorScheme="teal" width={'100%'}>
               Log In
             </Button>
-            <Flex justifyContent={'space-between'} width={'100%'}>
+            <Flex justifyContent={'center'} width={'100%'}>
               <Text>
-                <Link to="/">Forgot Password?</Link>
-              </Text>
-              <Text>
-                <Link to="/signup">Sign Up</Link>
+                <ChakraLink as={Link} color="teal.500" to="/signup">
+                  Don&apos;t have an account? Sign Up!
+                </ChakraLink>
               </Text>
             </Flex>
           </Stack>
