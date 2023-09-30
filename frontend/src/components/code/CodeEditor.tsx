@@ -8,6 +8,7 @@ import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
 import { editorLanguageToAcceptedFileExtensionMap, editorLanguageToFileExtensionMap } from '../../utils/code';
 import useAwaitableConfirmationDialog from '../content/AwaitableConfirmationDialog';
+import RandomColor from 'randomcolor';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import { useParams } from 'react-router-dom';
@@ -257,8 +258,36 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                   ydoc,
                 );
                 const ycontent = ydoc.getText('monaco');
+                const awareness = provider.awareness;
+                const color = RandomColor({ luminosity: 'light' });
+                awareness.setLocalStateField('user', {
+                  name: 'Users Name',
+                  color,
+                });
+
+                awareness.on('update', () => {
+                  awareness.getStates().forEach((state, clientId) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    const color = state.user.color as string;
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    const username = state.user.name as string;
+                    const cursor = document.querySelector(`.yRemoteSelectionHead-${clientId}`) as HTMLElement;
+                    const highlights = document.getElementsByClassName(
+                      `yRemoteSelection-${clientId}`,
+                    ) as HTMLCollectionOf<HTMLElement>;
+
+                    cursor?.setAttribute('style', `border-left: ${color} solid 2px;`);
+                    const styleElem = document.head.appendChild(document.createElement('style'));
+                    styleElem.innerHTML = `.yRemoteSelectionHead-${clientId}::after { background-color: ${color}; color: black; content: '${username}'}`;
+
+                    for (let i = 0; i < highlights.length; i++) {
+                      highlights[i].style.backgroundColor = `${color}9A`;
+                    }
+                  });
+                });
+
                 // eslint-disable-next-line no-new
-                new MonacoBinding(ycontent, editorModel, new Set([editor]), provider.awareness);
+                new MonacoBinding(ycontent, editorModel, new Set([editor]), awareness);
                 console.log('binded');
               } catch (error) {
                 console.log('unexpected error', error);
