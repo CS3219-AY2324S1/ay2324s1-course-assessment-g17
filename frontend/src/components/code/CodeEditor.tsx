@@ -14,7 +14,8 @@ import * as Y from 'yjs';
 import { useParams } from 'react-router-dom';
 import { MonacoBinding } from 'y-monaco';
 import { selectUser } from '../../reducers/authSlice';
-import { useAppSelector } from '../../reducers/hooks';
+import { useAppDispatch, useAppSelector } from '../../reducers/hooks';
+import { type AwarenessState, setAwareness } from '../../reducers/awarenessSlice';
 
 interface CodeEditorProps {
   defaultTheme: string;
@@ -27,6 +28,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   defaultDownloadedFileName,
   enableRealTimeEditing = false,
 }: CodeEditorProps) => {
+  const dispatch = useAppDispatch();
   const toast = useToast();
   const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
   const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -266,19 +268,26 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
                 awareness.setLocalStateField('user', {
                   name: user?.username,
+                  userId: user?.id,
                   color,
                 });
 
                 awareness.on('change', (changes: { added: number[]; updated: number[]; removed: number[] }) => {
                   const awarenessStates = awareness.getStates();
+                  const awarenessPayload: AwarenessState[] = [];
+                  awarenessStates.forEach((value, key) =>
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    awarenessPayload.push({ clientId: key, awareness: value.user }),
+                  );
+                  dispatch(setAwareness(awarenessPayload));
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                   changes.added.forEach((clientId) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    const state = awarenessStates.get(clientId);
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    const color = state?.user.color as string;
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    const username = state?.user.name as string;
+                    const state = awarenessStates.get(clientId)?.user;
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+                    const color = state?.color;
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+                    const username = state?.name;
                     const cursor = document.querySelector(`.yRemoteSelectionHead-${clientId}`) as HTMLElement;
                     const highlights = document.getElementsByClassName(
                       `yRemoteSelection-${clientId}`,

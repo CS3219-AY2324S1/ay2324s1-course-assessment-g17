@@ -3,11 +3,14 @@ import React from 'react';
 import { Box, VStack, useColorModeValue } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
 import CodeEditor from '../../components/code/CodeEditor';
+import { selectAwareness } from '../../reducers/awarenessSlice';
+import { useAppSelector } from '../../reducers/hooks';
 
 const CollaborationRoom: React.FC = () => {
   const { roomId } = useParams();
   const location = useLocation();
   const editorTheme = useColorModeValue('light', 'vs-dark');
+  const awareness = useAppSelector(selectAwareness);
 
   return (
     <>
@@ -17,7 +20,12 @@ const CollaborationRoom: React.FC = () => {
         <Allotment>
           <Allotment.Pane>
             <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
-              <h1>test</h1>
+              <h1>users</h1>
+              {awareness?.map((state, index) => (
+                <h1 key={index}>
+                  {state.awareness.name} ({state.awareness.color})
+                </h1>
+              ))}
             </VStack>
           </Allotment.Pane>
           <Allotment.Pane>
