@@ -9,12 +9,15 @@ import CodeEditor from '../../components/code/CodeEditor';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
 import QuestionEditIconButton from '../../components/questions/QuestionEditIconButton';
+import { selectIsAdmin } from '../../reducers/authSlice';
+import { useSelector } from 'react-redux';
 
 const ViewQuestion: React.FC = () => {
   const { questionId } = useParams();
   const [question, setQuestion] = useState<QuestionData | null>(null);
   const colourScheme = useColorModeValue('gray.600', 'gray.400');
   const editorTheme = useColorModeValue('light', 'vs-dark');
+  const isAdmin = useSelector(selectIsAdmin);
 
   useEffect(() => {
     const fetchQuestion = async (): Promise<void> => {
@@ -54,7 +57,7 @@ const ViewQuestion: React.FC = () => {
           <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
             <Heading as="h1" size="xl" textAlign="center">
               {question.title}
-              <QuestionEditIconButton questionId={question.questionID} title={question.title} />
+              {isAdmin && <QuestionEditIconButton questionId={question.questionID} title={question.title} />}
             </Heading>
             <Text fontSize="md" color={colourScheme} mt={2}>
               <span style={{ fontWeight: 'bold' }}>Complexity: </span>
@@ -67,23 +70,6 @@ const ViewQuestion: React.FC = () => {
               <span style={{ fontWeight: 'bold' }}>Link to Question: </span>
               <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
             </Text>
-            <Divider mt={4} />
-            <VStack align="start" spacing={4} mt={4}>
-              <Heading as="h2" size="md">
-                Description
-              </Heading>
-              <Text fontSize="md" color={colourScheme} mt={2}>
-                <span style={{ fontWeight: 'bold' }}>Complexity: </span>
-                <QuestionComplexityTag questionComplexity={question.complexity} />
-              </Text>
-              <Text fontSize="md" color={colourScheme} mt={2}>
-                <span style={{ fontWeight: 'bold' }}>Categories:</span> {question.categories.join(', ')}
-              </Text>
-              <Text fontSize="md" color={colourScheme} mt={2}>
-                <span style={{ fontWeight: 'bold' }}>Link to Question: </span>
-                <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
-              </Text>
-            </VStack>
             <Divider mt={4} />
             <Box ml="8px">
               <VStack align="start" spacing={4} mt={4}>
