@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { authenticateAccessToken } from "../utils/jwt";
 
-interface User {
+export interface User {
   id: number;
   username: string;
   email: string;
@@ -19,7 +19,7 @@ interface JwtPayload {
 export async function verifyAccessToken(
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
@@ -29,7 +29,11 @@ export async function verifyAccessToken(
       .json({ errors: [{ msg: "Not authorized, no access token" }] });
   } else {
     try {
-      await authenticateAccessToken(accessToken);
+      const decoded = (await authenticateAccessToken(
+        accessToken
+      )) as JwtPayload;
+      req.user = decoded.user;
+
       next();
     } catch (error) {
       res
@@ -42,7 +46,7 @@ export async function verifyAccessToken(
 export async function protectAdmin(
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
   const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;

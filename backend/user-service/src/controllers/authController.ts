@@ -157,23 +157,22 @@ export async function logOut(req: Request, res: Response) {
   res.end();
 }
 
-export const deregister = [
-  protect,
-  async (req: Request, res: Response) => {
-    const user = req.user!;
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        userLanguage: {
-          deleteMany: {},
-        },
-        languages: { set: [] },
+export const deregister = async (req: Request, res: Response) => {
+  const user = req.user!;
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      userLanguage: {
+        deleteMany: {},
       },
-    });
-    await prisma.user.delete({ where: { id: user.id } });
-    res.clearCookie("jwt").end();
-  },
-];
+      languages: { set: [] },
+    },
+  });
+  await prisma.user.delete({ where: { id: user.id } });
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.end();
+};
 
 export async function getCurrentUser(req: Request, res: Response) {
   const accessToken = req.cookies["accessToken"];
