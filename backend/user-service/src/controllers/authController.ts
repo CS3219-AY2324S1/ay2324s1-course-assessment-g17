@@ -8,7 +8,10 @@ import {
   generateRefreshToken,
   authenticateAccessToken,
   authenticateRefreshToken,
+  generateTemporaryToken,
+  verifyTemporaryToken,
 } from "../utils/jwt";
+import transporter from "../utils/nodemailer";
 
 interface LogInData {
   username: string;
@@ -230,6 +233,97 @@ export async function updateBothTokens(req: Request, res: Response) {
     }
   }
 }
+
+export const sendResetEmail: RequestHandler[] = [
+  body("email").notEmpty().isEmail(),
+  async (req, res) => {
+    if (!validationResult(req).isEmpty()) {
+      res.status(400).json({ errors: validationResult(req).array() });
+      return;
+    }
+
+    const { email } = matchedData(req);
+
+    try {
+      const user = await prisma.user.findUnique({ where: { email } });
+
+      if (!user) {
+        res.status(404).json({ errors: [{ msg: "User not found." }] });
+        return;
+      }
+
+      const resetToken = generateTemporaryToken(email);
+      const mailOptions = {
+        from: "your_email@example.com",
+        to: email,
+        subject: "Password Reset",
+        text: `Click the link below to reset your password: http://localhost:8000/reset-password?token=${resetToken}`,
+      };
+
+      transporter.sendMail(mailOptions, (error: Error | null, info: any) => {
+        if (error) {
+          console.error(error);
+          res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
+        } else {
+          console.log("Email sent: " + info.response);
+          res
+            .status(200)
+            .json({ message: "Password reset link sent successfully." });
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
+    }
+  },
+];
+
+export const resetPassword: RequestHandler[] = [
+  body("password")
+    .notEmpty()
+    .isLength({ min: 8 })
+    .withMessage("Password should have length of at least 8."),
+  async (req, res) => {
+    if (!validationResult(req).isEmpty()) {
+      res.status(400).json({ errors: validationResult(req).array() });
+      return;
+    }
+
+    const { password } = matchedData(req);
+    const { token } = req.query;
+
+    try {
+      const isValidToken = await verifyTemporaryToken(token as string);
+
+      if (!isValidToken) {
+        const errorMessage = "Invalid token: Unable to verify token.";
+        console.error(errorMessage);
+        res.status(400).json({ errors: [{ msg: errorMessage }] });
+        return;
+      }
+
+      const user = await prisma.user.findFirst({
+        where: { email: isValidToken.email },
+      });
+
+      if (!user) {
+        res.status(400).json({ errors: [{ msg: "User not found." }] });
+        return;
+      }
+
+      const hashedPassword = hashPassword(password);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword },
+      });
+
+      res.status(200).json({ message: "Password reset successful." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
+    }
+  },
+];
 
 // This verify refresh token function also generates new access token after verification
 export async function updateAccessToken(req: Request, res: Response) {
