@@ -17,20 +17,36 @@ import {
   HStack,
   Input,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import { BiDoorOpen } from 'react-icons/bi';
 import PasswordField from '../../components/content/PasswordField';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate, version } from 'uuid';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CreatePracticeRoom: React.FC = () => {
+  const toast = useToast();
   const navigate = useNavigate();
   const [isPracticeRoomOpen, setIsPracticeRoomOpen] = useState(false);
   const [roomPassword, setRoomPassword] = useState('');
+  const [roomIdInput, setRoomIdInput] = useState('');
   const handleRoomCreation = (): void => {
     const roomId = uuidv4();
     navigate(`/collaborate/${roomId}`, { state: roomPassword });
+  };
+  const handleRoomJoin = (): void => {
+    if (!validate(roomIdInput) || version(roomIdInput) !== 4) {
+      toast({
+        title: 'Invalid room ID',
+        description: 'The room ID provided is invalid. Please check again.',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+      return;
+    }
+    navigate(`/collaborate/${roomIdInput}`);
   };
 
   return (
@@ -89,8 +105,13 @@ const CreatePracticeRoom: React.FC = () => {
                 <Text fontWeight="bold">Join a room</Text>
                 <Text>Already have an invite? Join an existing room!</Text>
                 <HStack>
-                  <Input placeholder="Room ID" />
-                  <Button>Join room</Button>
+                  <Input
+                    placeholder="Room ID"
+                    onChange={(e) => {
+                      setRoomIdInput(e.target.value);
+                    }}
+                  />
+                  <Button onClick={handleRoomJoin}>Join room</Button>
                 </HStack>
               </Stack>
             </ModalBody>
