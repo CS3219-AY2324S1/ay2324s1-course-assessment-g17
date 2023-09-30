@@ -1,6 +1,6 @@
 import { Box, Heading, Text, Link, VStack, Divider, useColorModeValue, Spinner, Center } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import QuestionsAPI from '../../api/questions/questions';
 import { type QuestionData } from '../../types/questions/questions';
 import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
@@ -18,12 +18,16 @@ const ViewQuestion: React.FC = () => {
   const colourScheme = useColorModeValue('gray.600', 'gray.400');
   const editorTheme = useColorModeValue('light', 'vs-dark');
   const isAdmin = useSelector(selectIsAdmin);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQuestion = async (): Promise<void> => {
       try {
         if (questionId !== null && questionId !== undefined) {
           const response = await new QuestionsAPI().getQuestionById(parseInt(questionId, 10));
+          if (response == null) {
+            navigate('/404');
+          }
           setQuestion(response);
         }
       } catch (error) {
