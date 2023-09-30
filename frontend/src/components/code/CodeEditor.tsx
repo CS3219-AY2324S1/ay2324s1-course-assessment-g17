@@ -269,12 +269,16 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                   color,
                 });
 
-                awareness.on('update', () => {
-                  awareness.getStates().forEach((state, clientId) => {
+                awareness.on('change', (changes: { added: number[]; updated: number[]; removed: number[] }) => {
+                  const awarenessStates = awareness.getStates();
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                  changes.added.forEach((clientId) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    const state = awarenessStates.get(clientId);
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    const color = state.user.color as string;
+                    const color = state?.user.color as string;
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    const username = state.user.name as string;
+                    const username = state?.user.name as string;
                     const cursor = document.querySelector(`.yRemoteSelectionHead-${clientId}`) as HTMLElement;
                     const highlights = document.getElementsByClassName(
                       `yRemoteSelection-${clientId}`,
