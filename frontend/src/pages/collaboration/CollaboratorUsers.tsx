@@ -5,7 +5,11 @@ import { selectUser } from '../../reducers/authSlice';
 import { HiUserGroup } from 'react-icons/hi';
 import React from 'react';
 
-const CollaboratorUsers: React.FC = () => {
+interface CollaboratorUsersProps {
+  onUserTabToggle: () => void;
+}
+
+const CollaboratorUsers: React.FC<CollaboratorUsersProps> = ({ onUserTabToggle }: CollaboratorUsersProps) => {
   const awareness = useAppSelector(selectAwareness);
   const currentUser = useAppSelector(selectUser);
 
@@ -16,20 +20,14 @@ const CollaboratorUsers: React.FC = () => {
           <Box key={index}>
             <Tooltip
               hasArrow
-              label={`@${state.awareness.name}${currentUser?.id === state.awareness.userId ? ' (You)' : ''}`}
+              label={`@${state.awareness.name}${currentUser?.id === state.awareness.userId ? ' (Me)' : ''}`}
             >
-              <Avatar
-                showBorder
-                size="sm"
-                name={state.awareness.name}
-                backgroundColor={state.awareness.color}
-                color="black"
-              />
+              <Avatar size="sm" name={state.awareness.name} backgroundColor={state.awareness.color} color="black" />
             </Tooltip>
           </Box>
         ))}
       </AvatarGroup>
-      <Button variant="outline" size="sm" leftIcon={<HiUserGroup size={20} />}>
+      <Button variant="outline" size="sm" leftIcon={<HiUserGroup size={20} />} onClick={onUserTabToggle}>
         {awareness?.length}
       </Button>
     </HStack>

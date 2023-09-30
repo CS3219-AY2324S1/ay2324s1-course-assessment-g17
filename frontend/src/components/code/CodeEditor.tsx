@@ -269,6 +269,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                 awareness.setLocalStateField('user', {
                   name: user?.username,
                   userId: user?.id,
+                  email: user?.email,
                   color,
                 });
 
