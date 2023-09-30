@@ -36,8 +36,6 @@ const RoomInfo: React.FC = () => {
   const { roomId } = useParams();
   const { onCopy, hasCopied, setValue } = useClipboard('');
 
-  console.log('location.state', location.state);
-
   useEffect(() => {
     if (roomId !== undefined) {
       setValue(roomId);
@@ -45,15 +43,15 @@ const RoomInfo: React.FC = () => {
   }, [roomId]);
 
   return (
-    <Flex mb={2} minWidth="485px" alignItems="center">
+    <Flex mb={2} minWidth="500px" alignItems="center">
       <Popover trigger="hover">
         <PopoverTrigger>
-          <HStack mr={4}>
-            {isPasswordProtected && <BiLockAlt size={16} />}
-            {!isPasswordProtected && <BiInfoCircle size={16} />}
+          <HStack mx={4}>
             <Text whiteSpace="nowrap" size="sm" fontWeight="bold">
               Room ID
             </Text>
+            {isPasswordProtected && <BiLockAlt size={16} />}
+            {!isPasswordProtected && <BiInfoCircle size={16} />}
           </HStack>
         </PopoverTrigger>
         <PopoverContent minW={{ base: '100%', lg: '700px' }}>
