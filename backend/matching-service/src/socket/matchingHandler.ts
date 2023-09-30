@@ -15,7 +15,14 @@ interface RequestMatchProps {
 
 const registerMatchingHandlers = (io: Server, socket: Socket) => {
   socket.on("requestMatch", (props: RequestMatchProps) => {
-    console.log(props);
+    // TODO: track socket id somewhere
+    // TODO: check db for potential match
+    // TODO: save timeout somewhere to revoke on match
+    setTimeout(() => socket.emit("timeout"), 5000);
+  });
+  socket.on("disconnect", () => {
+    // TODO: drop user from matching
+    console.log(`socket ${socket.id} disconnected`);
   });
 };
 
