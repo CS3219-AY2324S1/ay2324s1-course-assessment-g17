@@ -1,6 +1,7 @@
 import http from "http";
 import dotenv from "dotenv";
 import { Server, Socket } from "socket.io";
+import { insertMatching } from "../controllers/matchingController";
 
 export enum QuestionComplexityEnum {
   EASY = "Easy",
@@ -8,13 +9,29 @@ export enum QuestionComplexityEnum {
   HARD = "Hard",
 }
 
+export enum MatchStatusEnum {
+  MATCHED = "Matched",
+  PENDING = "Pending",
+  TIMEOUT = "Timeout",
+}
 interface RequestMatchProps {
-  complexity: QuestionComplexityEnum;
+  userId: number;
+  complexities: QuestionComplexityEnum[];
   categories: string[];
 }
 
 const registerMatchingHandlers = (io: Server, socket: Socket) => {
-  socket.on("requestMatch", (props: RequestMatchProps) => {
+  socket.on("requestMatch", async (props: RequestMatchProps) => {
+    const matchingInfo = {
+      user_id: props.userId,
+      socket_id: socket.id,
+      difficulty_level: props.complexities,
+      topics: props.categories,
+      status: MatchStatusEnum.PENDING,
+    };
+
+    insertMatching(matchingInfo);
+
     // TODO: track socket id somewhere
     // TODO: check db for potential match
     // TODO: save timeout somewhere to revoke on match

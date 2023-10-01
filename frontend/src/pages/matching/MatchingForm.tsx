@@ -5,16 +5,16 @@ import { QuestionComplexityEnum } from '../../types/questions/questions';
 import { FaBoltLightning } from 'react-icons/fa6';
 
 interface MatchingFormProps {
-  handleMatchRequest: (complexity: QuestionComplexityEnum, categories: string[]) => void;
+  handleMatchRequest: (complexities: QuestionComplexityEnum[], categories: string[]) => void;
 }
 
 const MatchingForm: React.FC<MatchingFormProps> = ({ handleMatchRequest }) => {
-  const [complexity, setComplexity] = useState(QuestionComplexityEnum.EASY);
+  const [complexities, setComplexities] = useState<QuestionComplexityEnum[]>([QuestionComplexityEnum.EASY]);
   const [categories, setCategories] = useState<string[]>([]);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    handleMatchRequest(complexity, categories);
+    handleMatchRequest(complexities, categories);
   };
 
   return (
@@ -24,9 +24,13 @@ const MatchingForm: React.FC<MatchingFormProps> = ({ handleMatchRequest }) => {
           <FormControl isRequired>
             <FormLabel>Complexity</FormLabel>
             <Select
-              value={complexity}
+              multiple
+              height="70px"
+              value={complexities}
               onChange={(e) => {
-                setComplexity(e.target.value as QuestionComplexityEnum);
+                setComplexities(
+                  Array.from(e.target.selectedOptions, (option) => option.value as QuestionComplexityEnum),
+                );
               }}
             >
               <option value={QuestionComplexityEnum.EASY}>Easy</option>
