@@ -1,5 +1,5 @@
 import type { LogInPostData, SignUpPostData } from '../../types/users/auth';
-import type { User } from '../../types/users/users';
+import type { User, UserProfileUpdateData } from '../../types/users/users';
 import { userServiceClient } from '../base';
 
 export default class AuthAPI {
@@ -31,5 +31,11 @@ export default class AuthAPI {
 
   public async useRefreshToken(): Promise<never> {
     return await userServiceClient.get(this.getAuthUrl() + 'token');
+  }
+
+  // Update user profile data
+  public async updateUserProfile(data: UserProfileUpdateData): Promise<User> {
+    const response = await userServiceClient.put(this.getAuthUrl() + 'update-profile', data);
+    return response.data;
   }
 }

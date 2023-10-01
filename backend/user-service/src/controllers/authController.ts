@@ -179,7 +179,35 @@ export const deregister = async (req: Request, res: Response) => {
 };
 
 export async function getCurrentUser(req: Request, res: Response) {
-  res.json({ user: req.user! });
+  try {
+    const userId = req.user?.id; // user ID is used for identification
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    // Fetch the latest user data from the database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        languages: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Send the user data in the response
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 }
 
 // update after updating user profile
@@ -373,5 +401,32 @@ export async function updateAccessToken(req: Request, res: Response) {
         .status(401)
         .json({ errors: [{ msg: "Not authorized, invalid refresh token" }] });
     }
+  }
+}
+
+export async function updateUserProfile(req: Request, res: Response) {
+  try {
+    const user = req.user;
+
+    // Check if user is defined
+    if (!user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const { username, email, /* other fields */ } = req.body;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        username,
+        email,
+        // Update other fields
+      },
+    });
+
+    res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 }

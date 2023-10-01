@@ -20,6 +20,7 @@ const ViewProfile: React.FC = () => {
     const fetchUserProfile = async (): Promise<void> => {
       try {
         const response = await new AuthAPI().getCurrentUser();
+        console.log('User Data from Server:', response);
         setUserData(response);
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -30,6 +31,11 @@ const ViewProfile: React.FC = () => {
       console.error('Error fetching user profile:', error);
     });
   }, []);
+
+  const handleProfileUpdated = (): void => {
+    // Refresh user profile page
+    window.location.reload();
+  };
 
   return (
     <Box width="100%" height="85vh" my={5}>
@@ -68,6 +74,7 @@ const ViewProfile: React.FC = () => {
           initialUsername={userData.username}
           initialEmail={userData.email}
           initialLanguages={userData.languages}
+          onProfileUpdated={handleProfileUpdated}
         />
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
           <HStack spacing={5} align="center" mt={4}>

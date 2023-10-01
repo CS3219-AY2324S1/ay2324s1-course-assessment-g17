@@ -23,6 +23,7 @@ import {
 } from '@choc-ui/chakra-autocomplete';
 import { EditorLanguageEnum } from '../../types/code/languages';
 import type { Language } from '../../types/users/users';
+import AuthAPI from '../../api/users/auth';
 
 interface EditProfileProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ interface EditProfileProps {
   initialUsername: string;
   initialEmail: string;
   initialLanguages: Language[];
+  onProfileUpdated: () => void;
 }
 
 const EditProfile: React.FC<EditProfileProps> = ({
@@ -38,6 +40,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
   initialUsername,
   initialEmail,
   initialLanguages,
+  onProfileUpdated,
 }) => {
   const [username, setUsername] = useState(initialUsername);
   const [email, setEmail] = useState(initialEmail);
@@ -58,6 +61,34 @@ const EditProfile: React.FC<EditProfileProps> = ({
     }
   }, [isOpen, initialUsername, initialEmail, initialLanguages]);
 
+  const handleSave = async (): Promise<void> => {
+    try {
+      const updatedProfile = {
+        username,
+        email,
+        languages,
+      };
+
+      console.log('Request Data:', updatedProfile);
+
+      // Make a POST request to save the updated profile data.
+      const response = await new AuthAPI().updateUserProfile(updatedProfile);
+      console.log('Response Data:', response);
+
+      // Could display a success message to the user using `useToast`.
+
+      // Close the modal.
+      onCloseModal();
+
+      // Trigger the callback function to refresh the profile page
+      onProfileUpdated();
+    } catch (error) {
+      // Handle errors, e.g., display an error message at console and to the user.
+      console.error('Error updating profile:', error);
+      // Could display an error message to the user using `useToast`.
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onCloseModal}>
       <ModalOverlay />
@@ -65,7 +96,6 @@ const EditProfile: React.FC<EditProfileProps> = ({
         <ModalHeader>Edit Profile</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {/* <form onSubmit={handleSubmit}> */}
           <Stack spacing={4}>
             <FormControl>
               <FormLabel>Username</FormLabel>
@@ -124,10 +154,9 @@ const EditProfile: React.FC<EditProfileProps> = ({
               </AutoComplete>
             </FormControl>
           </Stack>
-          {/* </form> */}
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="teal" mr={4}>
+          <Button colorScheme="teal" mr={4} onClick={handleSave as () => void}>
             Save
           </Button>
         </ModalFooter>
