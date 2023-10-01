@@ -122,7 +122,8 @@ export const getQuestionCategories: RequestHandler = (req, res) => {
 export const updateQuestion: RequestHandler[] = [
   param("questionId")
     .notEmpty()
-    .withMessage("questionId field cannot be empty."),
+    .withMessage("questionId field cannot be empty.")
+    .toInt(),
   param("questionId").isNumeric().withMessage("questionId should be a number."),
   body("title").notEmpty().trim().withMessage("title cannot be empty."),
   body("categories").isArray().withMessage("categories should be an array."),
@@ -161,6 +162,7 @@ export const updateQuestion: RequestHandler[] = [
 
     const sameQuestionExists = await QuestionModel.exists({
       title: formData.title,
+      questionID: { $ne: questionId },
     });
 
     if (sameQuestionExists) {
@@ -174,7 +176,7 @@ export const updateQuestion: RequestHandler[] = [
     const finalQuestion = await QuestionModel.findByIdAndUpdate(
       existingQuestion._id,
       formData,
-      { new: true },
+      { new: true }
     );
 
     res.status(200).json({ data: finalQuestion, status: "success" });
