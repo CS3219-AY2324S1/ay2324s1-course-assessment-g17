@@ -12,7 +12,8 @@ enum MatchingStateEnum {
   MATCHED,
 }
 
-const Matching: React.FC<{ userId: number }> = ({ userId }) => {
+const Matching: React.FC = () => {
+  const userId = useAppSelector(selectUser)?.id;
   const [socket, setSocket] = useState<Socket | null>(null);
   const toast = useToast();
   const [matchingState, setMatchingState] = useState<MatchingStateEnum>(MatchingStateEnum.NO_REQUEST);
