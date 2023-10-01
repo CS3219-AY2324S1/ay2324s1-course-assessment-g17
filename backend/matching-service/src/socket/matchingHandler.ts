@@ -8,6 +8,7 @@ import {
 } from "../controllers/matchingController";
 import { store } from "../utils/store";
 import matching from "../models/matching";
+import * as amqp from "amqplib/callback_api";
 
 export enum QuestionComplexityEnum {
   EASY = "Easy",
@@ -64,6 +65,22 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
       // TODO: do something with matchResult
       console.log("Found a match!");
       console.log(matchResult);
+
+      const rabbitMQUrl = process.env.RABBITMQ_URL || "amqp://localhost";
+      amqp.connect(rabbitMQUrl, (error0, connection) => {
+        if (error0) throw error0;
+        connection.createChannel((error1, channel) => {
+          if (error1) throw error1;
+          const queue = "match_results";
+
+          channel.assertQueue(queue, { durable: false });
+          channel.sendToQueue(queue, Buffer.from(JSON.stringify(matchResult)));
+          console.log(`[x] Sent ${JSON.stringify(matchResult)}`);
+        });
+        setTimeout(() => {
+          connection.close();
+        }, 500);
+      });
 
       // Notify both users of the match result.
       socket.emit("matchFound");
