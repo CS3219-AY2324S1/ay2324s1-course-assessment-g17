@@ -1,7 +1,13 @@
 import http from "http";
 import dotenv from "dotenv";
 import { Server, Socket } from "socket.io";
-import { insertMatching } from "../controllers/matchingController";
+import {
+  findMatch,
+  insertMatching,
+  markAsTimeout,
+} from "../controllers/matchingController";
+import { store } from "../utils/store";
+import matching from "../models/matching";
 
 export enum QuestionComplexityEnum {
   EASY = "Easy",
@@ -30,12 +36,38 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
       status: MatchStatusEnum.PENDING,
     };
 
-    insertMatching(matchingInfo);
+    const result = await findMatch(matchingInfo);
+    if (!result) {
+      // If no match found, insert pending match to DB and start timeout.
+      insertMatching(matchingInfo);
+      store[matchingInfo.user_id] = setTimeout(() => {
+        // TODO: update match status
+        markAsTimeout(matchingInfo);
+        socket.emit("timeout");
+      }, 10000);
+    } else {
+      // If match found:
+      // 1. Insert matched match to DB
+      // 2. Clear first request's timeout
+      // 3. TODO: do something with match results
+      // 4. Notify both users.
+      insertMatching({ ...matchingInfo, status: MatchStatusEnum.MATCHED });
+      const matchResult = {
+        userOne: matchingInfo.user_id,
+        userTwo: result.user_id,
+        categories: result.categories,
+        difficulty_level: result.difficulty_levels,
+      };
+      clearTimeout(store[matchResult.userTwo]);
 
-    // TODO: track socket id somewhere
-    // TODO: check db for potential match
-    // TODO: save timeout somewhere to revoke on match
-    setTimeout(() => socket.emit("timeout"), 5000);
+      // TODO: do something with matchResult
+      console.log("Found a match!");
+      console.log(matchResult);
+
+      // Notify both users of the match result.
+      socket.emit("matchFound");
+      socket.to(result.socket_id).emit("matchFound");
+    }
   });
   socket.on("disconnect", () => {
     // TODO: drop user from matching

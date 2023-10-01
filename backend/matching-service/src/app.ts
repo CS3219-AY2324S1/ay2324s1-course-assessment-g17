@@ -5,6 +5,7 @@ import { Server, Socket } from "socket.io";
 import registerMatchingHandlers from "./socket/matchingHandler";
 import cors from "cors";
 import mongoose from "mongoose";
+import matching from "./models/matching";
 
 dotenv.config();
 const mongoString = process.env.MONGO_CONNECTION_STRING as string;
@@ -13,7 +14,7 @@ const PORT = process.env.PORT as string;
 
 const app = express();
 app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
+  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })
 );
 
 const httpServer = createServer();

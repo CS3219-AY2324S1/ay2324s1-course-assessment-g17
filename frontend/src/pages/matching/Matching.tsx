@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Center, Spinner, useToast } from '@chakra-ui/react';
+import { Card, Center, Spinner, Text, useToast } from '@chakra-ui/react';
 import { io, type Socket } from 'socket.io-client';
 import type { QuestionComplexityEnum } from '../../types/questions/questions';
 import { FaBoltLightning } from 'react-icons/fa6';
@@ -33,10 +33,22 @@ const Matching: React.FC = () => {
 
     newSocket.on('timeout', () => {
       setMatchingState(MatchingStateEnum.NO_REQUEST);
+
       toast({
         title: 'Matching failed.',
         description: 'Your match request timed out.',
         status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+    });
+
+    newSocket.on('matchFound', () => {
+      setMatchingState(MatchingStateEnum.MATCHED);
+      toast({
+        title: 'Matching succeeded.',
+        description: 'Yay!',
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
@@ -64,6 +76,7 @@ const Matching: React.FC = () => {
             <Spinner size={'xl'} />
           </Center>
         )}
+        {matchingState === MatchingStateEnum.MATCHED && <Text>You have been matched!</Text>}
       </Card>
     </Center>
   );
