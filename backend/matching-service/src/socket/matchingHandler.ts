@@ -1,10 +1,7 @@
 import http from "http";
 import dotenv from "dotenv";
 import { Server, Socket } from "socket.io";
-import {
-  createMatchingTable,
-  insertMatchingInfo,
-} from "../model/matchingModel";
+import { insertMatching } from "../controllers/matchingController";
 
 export enum QuestionComplexityEnum {
   EASY = "Easy",
@@ -23,22 +20,17 @@ interface RequestMatchProps {
   categories: string[];
 }
 
-createMatchingTable();
-
 const registerMatchingHandlers = (io: Server, socket: Socket) => {
-  socket.on("requestMatch", (props: RequestMatchProps) => {
+  socket.on("requestMatch", async (props: RequestMatchProps) => {
     const matchingInfo = {
       user_id: props.userId,
       socket_id: socket.id,
-      difficulty_level: props.complexities.join(", "),
-      topics: props.categories.join(", "),
+      difficulty_level: props.complexities,
+      topics: props.categories,
       status: MatchStatusEnum.PENDING,
     };
 
-    console.log(matchingInfo)
-
-
-    insertMatchingInfo(matchingInfo);
+    insertMatching(matchingInfo);
 
     // TODO: track socket id somewhere
     // TODO: check db for potential match
