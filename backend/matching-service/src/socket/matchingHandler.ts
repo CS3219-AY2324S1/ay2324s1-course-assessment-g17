@@ -44,7 +44,7 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
         // TODO: update match status
         markAsTimeout(matchingInfo);
         socket.emit("timeout");
-      }, 10000);
+      }, 30000);
     } else {
       // If match found:
       // 1. Insert matched match to DB
