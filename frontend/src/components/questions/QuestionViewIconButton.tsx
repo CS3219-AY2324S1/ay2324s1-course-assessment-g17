@@ -1,4 +1,4 @@
-import { ChevronRightIcon } from '@chakra-ui/icons';
+import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { Tooltip, IconButton } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import React from 'react';
@@ -22,7 +22,7 @@ const QuestionViewIconButton: React.FC<QuestionViewIconButtonProps> = ({
           navigate(`/question/${questionId}`);
         }}
       >
-        <ChevronRightIcon />
+        <ArrowForwardIcon />
       </IconButton>
     </Tooltip>
   );

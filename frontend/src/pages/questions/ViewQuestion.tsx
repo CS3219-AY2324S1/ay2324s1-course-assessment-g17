@@ -1,24 +1,33 @@
 import { Box, Heading, Text, Link, VStack, Divider, useColorModeValue, Spinner, Center } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import QuestionsAPI from '../../api/questions/questions';
 import { type QuestionData } from '../../types/questions/questions';
 import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
+import DOMPurify from 'dompurify';
 import CodeEditor from '../../components/code/CodeEditor';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
+import QuestionEditIconButton from '../../components/questions/QuestionEditIconButton';
+import { selectIsAdmin } from '../../reducers/authSlice';
+import { useSelector } from 'react-redux';
 
 const ViewQuestion: React.FC = () => {
-  const { questionId } = useParams(); // Get questionId from URL parameters
+  const { questionId } = useParams();
   const [question, setQuestion] = useState<QuestionData | null>(null);
   const colourScheme = useColorModeValue('gray.600', 'gray.400');
   const editorTheme = useColorModeValue('light', 'vs-dark');
+  const isAdmin = useSelector(selectIsAdmin);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQuestion = async (): Promise<void> => {
       try {
         if (questionId !== null && questionId !== undefined) {
           const response = await new QuestionsAPI().getQuestionById(parseInt(questionId, 10));
+          if (response == null) {
+            navigate('/404');
+          }
           setQuestion(response);
         }
       } catch (error) {
@@ -46,12 +55,13 @@ const ViewQuestion: React.FC = () => {
   }
 
   return (
-    <Box width="100%" height="85vh" my={5}>
+    <Box width="100%" height="100vh" my={5}>
       <Allotment>
         <Allotment.Pane>
           <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
             <Heading as="h1" size="xl" textAlign="center">
               {question.title}
+              {isAdmin && <QuestionEditIconButton questionId={question.questionID} title={question.title} />}
             </Heading>
             <Text fontSize="md" color={colourScheme} mt={2}>
               <span style={{ fontWeight: 'bold' }}>Complexity: </span>
@@ -65,12 +75,19 @@ const ViewQuestion: React.FC = () => {
               <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
             </Text>
             <Divider mt={4} />
-            <VStack align="start" spacing={4} mt={4}>
-              <Heading as="h2" size="md">
-                Description
-              </Heading>
-              <Text whiteSpace="pre-line">{question.questionDescription}</Text>
-            </VStack>
+            <Box ml="8px" minWidth={'80%'}>
+              <VStack align="start" spacing={4} mt={4}>
+                <Heading as="h2" size="md">
+                  Description
+                </Heading>
+                <Text
+                  whiteSpace="pre-line"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(question.questionDescription),
+                  }}
+                />
+              </VStack>
+            </Box>
           </VStack>
         </Allotment.Pane>
         <Allotment.Pane>

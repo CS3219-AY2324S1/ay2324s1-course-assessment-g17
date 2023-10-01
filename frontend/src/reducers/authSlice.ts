@@ -28,5 +28,7 @@ export const { setUser, logOut } = counterSlice.actions;
 
 export const selectUser = (state: RootState): User | null => state.auth.user;
 export const selectIsLoggedIn = (state: RootState): boolean => state.auth.user !== null;
+export const selectIsAdmin = (state: RootState): boolean =>
+  state.auth.user !== null && state.auth.user.role === 'ADMIN';
 
 export default counterSlice.reducer;
