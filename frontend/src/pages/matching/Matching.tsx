@@ -61,7 +61,7 @@ const Matching: React.FC = () => {
     };
   }, []);
 
-  const handleMatchRequest = (complexities: QuestionComplexityEnum[], categories: string[]): void => {
+  const handleMatchRequest = (complexities: readonly QuestionComplexityEnum[], categories: string[]): void => {
     socket?.emit('requestMatch', { userId, complexities, categories });
     setMatchingState(MatchingStateEnum.PENDING);
   };
