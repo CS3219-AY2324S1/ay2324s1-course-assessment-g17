@@ -20,7 +20,7 @@ const AuthenticatedApp: React.FC = () => {
       <Route path="/question/:questionId/edit" element={<ProtectedRoute child={<UpdateQuestion />} />} />
 
       {/* Matching routes */}
-      <Route path="/matching" element={<Matching userId={user != null ? user.id : 0} />} />
+      <Route path="/matching" element={<Matching />} />
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
