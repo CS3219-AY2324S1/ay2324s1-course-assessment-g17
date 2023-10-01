@@ -19,8 +19,6 @@ import AuthAPI from '../../api/users/auth';
 import type { AxiosError } from 'axios';
 import { useAppDispatch } from '../../reducers/hooks';
 import { setUser } from '../../reducers/authSlice';
-import { useUser } from '../../context/UserContext';
-import { type User } from '../../types/users/users';
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -28,7 +26,6 @@ const LoginForm: React.FC = () => {
   const toast = useToast();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { setUser: setUserContext } = useUser() as { setUser: (user: User | null) => void };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -36,7 +33,6 @@ const LoginForm: React.FC = () => {
       .logIn({ username, password })
       .then((user) => {
         dispatch(setUser(user));
-        setUserContext(user);
         navigate('/');
       })
       .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
