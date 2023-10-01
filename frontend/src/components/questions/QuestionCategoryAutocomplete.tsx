@@ -23,6 +23,9 @@ const QuestionCategoryAutocomplete = ({ categories, handleChange }: QuestionCate
       options={allCategories.map((category) => {
         return { label: category, value: category };
       })}
+      initialOptions={categories.map((category) => {
+        return { label: category, value: category };
+      })}
       onChange={handleChange}
     />
   );
