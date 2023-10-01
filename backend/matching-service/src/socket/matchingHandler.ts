@@ -52,6 +52,7 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
       // 3. TODO: do something with match results
       // 4. Notify both users.
       insertMatching({ ...matchingInfo, status: MatchStatusEnum.MATCHED });
+
       const matchResult = {
         userOne: matchingInfo.user_id,
         userTwo: result.user_id,

@@ -91,7 +91,7 @@ export async function findMatch(matchingInfo: MatchingInfo) {
       potentialMatch.categories,
       matchingInfo.topics
     ),
-    difficulty_level_query: findIntersection(
+    difficulty_levels: findIntersection(
       potentialMatch.difficulty_levels,
       matchingInfo.difficulty_level
     ),
