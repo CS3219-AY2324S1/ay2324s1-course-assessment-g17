@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from '../../reducers/hooks';
 import AuthenticatedApp from './AuthenticatedApp';
 import UnauthenticatedApp from './UnauthenticatedApp';
 import React, { useState } from 'react';
-import { UserProvider } from '../../context/UserContext';
 
 const AppRouter: React.FC = () => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
@@ -37,13 +36,9 @@ const AppRouter: React.FC = () => {
       <Spinner size="xl" />
     </Center>
   ) : isLoggedIn ? (
-    <UserProvider>
-      <AuthenticatedApp />
-    </UserProvider>
+    <AuthenticatedApp />
   ) : (
-    <UserProvider>
-      <UnauthenticatedApp />
-    </UserProvider>
+    <UnauthenticatedApp />
   );
 };
 
