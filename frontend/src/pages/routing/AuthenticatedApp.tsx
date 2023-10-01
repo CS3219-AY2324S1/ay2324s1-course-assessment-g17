@@ -7,10 +7,8 @@ import ViewQuestion from '../questions/ViewQuestion';
 import PageNotFound from './NotFound';
 import Matching from '../matching/Matching';
 import ProtectedRoute from './ProtectedRoute';
-import { useUser } from '../../context/UserContext';
 
 const AuthenticatedApp: React.FC = () => {
-  const { user } = useUser();
   return (
     <Routes>
       {/* Question routes */}
