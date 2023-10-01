@@ -161,15 +161,25 @@ export async function logOut(req: Request, res: Response) {
   res.end();
 }
 
-export async function getCurrentUser(req: Request, res: Response) {
-  const accessToken = req.cookies["accessToken"];
+export const deregister = async (req: Request, res: Response) => {
+  const user = req.user!;
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      userLanguage: {
+        deleteMany: {},
+      },
+      languages: { set: [] },
+    },
+  });
+  await prisma.user.delete({ where: { id: user.id } });
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.end();
+};
 
-  try {
-    const decoded = await authenticateAccessToken(accessToken);
-    res.json(decoded);
-  } catch (error) {
-    res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
-  }
+export async function getCurrentUser(req: Request, res: Response) {
+  res.json({ user: req.user! });
 }
 
 // update after updating user profile
