@@ -8,17 +8,33 @@ import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
 import { editorLanguageToAcceptedFileExtensionMap, editorLanguageToFileExtensionMap } from '../../utils/code';
 import useAwaitableConfirmationDialog from '../content/AwaitableConfirmationDialog';
+import RandomColor from 'randomcolor';
+import { WebsocketProvider } from 'y-websocket';
+import * as Y from 'yjs';
+import { useParams } from 'react-router-dom';
+import { MonacoBinding } from 'y-monaco';
+import { selectUser } from '../../reducers/authSlice';
+import { useAppDispatch, useAppSelector } from '../../reducers/hooks';
+import { type AwarenessState, setAwareness } from '../../reducers/awarenessSlice';
 
 interface CodeEditorProps {
   defaultTheme: string;
   defaultDownloadedFileName: string;
+  enableRealTimeEditing?: boolean;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloadedFileName }: CodeEditorProps) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({
+  defaultTheme,
+  defaultDownloadedFileName,
+  enableRealTimeEditing = false,
+}: CodeEditorProps) => {
+  const dispatch = useAppDispatch();
   const toast = useToast();
   const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
   const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { roomId } = useParams();
+  const user = useAppSelector(selectUser);
 
   const { Confirmation, getConfirmation } = useAwaitableConfirmationDialog();
   const [isCopying, setIsCopying] = useState(false);
@@ -215,6 +231,80 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultTheme, defaultDownloaded
           language={selectedLanguage}
           onMount={(editor) => {
             codeEditor.current = editor;
+            const editorModel = editor.getModel();
+            if (enableRealTimeEditing && editorModel !== null) {
+              if (roomId === undefined) {
+                toast({
+                  title: 'Could not create room',
+                  description: 'Invalid room ID',
+                  status: 'error',
+                  duration: 2000,
+                  isClosable: true,
+                });
+                return;
+              }
+
+              try {
+                if (process.env.REACT_APP_COLLABORATION_SERVICE_BACKEND_URL === undefined) {
+                  toast({
+                    title: 'Server Error',
+                    description: 'Could not connect to server',
+                    status: 'error',
+                    duration: 2000,
+                    isClosable: true,
+                  });
+                  return;
+                }
+
+                const ydoc = new Y.Doc();
+                const provider = new WebsocketProvider(
+                  process.env.REACT_APP_COLLABORATION_SERVICE_BACKEND_URL,
+                  roomId,
+                  ydoc,
+                );
+                const ycontent = ydoc.getText('monaco');
+                const awareness = provider.awareness;
+                const color = RandomColor({ luminosity: 'light' });
+
+                awareness.setLocalStateField('user', {
+                  name: user?.username,
+                  userId: user?.id,
+                  email: user?.email,
+                  color,
+                });
+
+                awareness.on('change', (changes: { added: number[]; updated: number[]; removed: number[] }) => {
+                  const awarenessStates = awareness.getStates();
+                  const awarenessPayload: AwarenessState[] = [];
+                  awarenessStates.forEach((value, key) =>
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    awarenessPayload.push({ clientId: key, awareness: value.user }),
+                  );
+                  dispatch(setAwareness(awarenessPayload));
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                  changes.added.forEach((clientId) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    const state = awarenessStates.get(clientId)?.user;
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+                    const color = state?.color;
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+                    const username = state?.name;
+                    const cursorStyleElem = document.head.appendChild(document.createElement('style'));
+                    cursorStyleElem.innerHTML = `.yRemoteSelectionHead-${clientId} { border-left: ${color} solid 2px;}`;
+                    const highlightStyleElem = document.head.appendChild(document.createElement('style'));
+                    highlightStyleElem.innerHTML = `.yRemoteSelection-${clientId} { background-color: ${color}9A;}`;
+                    const styleElem = document.head.appendChild(document.createElement('style'));
+                    styleElem.innerHTML = `.yRemoteSelectionHead-${clientId}::after { background-color: ${color}; color: black; content: '${username}'}`;
+                  });
+                });
+
+                // eslint-disable-next-line no-new
+                new MonacoBinding(ycontent, editorModel, new Set([editor]), awareness);
+                console.log('binded');
+              } catch (error) {
+                console.log('unexpected error', error);
+              }
+            }
           }}
           options={{
             scrollBeyondLastLine: false,
