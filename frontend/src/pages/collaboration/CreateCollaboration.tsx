@@ -3,6 +3,7 @@ import { BiSolidChalkboard, BiGroup } from 'react-icons/bi';
 import IconWithText from '../../components/content/IconWithText';
 import React from 'react';
 import CreatePracticeRoom from './CreatePracticeRoom';
+import { Link } from 'react-router-dom';
 
 const CreateCollaboration: React.FC = () => {
   return (
@@ -16,9 +17,11 @@ const CreateCollaboration: React.FC = () => {
         />
         <HStack spacing={4}>
           <CreatePracticeRoom />
-          <Button leftIcon={<BiGroup size={18} />} colorScheme="teal">
-            New Collaboration Match
-          </Button>
+          <Link to="/matching">
+            <Button leftIcon={<BiGroup size={18} />} colorScheme="teal">
+              New Collaboration Match
+            </Button>
+          </Link>
         </HStack>
       </Flex>
     </>
