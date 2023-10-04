@@ -11,11 +11,6 @@ export function startRabbitMQ() {
       if (error1) throw error1;
       const queue = "match_results";
 
-      function generateRoomId() {
-        const roomId = uuidv4();
-        return roomId;
-      }
-
       channel.assertQueue(queue, { durable: false });
       console.log(`[*] Waiting for messages in ${queue}. To exit press CTRL+C`);
       channel.consume(
@@ -27,10 +22,10 @@ export function startRabbitMQ() {
           const pairInfo = {
             userOne: matchResult.userOne,
             userTwo: matchResult.userTwo,
-            room_id: generateRoomId(),
+            room_id: matchResult.roomId,
             complexity: matchResult.difficulty_level,
             categories: matchResult.categories,
-            question_ids: [], // to fetch
+            question_ids: [], // TODO: add question ids
           };
 
           const newPair = new Pair(pairInfo);

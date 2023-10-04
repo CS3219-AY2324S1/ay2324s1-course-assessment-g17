@@ -9,6 +9,7 @@ import {
 import { store } from "../utils/store";
 import matching from "../models/matching";
 import * as amqp from "amqplib/callback_api";
+import { v4 as uuidv4 } from "uuid";
 
 export enum QuestionComplexityEnum {
   EASY = "Easy",
@@ -50,19 +51,19 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
       // If match found:
       // 1. Insert matched match to DB
       // 2. Clear first request's timeout
-      // 3. TODO: do something with match results
+      // 3. Add match to RabbitMQ
       // 4. Notify both users.
       insertMatching({ ...matchingInfo, status: MatchStatusEnum.MATCHED });
-
+      const roomId = uuidv4();
       const matchResult = {
         userOne: matchingInfo.user_id,
         userTwo: result.user_id,
         categories: result.categories,
         difficulty_level: result.difficulty_levels,
+        roomId: roomId,
       };
       clearTimeout(store[matchResult.userTwo]);
 
-      // TODO: do something with matchResult
       console.log("Found a match!");
       console.log(matchResult);
 
@@ -83,8 +84,8 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
       });
 
       // Notify both users of the match result.
-      socket.emit("matchFound");
-      socket.to(result.socket_id).emit("matchFound");
+      socket.emit("matchFound", { roomId });
+      socket.to(result.socket_id).emit("matchFound", { roomId });
     }
   });
   socket.on("disconnect", () => {

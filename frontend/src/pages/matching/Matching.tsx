@@ -7,6 +7,7 @@ import IconWithText from '../../components/content/IconWithText';
 import MatchingForm from './MatchingForm';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 enum MatchingStateEnum {
   NO_REQUEST,
@@ -15,6 +16,7 @@ enum MatchingStateEnum {
 }
 
 const Matching: React.FC = () => {
+  const navigate = useNavigate();
   const userId = useAppSelector(selectUser)?.id;
   const [socket, setSocket] = useState<Socket | null>(null);
   const toast = useToast();
@@ -43,7 +45,7 @@ const Matching: React.FC = () => {
       });
     });
 
-    newSocket.on('matchFound', () => {
+    newSocket.on('matchFound', ({ roomId }) => {
       setMatchingState(MatchingStateEnum.MATCHED);
       toast({
         title: 'Matching succeeded.',
@@ -52,8 +54,8 @@ const Matching: React.FC = () => {
         duration: 2000,
         isClosable: true,
       });
+      navigate(`/collaborate/${roomId}`);
     });
-
     setSocket(newSocket);
 
     return () => {
