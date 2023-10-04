@@ -462,8 +462,19 @@ export const updateUserProfile: RequestHandler[] = [
   
       res.status(200).json({ message: 'Profile updated successfully', user: updatedUserWithLanguages });    
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        res.status(409).json({
+          errors: [
+            { msg: `${error.meta?.target} is already taken by another user.` },
+          ],
+        });
+      } else {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+      }
     }
   },
 ];
