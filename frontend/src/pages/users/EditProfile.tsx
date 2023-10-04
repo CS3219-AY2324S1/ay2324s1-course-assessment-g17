@@ -13,6 +13,7 @@ import {
   FormLabel,
   Stack,
   useColorModeValue,
+  useToast,
 } from '@chakra-ui/react';
 import {
   AutoComplete,
@@ -47,6 +48,8 @@ const EditProfile: React.FC<EditProfileProps> = ({
   const [languages, setLanguages] = useState<Language[]>(initialLanguages);
   const allLanguages = Object.values(EditorLanguageEnum);
 
+  const toast = useToast();
+
   // Prefill form with initial data whenever form is opened.
   useEffect(() => {
     // Check if data is being fetched correctly.
@@ -75,7 +78,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
       const response = await new AuthAPI().updateUserProfile(updatedProfile);
       console.log('Response Data:', response);
 
-      // Could display a success message to the user using `useToast`.
+      // Profile page refreshes automatically when Save button is clicked, so no message is shown to user.
 
       // Close the modal.
       onCloseModal();
@@ -83,9 +86,13 @@ const EditProfile: React.FC<EditProfileProps> = ({
       // Trigger the callback function to refresh the profile page
       onProfileUpdated();
     } catch (error) {
-      // Handle errors, e.g., display an error message at console and to the user.
       console.error('Error updating profile:', error);
-      // Could display an error message to the user using `useToast`.
+      toast({
+        title: 'Profile update failed.',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
     }
   };
 
