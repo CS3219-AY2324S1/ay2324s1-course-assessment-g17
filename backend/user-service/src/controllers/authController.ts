@@ -408,9 +408,9 @@ export const updateUserProfile: RequestHandler[] = [
   body("username").notEmpty().withMessage("Username cannot be empty"),
   body("email")
     .notEmpty()
-    .withMessage("Email cannot be empty")
+    .withMessage("Email cannot be empty!")
     .isEmail()
-    .withMessage("Invalid email format"),
+    .withMessage("Invalid email format!"),
   async (req, res) => {
     if (!validationResult(req).isEmpty()) {
       res.status(400).json({ errors: validationResult(req).array() });
@@ -425,16 +425,7 @@ export const updateUserProfile: RequestHandler[] = [
         return res.status(401).json({ message: 'User not authenticated' });
       }
   
-      const { username, email, languages } = req.body;
-  
-      // Fetch Language records based on the language names in the `languages` array.
-      const languageRecords = await prisma.language.findMany({
-        where: {
-          language: {
-            in: languages,
-          },
-        },
-      });
+      const { username, email, newlanguages } = req.body;
   
       await prisma.user.update({
         where: { id: user.id },
@@ -443,7 +434,7 @@ export const updateUserProfile: RequestHandler[] = [
           email,
           languages: {
             // Got bug here, need to fix.
-            set: languageRecords.map((language) => ({ id: language.id })),
+            set: newlanguages,
           },
         },
       });
