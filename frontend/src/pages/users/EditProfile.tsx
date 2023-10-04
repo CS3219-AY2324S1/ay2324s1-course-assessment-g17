@@ -157,7 +157,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
                 isLoading={allLanguages.length === 0}
                 suggestWhenEmpty
                 restoreOnBlurIfEmpty={false}
-                value={languages.map((language) => language?.language)}
+                value={languages}
               >
                 <AutoCompleteInput variant="filled">
                   {({ tags }) =>
