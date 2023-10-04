@@ -1,36 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, {useState} from 'react';
 import { Box, Text, useColorModeValue, HStack, IconButton } from '@chakra-ui/react';
 import { EmailIcon, EditIcon } from '@chakra-ui/icons';
 import { FaUserGroup, FaCode } from 'react-icons/fa6';
-import AuthAPI from '../../api/users/auth';
-import type { Language } from '../../types/users/users';
+import { useAppSelector } from '../../reducers/hooks';
+import { selectUser } from '../../reducers/authSlice';
 import EditProfile from './EditProfile';
 
 const ViewProfile: React.FC = () => {
-  const [userData, setUserData] = useState({
-    username: '',
-    email: '',
-    role: '',
-    languages: [] as Language[],
-  });
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchUserProfile = async (): Promise<void> => {
-      try {
-        const response = await new AuthAPI().getCurrentUser();
-        console.log('User Data from Server:', response);
-        setUserData(response);
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      }
-    };
-
-    fetchUserProfile().catch((error) => {
-      console.error('Error fetching user profile:', error);
-    });
-  }, []);
+  const user = useAppSelector(selectUser);
 
   const handleProfileUpdated = (): void => {
     // Refresh user profile page
@@ -50,7 +30,7 @@ const ViewProfile: React.FC = () => {
         position="relative"
       >
         <Text fontSize="xl" fontWeight="bold" textAlign="center">
-          {userData.username}
+          {user?.username}
         </Text>
         <IconButton
           isRound={true}
@@ -71,9 +51,9 @@ const ViewProfile: React.FC = () => {
           onCloseModal={() => {
             setIsEditModalOpen(false);
           }}
-          initialUsername={userData.username}
-          initialEmail={userData.email}
-          initialLanguages={userData.languages}
+          initialUsername={user?.username || ''}
+          initialEmail={user?.email || ''}
+          initialLanguages={user?.languages || []}
           onProfileUpdated={handleProfileUpdated}
         />
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
@@ -81,21 +61,21 @@ const ViewProfile: React.FC = () => {
             <EmailIcon boxSize={6} />
             <Text>
               <span style={{ fontWeight: 'bold' }}>Email: </span>
-              {userData.email}
+              {user?.email}
             </Text>
           </HStack>
           <HStack spacing={5} align="center" mt={4}>
             <FaUserGroup fontSize="24px" />
             <Text>
               <span style={{ fontWeight: 'bold' }}>Role: </span>
-              {userData.role}
+              {user?.role}
             </Text>
           </HStack>
           <HStack spacing={5} align="center" mt={4}>
             <FaCode fontSize="24px" />
             <Text>
               <span style={{ fontWeight: 'bold' }}>Languages: </span>
-              {userData.languages.length > 0 ? userData.languages.map((lang) => lang.language).join(', ') : 'None'}
+              {(user?.languages?.length ?? 0) > 0 ? user?.languages?.map((lang) => lang.language).join(', ') : 'None'}
             </Text>
           </HStack>
         </Box>
