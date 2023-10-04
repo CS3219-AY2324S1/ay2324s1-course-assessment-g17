@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { Box, Text, useColorModeValue, HStack, IconButton } from '@chakra-ui/react';
 import { EmailIcon, EditIcon } from '@chakra-ui/icons';
 import { FaUserGroup, FaCode } from 'react-icons/fa6';
@@ -7,7 +7,6 @@ import { selectUser } from '../../reducers/authSlice';
 import EditProfile from './EditProfile';
 
 const ViewProfile: React.FC = () => {
-
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const user = useAppSelector(selectUser);
@@ -51,9 +50,9 @@ const ViewProfile: React.FC = () => {
           onCloseModal={() => {
             setIsEditModalOpen(false);
           }}
-          initialUsername={user?.username || ''}
-          initialEmail={user?.email || ''}
-          initialLanguages={user?.languages || []}
+          initialUsername={user?.username !== undefined ? user?.username : ''}
+          initialEmail={user?.email !== undefined ? user?.email : ''}
+          initialLanguages={user?.languages !== undefined ? user?.languages : []}
           onProfileUpdated={handleProfileUpdated}
         />
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
