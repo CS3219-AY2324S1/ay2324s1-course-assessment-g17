@@ -4,7 +4,6 @@ import { hashPassword } from "../../utils/auth";
 async function seed() {
   try {
     // Seed the User and Language tables
-    await prisma.userLanguage.deleteMany();
     await prisma.user.deleteMany();
     await prisma.language.deleteMany();
 
@@ -36,20 +35,6 @@ async function seed() {
 
     const cPlusPlusLanguage = await prisma.language.create({
       data: { language: "C++" },
-    });
-
-    await prisma.userLanguage.create({
-      data: {
-        user_id: user1.id,
-        language_id: pythonLanguage.id,
-      },
-    });
-
-    await prisma.userLanguage.create({
-      data: {
-        user_id: user2.id,
-        language_id: javaLanguage.id,
-      },
     });
 
     console.log("Database seeded successfully.");

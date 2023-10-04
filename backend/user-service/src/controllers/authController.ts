@@ -166,9 +166,6 @@ export const deregister = async (req: Request, res: Response) => {
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      userLanguage: {
-        deleteMany: {},
-      },
       languages: { set: [] },
     },
   });
