@@ -23,22 +23,10 @@ model User {
   password String
   role     Role
   languages    Language[]    
-  userLanguage UserLanguage[]
 }
 
 model Language {
   id          Int      @id @default(autoincrement())
-  language    String
+  language    String   @unique
   users       User[]
-  userLanguages UserLanguage[]
-}
-
-model UserLanguage {
-  user_id     Int
-  language_id Int
-
-  user        User     @relation(fields: [user_id], references: [id])
-  language    Language @relation(fields: [language_id], references: [id])
-
-  @@id([user_id, language_id])
 }

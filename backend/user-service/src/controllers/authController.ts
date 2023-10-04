@@ -419,53 +419,52 @@ export const updateUserProfile: RequestHandler[] = [
 
     try {
       const user = req.user;
-  
-      // Check if user is defined
+
       if (!user) {
-        return res.status(401).json({ message: 'User not authenticated' });
+        return res.status(401).json({ message: "User not authenticated" });
       }
-  
-      const { username, email, newlanguages } = req.body;
-  
-      await prisma.user.update({
+
+      const { username, email, languages } = req.body;
+
+      const languageIds = [];
+
+      for (const language of languages) {
+        let existingLanguages = await prisma.language.findMany({
+          where: {
+            language: language,
+          },
+        });
+
+        const existingLanguage = existingLanguages[0];
+
+        if (existingLanguage) {
+          languageIds.push(existingLanguage.id);
+        } else {
+          const newLanguage = await prisma.language.create({
+            data: { language: language },
+          });
+          languageIds.push(newLanguage.id);
+        }
+      }
+
+      const updatedUser = await prisma.user.update({
         where: { id: user.id },
         data: {
-          username,
-          email,
+          username: username,
+          email: email,
           languages: {
-            // Got bug here, need to fix.
-            set: newlanguages,
+            connect: languageIds.map((id) => ({ id: id })),
           },
         },
       });
-  
-      // Fetch updated user data.
-      const updatedUserWithLanguages = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: {
-          id: true,
-          username: true,
-          email: true,
-          role: true,
-          languages: true,
-        },
+
+      res.json({
+        message: "User profile updated successfully",
+        user: updatedUser,
       });
-  
-      res.status(200).json({ message: 'Profile updated successfully', user: updatedUserWithLanguages });    
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        res.status(409).json({
-          errors: [
-            { msg: `${error.meta?.target} is already taken by another user.` },
-          ],
-        });
-      } else {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
-      }
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 ];
