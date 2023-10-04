@@ -428,7 +428,7 @@ export const updateUserProfile: RequestHandler[] = [
       for (const language of languages) {
         let existingLanguages = await prisma.language.findMany({
           where: {
-            language: language,
+            language: language.language,
           },
         });
 
@@ -450,6 +450,7 @@ export const updateUserProfile: RequestHandler[] = [
           username: username,
           email: email,
           languages: {
+            set: [],
             connect: languageIds.map((id) => ({ id: id })),
           },
         },

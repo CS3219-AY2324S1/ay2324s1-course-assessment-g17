@@ -112,6 +112,10 @@ const EditProfile: React.FC<EditProfileProps> = ({
         }
       });
   };
+  const handleRemoveTag = (tag: { label: string }): void => {
+    const updatedLanguages = languages.filter((language) => language?.language !== tag.label);
+    setLanguages(updatedLanguages);
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onCloseModal}>
@@ -158,7 +162,13 @@ const EditProfile: React.FC<EditProfileProps> = ({
                 <AutoCompleteInput variant="filled">
                   {({ tags }) =>
                     tags.map((tag, tid) => (
-                      <AutoCompleteTag key={tid} label={tag.label as string} onRemove={tag.onRemove} />
+                      <AutoCompleteTag
+                        key={tid}
+                        label={tag.label as string}
+                        onRemove={() => {
+                          handleRemoveTag(tag);
+                        }}
+                      />
                     ))
                   }
                 </AutoCompleteInput>
