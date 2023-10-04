@@ -16,12 +16,12 @@ router.get("/logout", AuthMiddleWare.verifyAccessToken, AuthController.logOut);
 router.get(
   "/currentUser",
   AuthMiddleWare.verifyAccessToken,
-  AuthController.getCurrentUser
+  AuthController.getCurrentUser,
 );
 router.get(
   "/deregister",
   AuthMiddleWare.verifyAccessToken,
-  AuthController.deregister
+  AuthController.deregister,
 );
 router.post("/send-reset-email", AuthController.sendResetEmail);
 router.post("/reset-password", AuthController.resetPassword);

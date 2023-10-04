@@ -1,5 +1,5 @@
-import { Avatar, Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue, Tooltip } from '@chakra-ui/react';
-import { MoonIcon, SunIcon } from '@chakra-ui/icons';
+import { Icon, Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue, Tooltip } from '@chakra-ui/react';
+import { MoonIcon, SunIcon, SettingsIcon } from '@chakra-ui/icons';
 import React from 'react';
 import { FaCode } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -36,12 +36,7 @@ const Navbar: React.FC = () => {
           {isLoggedIn && (
             <Link to="/profile">
               <Tooltip label="View Profile">
-                <Avatar
-                  size="sm"
-                  // name="User Name" // Replace with the user's name
-                  // src="https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250" // Replace with the user's avatar image URL
-                  bg="gray.500"
-                />
+                <Icon as={SettingsIcon} boxSize={6} color="gray.500" />
               </Tooltip>
             </Link>
           )}

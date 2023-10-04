@@ -180,7 +180,7 @@ export async function getCurrentUser(req: Request, res: Response) {
     const userId = req.user?.id; // user ID is used for identification
 
     if (!userId) {
-      return res.status(401).json({ message: 'User not authenticated' });
+      return res.status(401).json({ message: "User not authenticated" });
     }
 
     // Fetch the latest user data from the database
@@ -196,14 +196,14 @@ export async function getCurrentUser(req: Request, res: Response) {
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Send the user data in the response
     res.status(200).json({ user });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 

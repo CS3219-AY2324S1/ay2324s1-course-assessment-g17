@@ -176,7 +176,7 @@ export const updateQuestion: RequestHandler[] = [
     const finalQuestion = await QuestionModel.findByIdAndUpdate(
       existingQuestion._id,
       formData,
-      { new: true }
+      { new: true },
     );
 
     res.status(200).json({ data: finalQuestion, status: "success" });
