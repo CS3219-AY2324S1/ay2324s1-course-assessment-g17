@@ -1,6 +1,56 @@
 import prisma from "../../lib/prisma";
 import { hashPassword } from "../../utils/auth";
 
+export enum EditorLanguageEnum {
+  javascript = "javascript",
+  typescript = "typescript",
+  python = "python",
+  java = "java",
+  c = "c",
+  cpp = "cpp",
+  clojure = "clojure",
+  csharp = "csharp",
+  dart = "dart",
+  elixir = "elixir",
+  fsharp = "fsharp",
+  go = "go",
+  julia = "julia",
+  kotlin = "kotlin",
+  lua = "lua",
+  mips = "mips",
+  mysql = "mysql",
+  objectivec = "objective-c",
+  pascal = "pascal",
+  perl = "perl",
+  php = "php",
+  text = "text",
+  pgsql = "pgsql",
+  r = "r",
+  ruby = "ruby",
+  rust = "rust",
+  scala = "scala",
+  sql = "sql",
+  swift = "swift",
+}
+
+const languages = Object.keys(EditorLanguageEnum);
+
+async function clearLanguageTable() {
+  await prisma.language.deleteMany({});
+}
+
+async function addLanguages() {
+  const languages = Object.keys(EditorLanguageEnum);
+
+  for (const language of languages) {
+    await prisma.language.create({
+      data: {
+        language: language,
+      },
+    });
+  }
+}
+
 async function seed() {
   try {
     // Seed the User and Language tables
@@ -43,6 +93,8 @@ async function seed() {
   } finally {
     await prisma.$disconnect();
   }
+  clearLanguageTable();
+  addLanguages();
 }
 
 seed();
