@@ -34,7 +34,7 @@ const Questions: React.FC = () => {
   }, []);
 
   return (
-    <Stack paddingX={16} paddingY={8} spacing={6}>
+    <Stack spacing={6}>
       <Flex justifyContent={'space-between'}>
         <IconWithText fontSize="lg" fontWeight="bold" text="Question Repository" icon={<BiSolidBook size={20} />} />
         {isAdmin && (
