@@ -25,6 +25,7 @@ import {
 import { EditorLanguageEnum } from '../../types/code/languages';
 import type { Language } from '../../types/users/users';
 import AuthAPI from '../../api/users/auth';
+import type { AxiosError } from 'axios';
 
 interface EditProfileProps {
   isOpen: boolean;
@@ -64,36 +65,52 @@ const EditProfile: React.FC<EditProfileProps> = ({
     }
   }, [isOpen, initialUsername, initialEmail, initialLanguages]);
 
-  const handleSave = async (): Promise<void> => {
-    try {
-      const updatedProfile = {
-        username,
-        email,
-        languages,
-      };
+  const handleSave: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
 
-      console.log('Request Data:', updatedProfile);
+    const updatedProfile = {
+      username,
+      email,
+      languages,
+    };
 
-      // Make a POST request to save the updated profile data.
-      const response = await new AuthAPI().updateUserProfile(updatedProfile);
-      console.log('Response Data:', response);
+    console.log('Request Data:', updatedProfile);
 
-      // Profile page refreshes automatically when Save button is clicked, so no message is shown to user.
+    const response = new AuthAPI()
+      .updateUserProfile(updatedProfile)
+      .then(() => {
+        console.log('Response Data:', response);
 
-      // Close the modal.
-      onCloseModal();
+        // Profile page refreshes automatically when Save button is clicked, so no message is shown to user.
 
-      // Trigger the callback function to refresh the profile page
-      onProfileUpdated();
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast({
-        title: 'Profile update failed.',
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
+        // Close the modal.
+        onCloseModal();
+
+        // Trigger the callback function to refresh the profile page
+        onProfileUpdated();
+      })
+      .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
+        console.error('Error updating profile:', err);
+        const errors = err?.response?.data?.errors;
+        if (errors !== undefined) {
+          errors.map((error) =>
+            toast({
+              title: 'Profile Update failed.',
+              description: error.msg,
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+            }),
+          );
+        } else {
+          toast({
+            title: 'Profile Update failed.',
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          });
+        }
       });
-    }
   };
 
   return (

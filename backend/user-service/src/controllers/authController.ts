@@ -404,29 +404,66 @@ export async function updateAccessToken(req: Request, res: Response) {
   }
 }
 
-export async function updateUserProfile(req: Request, res: Response) {
-  try {
-    const user = req.user;
-
-    // Check if user is defined
-    if (!user) {
-      return res.status(401).json({ message: 'User not authenticated' });
+export const updateUserProfile: RequestHandler[] = [
+  body("username").notEmpty().withMessage("Username cannot be empty"),
+  body("email")
+    .notEmpty()
+    .withMessage("Email cannot be empty")
+    .isEmail()
+    .withMessage("Invalid email format"),
+  async (req, res) => {
+    if (!validationResult(req).isEmpty()) {
+      res.status(400).json({ errors: validationResult(req).array() });
+      return;
     }
 
-    const { username, email, /* other fields */ } = req.body;
-
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        username,
-        email,
-        // Update other fields
-      },
-    });
-
-    res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-}
+    try {
+      const user = req.user;
+  
+      // Check if user is defined
+      if (!user) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
+  
+      const { username, email, languages } = req.body;
+  
+      // Fetch Language records based on the language names in the `languages` array.
+      const languageRecords = await prisma.language.findMany({
+        where: {
+          language: {
+            in: languages,
+          },
+        },
+      });
+  
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          username,
+          email,
+          languages: {
+            // Got bug here, need to fix.
+            set: languageRecords.map((language) => ({ id: language.id })),
+          },
+        },
+      });
+  
+      // Fetch updated user data.
+      const updatedUserWithLanguages = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          role: true,
+          languages: true,
+        },
+      });
+  
+      res.status(200).json({ message: 'Profile updated successfully', user: updatedUserWithLanguages });    
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  },
+];
