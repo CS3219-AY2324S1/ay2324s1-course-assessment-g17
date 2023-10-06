@@ -15,7 +15,7 @@ const DeregisterButton: React.FC = () => {
         dispatch(logOut());
       })
       .catch((err) => {
-        console.log(err);
+        console.log('Error deleting question:', err);
         toast({
           title: 'Account deletion failed.',
           status: 'error',
@@ -28,7 +28,7 @@ const DeregisterButton: React.FC = () => {
     <ConfirmationDialog
       dialogHeader={'Delete Account'}
       dialogBody={'Are you sure you want to delete your account? This action is irreversible!'}
-      mainButtonLabel={'Delete Account!'}
+      mainButtonLabel={'Delete Account'}
       rightButtonLabel={'Yes, delete my account permanently!'}
       onConfirm={handleClick}
       mainButtonProps={{ colorScheme: 'red' }}

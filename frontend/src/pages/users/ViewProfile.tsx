@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Box, Text, useColorModeValue, HStack, IconButton } from '@chakra-ui/react';
+import { Box, Text, useColorModeValue, HStack, IconButton, Flex } from '@chakra-ui/react';
 import { EmailIcon, EditIcon } from '@chakra-ui/icons';
 import { FaUserGroup, FaCode } from 'react-icons/fa6';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import EditProfile from './EditProfile';
+import DeregisterButton from '../auth/DeregisterButton';
 
 const ViewProfile: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -72,6 +73,9 @@ const ViewProfile: React.FC = () => {
             </Text>
           </HStack>
         </Box>
+        <Flex justifyContent="center" mt={4} mb={6}>
+          <DeregisterButton />
+        </Flex>
       </Box>
     </Box>
   );
