@@ -153,6 +153,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
                 initialOptions={allLanguages.filter((languageOption) =>
                   languages.map((language) => language.id).includes(languageOption.id),
                 )}
+                placeholder={'Select language...'}
                 onChange={(selected) => {
                   setLanguages(selected);
                 }}
