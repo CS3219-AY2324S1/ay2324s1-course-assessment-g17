@@ -11,11 +11,6 @@ const ViewProfile: React.FC = () => {
 
   const user = useAppSelector(selectUser);
 
-  const handleProfileUpdated = (): void => {
-    // Refresh user profile page
-    window.location.reload();
-  };
-
   return (
     <Box width="100%" height="85vh" my={5}>
       <Box
@@ -53,7 +48,6 @@ const ViewProfile: React.FC = () => {
           initialUsername={user?.username !== undefined ? user?.username : ''}
           initialEmail={user?.email !== undefined ? user?.email : ''}
           initialLanguages={user?.languages !== undefined ? user?.languages : []}
-          onProfileUpdated={handleProfileUpdated}
         />
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
           <HStack spacing={5} align="center" mt={4}>

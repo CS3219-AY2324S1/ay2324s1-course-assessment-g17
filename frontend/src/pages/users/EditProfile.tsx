@@ -20,6 +20,8 @@ import AuthAPI from '../../api/users/auth';
 import type { AxiosError } from 'axios';
 import MultiSelect from '../../components/form/MultiSelect';
 import UserAPI from '../../api/users/user';
+import { useAppDispatch } from '../../reducers/hooks';
+import { setUser } from '../../reducers/authSlice';
 
 interface EditProfileProps {
   isOpen: boolean;
@@ -27,7 +29,6 @@ interface EditProfileProps {
   initialUsername: string;
   initialEmail: string;
   initialLanguages: Language[];
-  onProfileUpdated: () => void;
 }
 
 const EditProfile: React.FC<EditProfileProps> = ({
@@ -36,7 +37,6 @@ const EditProfile: React.FC<EditProfileProps> = ({
   initialUsername,
   initialEmail,
   initialLanguages,
-  onProfileUpdated,
 }) => {
   const [username, setUsername] = useState(initialUsername);
   const [email, setEmail] = useState(initialEmail);
@@ -44,6 +44,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
   const [allLanguages, setAllLanguages] = useState<Language[]>([]);
 
   const toast = useToast();
+  const dispatch = useAppDispatch();
 
   // Prefill form with initial data whenever form is opened.
   useEffect(() => {
@@ -82,16 +83,13 @@ const EditProfile: React.FC<EditProfileProps> = ({
 
     const response = new AuthAPI()
       .updateUserProfile(updatedProfile)
-      .then(() => {
+      .then((user) => {
         console.log('Response Data:', response);
 
-        // Profile page refreshes automatically when Save button is clicked, so no message is shown to user.
+        dispatch(setUser(user));
 
         // Close the modal.
         onCloseModal();
-
-        // Trigger the callback function to refresh the profile page
-        onProfileUpdated();
       })
       .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
         console.error('Error updating profile:', err);

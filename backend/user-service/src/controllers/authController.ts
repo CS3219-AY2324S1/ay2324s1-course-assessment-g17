@@ -446,6 +446,9 @@ export const updateUserProfile: RequestHandler[] = [
 
       const updatedUser = await prisma.user.update({
         where: { id: user.id },
+        include: {
+          languages: true,
+        },
         data: {
           username: username,
           email: email,

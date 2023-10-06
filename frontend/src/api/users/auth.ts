@@ -36,6 +36,6 @@ export default class AuthAPI {
   // Update user profile data
   public async updateUserProfile(data: UserProfileUpdateData): Promise<User> {
     const response = await userServiceClient.put(this.getAuthUrl() + 'update-profile', data);
-    return response.data;
+    return response.data.user;
   }
 }
