@@ -464,8 +464,19 @@ export const updateUserProfile: RequestHandler[] = [
         user: updatedUser,
       });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal server error" });
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        res.status(409).json({
+          errors: [
+            { msg: `${error.meta?.target} is already taken by another user.` },
+          ],
+        });
+      } else {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+      }
     }
   },
 ];
