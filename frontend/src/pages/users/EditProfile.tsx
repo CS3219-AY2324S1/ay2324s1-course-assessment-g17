@@ -12,20 +12,14 @@ import {
   FormControl,
   FormLabel,
   Stack,
-  useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
-import {
-  AutoComplete,
-  AutoCompleteInput,
-  AutoCompleteItem,
-  AutoCompleteList,
-  AutoCompleteTag,
-} from '@choc-ui/chakra-autocomplete';
-import { EditorLanguageEnum } from '../../types/code/languages';
+
 import type { Language } from '../../types/users/users';
 import AuthAPI from '../../api/users/auth';
 import type { AxiosError } from 'axios';
+import MultiSelect from '../../components/form/MultiSelect';
+import UserAPI from '../../api/users/user';
 
 interface EditProfileProps {
   isOpen: boolean;
@@ -47,7 +41,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
   const [username, setUsername] = useState(initialUsername);
   const [email, setEmail] = useState(initialEmail);
   const [languages, setLanguages] = useState<Language[]>(initialLanguages);
-  const allLanguages = Object.values(EditorLanguageEnum);
+  const [allLanguages, setAllLanguages] = useState<Language[]>([]);
 
   const toast = useToast();
 
@@ -64,6 +58,16 @@ const EditProfile: React.FC<EditProfileProps> = ({
       setLanguages(initialLanguages);
     }
   }, [isOpen, initialUsername, initialEmail, initialLanguages]);
+
+  useEffect(() => {
+    // Fetch language options from backend.
+    new UserAPI()
+      .getLanguages()
+      .then((languages) => {
+        setAllLanguages(languages);
+      })
+      .catch(console.error);
+  }, []);
 
   const handleSave: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -112,10 +116,6 @@ const EditProfile: React.FC<EditProfileProps> = ({
         }
       });
   };
-  const handleRemoveTag = (tag: { label: string }): void => {
-    const updatedLanguages = languages.filter((language) => language?.language !== tag.label);
-    setLanguages(updatedLanguages);
-  };
 
   return (
     <Modal isOpen={isOpen} onClose={onCloseModal}>
@@ -147,45 +147,18 @@ const EditProfile: React.FC<EditProfileProps> = ({
             </FormControl>
             <FormControl>
               <FormLabel>Languages</FormLabel>
-              <AutoComplete
-                openOnFocus
-                closeOnSelect
-                multiple
-                onChange={(selectedLanguages) => {
-                  setLanguages(selectedLanguages as Language[]);
+              <MultiSelect
+                options={allLanguages.map((language) => {
+                  return { label: language.language, value: language };
+                })}
+                // this cursed line is because the user languages and queried languages are not the same object
+                initialOptions={allLanguages.filter((languageOption) =>
+                  languages.map((language) => language.id).includes(languageOption.id),
+                )}
+                onChange={(selected) => {
+                  setLanguages(selected);
                 }}
-                isLoading={allLanguages.length === 0}
-                suggestWhenEmpty
-                restoreOnBlurIfEmpty={false}
-                value={languages}
-              >
-                <AutoCompleteInput variant="filled">
-                  {({ tags }) =>
-                    tags.map((tag, tid) => (
-                      <AutoCompleteTag
-                        key={tid}
-                        label={tag.label as string}
-                        onRemove={() => {
-                          handleRemoveTag(tag);
-                        }}
-                      />
-                    ))
-                  }
-                </AutoCompleteInput>
-                <AutoCompleteList>
-                  {allLanguages.map((language, lid) => (
-                    <AutoCompleteItem
-                      key={`option-${lid}`}
-                      value={language}
-                      style={{ marginTop: 4, marginBottom: 4 }}
-                      _selected={{ bg: useColorModeValue('blackAlpha.50', 'whiteAlpha.50'), color: 'gray.500' }}
-                      _focus={{ bg: useColorModeValue('blackAlpha.100', 'whiteAlpha.100') }}
-                    >
-                      {language}
-                    </AutoCompleteItem>
-                  ))}
-                </AutoCompleteList>
-              </AutoComplete>
+              />
             </FormControl>
           </Stack>
         </ModalBody>
