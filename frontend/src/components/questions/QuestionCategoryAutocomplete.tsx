@@ -20,6 +20,7 @@ const QuestionCategoryAutocomplete = ({ categories, handleChange }: QuestionCate
 
   return (
     <MultiSelect
+      title="Select Categories..."
       options={allCategories.map((category) => {
         return { label: category, value: category };
       })}

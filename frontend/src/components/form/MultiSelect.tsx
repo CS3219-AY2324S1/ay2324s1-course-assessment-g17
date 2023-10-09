@@ -5,14 +5,14 @@ interface MultiSelectProps<T> {
   options: Array<Option<T>>;
   onChange: (selected: T[]) => void;
   initialOptions?: Array<Option<T>>;
+  title: string;
 }
 
 interface Option<T> extends OptionBase {
   label: string;
   value: T;
 }
-
-const MultiSelect = <T,>({ options, onChange, initialOptions }: MultiSelectProps<T>): JSX.Element => {
+const MultiSelect = <T,>({ options, onChange, initialOptions, title }: MultiSelectProps<T>): JSX.Element => {
   const chakraStyles: ChakraStylesConfig<Option<T>, true> = {
     menu: (provided, state) => ({
       ...provided,
@@ -35,7 +35,7 @@ const MultiSelect = <T,>({ options, onChange, initialOptions }: MultiSelectProps
       isMulti
       name="complexities"
       options={options}
-      placeholder="Select difficulty..."
+      placeholder={title}
       closeMenuOnSelect={false}
       value={selectedOptions}
       onChange={handleChange}
