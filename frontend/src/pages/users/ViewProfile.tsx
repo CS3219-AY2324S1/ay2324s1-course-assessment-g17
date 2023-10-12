@@ -52,21 +52,21 @@ const ViewProfile: React.FC = () => {
         />
         <Box textAlign="left" pl={12} pr={12} pt={2} pb={8}>
           <HStack spacing={5} align="center" mt={4}>
-            <EmailIcon boxSize={6} />
+            <EmailIcon style={{ flex: '0 0 24px', fontSize: '24px' }} />
             <Text>
               <span style={{ fontWeight: 'bold' }}>Email: </span>
               {user?.email}
             </Text>
           </HStack>
           <HStack spacing={5} align="center" mt={4}>
-            <FaUserGroup fontSize="24px" />
+            <FaUserGroup style={{ flex: '0 0 24px', fontSize: '24px' }} />
             <Text>
               <span style={{ fontWeight: 'bold' }}>Role: </span>
               {user?.role}
             </Text>
           </HStack>
           <HStack spacing={5} align="center" mt={4}>
-            <FaCode fontSize="24px" />
+            <FaCode style={{ flex: '0 0 24px', fontSize: '24px' }} />
             <Text>
               <span style={{ fontWeight: 'bold' }}>Languages: </span>
               {(user?.languages?.length ?? 0) > 0 ? user?.languages?.map((lang) => lang.language).join(', ') : 'None'}
