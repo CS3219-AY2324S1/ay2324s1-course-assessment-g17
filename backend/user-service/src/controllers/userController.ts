@@ -11,4 +11,12 @@ export async function getUsers(req: Request, res: Response) {
   }
 }
 
-// TODO
+export async function getLanguages(req: Request, res: Response) {
+  try {
+    const languages = await prisma.language.findMany();
+    res.json(languages);
+  } catch (error) {
+    console.error("error fetching languages:", error);
+    res.status(500).json({ error: "error fetching languages" });
+  }
+}

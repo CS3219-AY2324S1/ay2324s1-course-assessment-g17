@@ -166,9 +166,6 @@ export const deregister = async (req: Request, res: Response) => {
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      userLanguage: {
-        deleteMany: {},
-      },
       languages: { set: [] },
     },
   });
@@ -179,7 +176,35 @@ export const deregister = async (req: Request, res: Response) => {
 };
 
 export async function getCurrentUser(req: Request, res: Response) {
-  res.json({ user: req.user! });
+  try {
+    const userId = req.user?.id; // user ID is used for identification
+
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    // Fetch the latest user data from the database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        languages: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send the user data in the response
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
 // update after updating user profile
@@ -375,3 +400,83 @@ export async function updateAccessToken(req: Request, res: Response) {
     }
   }
 }
+
+export const updateUserProfile: RequestHandler[] = [
+  body("username").notEmpty().withMessage("Username cannot be empty"),
+  body("email")
+    .notEmpty()
+    .withMessage("Email cannot be empty!")
+    .isEmail()
+    .withMessage("Invalid email format!"),
+  async (req, res) => {
+    if (!validationResult(req).isEmpty()) {
+      res.status(400).json({ errors: validationResult(req).array() });
+      return;
+    }
+
+    try {
+      const user = req.user;
+
+      if (!user) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const { username, email, languages } = req.body;
+
+      const languageIds = [];
+
+      for (const language of languages) {
+        let existingLanguages = await prisma.language.findMany({
+          where: {
+            language: language.language,
+          },
+        });
+
+        const existingLanguage = existingLanguages[0];
+
+        if (existingLanguage) {
+          languageIds.push(existingLanguage.id);
+        } else {
+          const newLanguage = await prisma.language.create({
+            data: { language: language },
+          });
+          languageIds.push(newLanguage.id);
+        }
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        include: {
+          languages: true,
+        },
+        data: {
+          username: username,
+          email: email,
+          languages: {
+            set: [],
+            connect: languageIds.map((id) => ({ id: id })),
+          },
+        },
+      });
+
+      res.json({
+        message: "User profile updated successfully",
+        user: updatedUser,
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        res.status(409).json({
+          errors: [
+            { msg: `${error.meta?.target} is already taken by another user.` },
+          ],
+        });
+      } else {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+      }
+    }
+  },
+];

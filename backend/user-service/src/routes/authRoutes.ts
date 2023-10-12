@@ -26,4 +26,11 @@ router.get(
 router.post("/send-reset-email", AuthController.sendResetEmail);
 router.post("/reset-password", AuthController.resetPassword);
 
+// Update the user's profile
+router.put(
+  "/update-profile",
+  AuthMiddleWare.verifyAccessToken, // Add authentication middleware
+  AuthController.updateUserProfile,
+);
+
 export default router;

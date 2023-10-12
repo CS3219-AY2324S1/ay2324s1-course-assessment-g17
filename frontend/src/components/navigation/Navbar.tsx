@@ -1,5 +1,5 @@
-import { Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue } from '@chakra-ui/react';
-import { MoonIcon, SunIcon } from '@chakra-ui/icons';
+import { Icon, Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue, Tooltip } from '@chakra-ui/react';
+import { MoonIcon, SunIcon, SettingsIcon } from '@chakra-ui/icons';
 import React from 'react';
 import { FaCode } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -33,6 +33,13 @@ const Navbar: React.FC = () => {
           </HStack>
         </Link>
         <HStack>
+          {isLoggedIn && (
+            <Link to="/profile">
+              <Tooltip label="View Profile">
+                <Icon as={SettingsIcon} boxSize={6} color="gray.500" />
+              </Tooltip>
+            </Link>
+          )}
           <Button onClick={toggleColorMode}>{colorMode === 'light' ? <MoonIcon /> : <SunIcon />}</Button>
           {isLoggedIn && <Button onClick={handleLogout}>Log Out</Button>}
         </HStack>

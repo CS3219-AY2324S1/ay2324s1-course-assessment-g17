@@ -11,3 +11,9 @@ export interface User {
   role: Role;
   languages: Language[];
 }
+
+export interface UserProfileUpdateData {
+  username: string;
+  email: string;
+  languages: Language[];
+}
