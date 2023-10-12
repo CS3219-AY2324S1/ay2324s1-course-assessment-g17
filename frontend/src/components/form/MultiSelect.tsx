@@ -4,8 +4,8 @@ import { type OptionBase, Select, type ChakraStylesConfig } from 'chakra-react-s
 interface MultiSelectProps<T> {
   options: Array<Option<T>>;
   onChange: (selected: T[]) => void;
-  initialOptions?: T[];
-  placeholder?: string;
+  initialOptions?: Array<Option<T>>;
+  title: string;
 }
 
 interface Option<T> extends OptionBase {
@@ -13,12 +13,7 @@ interface Option<T> extends OptionBase {
   value: T;
 }
 
-const MultiSelect = <T,>({
-  options,
-  onChange,
-  initialOptions,
-  placeholder = 'Select...',
-}: MultiSelectProps<T>): JSX.Element => {
+const MultiSelect = <T,>({ options, onChange, initialOptions, title }: MultiSelectProps<T>): JSX.Element => {
   const chakraStyles: ChakraStylesConfig<Option<T>, true> = {
     menu: (provided, state) => ({
       ...provided,
@@ -42,7 +37,7 @@ const MultiSelect = <T,>({
       isMulti
       name="complexities"
       options={options}
-      placeholder={placeholder}
+      placeholder={title}
       closeMenuOnSelect={false}
       value={selectedOptions}
       onChange={handleChange}

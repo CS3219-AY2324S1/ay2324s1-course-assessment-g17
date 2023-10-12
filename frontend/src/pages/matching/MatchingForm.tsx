@@ -12,7 +12,6 @@ interface MatchingFormProps {
 const MatchingForm: React.FC<MatchingFormProps> = ({ handleMatchRequest }) => {
   const [complexities, setComplexities] = useState<readonly QuestionComplexityEnum[]>([QuestionComplexityEnum.EASY]);
   const [categories, setCategories] = useState<string[]>([]);
-
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     handleMatchRequest(complexities, categories);
@@ -25,6 +24,7 @@ const MatchingForm: React.FC<MatchingFormProps> = ({ handleMatchRequest }) => {
           <FormControl isRequired>
             <FormLabel>Complexity</FormLabel>
             <MultiSelect
+              title="Select Complexities..."
               options={[
                 { label: 'Easy', value: QuestionComplexityEnum.EASY },
                 { label: 'Medium', value: QuestionComplexityEnum.MEDIUM },
