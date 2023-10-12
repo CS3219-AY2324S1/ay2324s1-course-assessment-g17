@@ -25,7 +25,6 @@ const QuestionCategoryAutocomplete = ({ categories, handleChange }: QuestionCate
         return { label: category, value: category };
       })}
       initialOptions={categories}
-      placeholder={'Select category...'}
       onChange={handleChange}
     />
   );

@@ -30,7 +30,6 @@ const MatchingForm: React.FC<MatchingFormProps> = ({ handleMatchRequest }) => {
                 { label: 'Medium', value: QuestionComplexityEnum.MEDIUM },
                 { label: 'Hard', value: QuestionComplexityEnum.HARD },
               ]}
-              placeholder={'Select difficulty...'}
               onChange={setComplexities}
             />
           </FormControl>

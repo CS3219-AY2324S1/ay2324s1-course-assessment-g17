@@ -4,7 +4,7 @@ import { type OptionBase, Select, type ChakraStylesConfig } from 'chakra-react-s
 interface MultiSelectProps<T> {
   options: Array<Option<T>>;
   onChange: (selected: T[]) => void;
-  initialOptions?: Array<Option<T>>;
+  initialOptions?: T[];
   title: string;
 }
 

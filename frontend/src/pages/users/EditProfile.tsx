@@ -146,6 +146,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
             <FormControl>
               <FormLabel>Languages</FormLabel>
               <MultiSelect
+                title="Select Languages..."
                 options={allLanguages.map((language) => {
                   return { label: language.language, value: language };
                 })}
@@ -153,7 +154,6 @@ const EditProfile: React.FC<EditProfileProps> = ({
                 initialOptions={allLanguages.filter((languageOption) =>
                   languages.map((language) => language.id).includes(languageOption.id),
                 )}
-                placeholder={'Select language...'}
                 onChange={(selected) => {
                   setLanguages(selected);
                 }}
