@@ -2,8 +2,11 @@ import "dotenv/config";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { startRabbitMQ } from "./consumer";
+import express from "express";
+import { checkAuthorisedUser } from "./controllers/pair";
 
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
+const cors = require("cors");
 
 const mongoose = require("mongoose");
 mongoose.connect(process.env.MONGODB_URL, {
@@ -15,6 +18,9 @@ const server = createServer((_request, response) => {
   response.end("Binded");
 });
 
+const app = express();
+
+app.get("/api/check-authorization", checkAuthorisedUser);
 const wss = new WebSocketServer({ server: server });
 
 function onError(error: any) {
@@ -34,3 +40,6 @@ wss.on("connection", (ws, req) => {
 });
 
 startRabbitMQ();
+
+app.use(cors());
+export default app;

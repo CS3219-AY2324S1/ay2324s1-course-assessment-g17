@@ -14,15 +14,51 @@ import CodeEditor from '../../components/code/CodeEditor';
 import CollaboratorUsers from './CollaboratorUsers';
 import RoomInfo from './RoomInfo';
 import UserTab from './UserTab';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import QuestionDetails from '../questions/QuestionDetails';
+import { useAppSelector } from '../../reducers/hooks';
+import { selectUser } from '../../reducers/authSlice';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const CollaborationRoom: React.FC = () => {
+  const navigate = useNavigate();
   const editorTheme = useColorModeValue('light', 'vs-dark');
   const [showUserTab, toggleShowUserTab] = useState(false);
   const [questionIdInput, setQuestionIdInput] = useState<number | undefined>(undefined);
   const [questionId, setQuestionId] = useState<number | undefined>(undefined);
+  const { roomId } = useParams();
+  const user = useAppSelector(selectUser);
+  const COLLAB_URL = 'http://localhost:8081';
 
+  useEffect(() => {
+    const checkAuthorization = async (): Promise<void> => {
+      if (user === null) {
+        console.error('User ID is undefined');
+        navigate('/');
+        return;
+      }
+      try {
+        const response = await axios.get<{ authorised: boolean }>(COLLAB_URL + '/api/check-authorization', {
+          params: {
+            userId: user.id,
+            roomId,
+          },
+        });
+
+        if (!response.data.authorised) {
+          console.error('Error checking authorization:', response.data);
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Error checking authorization:', error);
+      }
+    };
+
+    checkAuthorization().catch((error) => {
+      console.error('Error checking authorization:', error);
+    });
+  }, []);
   return (
     <>
       <Flex mt={4} mx={4} justifyContent="space-between">
