@@ -19,6 +19,9 @@ const server = createServer((_request, response) => {
 });
 
 const app = express();
+app.listen(process.env.PORT || 8081, () => {
+  console.log(`Express server is running on port ${process.env.PORT || 8081}`);
+});
 
 app.get("/api/check-authorization", checkAuthorisedUser);
 const wss = new WebSocketServer({ server: server });
