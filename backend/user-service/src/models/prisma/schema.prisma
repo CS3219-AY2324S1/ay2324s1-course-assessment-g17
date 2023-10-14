@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
@@ -17,16 +17,32 @@ enum Role {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  username String   @unique
-  email    String   @unique
-  password String
-  role     Role
-  languages    Language[]    
+  id               Int                @id @default(autoincrement())
+  username         String             @unique
+  email            String             @unique
+  password         String
+  role             Role
+  languages        Language[]
+  AnsweredQuestion AnsweredQuestion[]
 }
 
 model Language {
-  id          Int      @id @default(autoincrement())
-  language    String   @unique
-  users       User[]
+  id       Int    @id @default(autoincrement())
+  language String @unique
+  users    User[]
+}
+
+enum Complexity {
+  EASY
+  MEDIUM
+  HARD
+}
+model AnsweredQuestion {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  questionId Int
+  complexity Complexity
+  category   String[]
+  answeredAt DateTime @default(now())
 }
