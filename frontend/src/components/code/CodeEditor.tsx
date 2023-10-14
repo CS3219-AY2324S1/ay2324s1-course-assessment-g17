@@ -16,6 +16,7 @@ import { MonacoBinding } from 'y-monaco';
 import { selectUser } from '../../reducers/authSlice';
 import { useAppDispatch, useAppSelector } from '../../reducers/hooks';
 import { type AwarenessState, setAwareness } from '../../reducers/awarenessSlice';
+import { io, type Socket } from 'socket.io-client';
 
 interface CodeEditorProps {
   defaultTheme: string;
@@ -41,6 +42,37 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const [selectedTheme, setSelectedTheme] = useState(defaultTheme);
   const [selectedLanguage, setSelectedLangugage] = useState(EditorLanguageEnum.javascript);
   const [fontSize, setFontSize] = useState<number>(14);
+
+  const socket = useRef<Socket | null>(null);
+
+  // Create a Socket.IO client instance when the component is initialized
+  const socketIoURL = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
+  if (socketIoURL === undefined) {
+    toast({
+      title: 'Server Error',
+      description: 'Could not connect to the server',
+      status: 'error',
+      duration: 2000,
+      isClosable: true,
+    });
+  } else {
+    // Initialize the socket variable
+    socket.current = io(socketIoURL);
+  }
+
+  const handleLanguageChange = (newLanguage: EditorLanguageEnum): void => {
+    setSelectedLangugage(newLanguage);
+
+    // Emit the selected language change to the Socket.IO server.
+    socket.current?.emit('language-change', newLanguage);
+  };
+
+  useEffect(() => {
+    socket.current?.on('receive-language-change', (newLanguage: EditorLanguageEnum) => {
+      // Update the selected language when a change is received from the server.
+      setSelectedLangugage(newLanguage);
+    });
+  }, [selectedLanguage]);
 
   const handleCopy = (): void => {
     if (clipboardValue === undefined || clipboardValue === '') return;
@@ -160,7 +192,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         <Select
           value={selectedLanguage}
           onChange={(e) => {
-            setSelectedLangugage(e.target.value as EditorLanguageEnum);
+            const newLanguage = e.target.value as EditorLanguageEnum;
+            handleLanguageChange(newLanguage); // Set and emit the language change event to the server.
           }}
           maxWidth="fit-content"
           variant="unstyled"
@@ -245,7 +278,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
               }
 
               try {
-                if (process.env.REACT_APP_COLLABORATION_SERVICE_BACKEND_URL === undefined) {
+                if (process.env.REACT_APP_COLLABORATION_SERVICE_WEBSOCKET_BACKEND_URL === undefined) {
                   toast({
                     title: 'Server Error',
                     description: 'Could not connect to server',
@@ -258,7 +291,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
                 const ydoc = new Y.Doc();
                 const provider = new WebsocketProvider(
-                  process.env.REACT_APP_COLLABORATION_SERVICE_BACKEND_URL,
+                  process.env.REACT_APP_COLLABORATION_SERVICE_WEBSOCKET_BACKEND_URL,
                   roomId,
                   ydoc,
                 );
