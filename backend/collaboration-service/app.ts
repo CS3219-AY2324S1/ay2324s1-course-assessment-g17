@@ -5,6 +5,7 @@ import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
 import { startRabbitMQ } from "./consumer";
 import cors from "cors";
+import { EditorLanguageEnum } from '../../frontend/src/types/code/languages';
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;
@@ -56,20 +57,40 @@ const io = new Server(httpServer, {
 }); 
 
 httpServer.listen(SOCKET_IO_PORT, () => {
-  console.log(`Server is listening on http://localhost:${SOCKET_IO_PORT}`);
+  console.log(`Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`);
 });
+
+interface RoomLanguages {
+  [roomId: string]: EditorLanguageEnum;
+}
+
+// Store the selected language for each room.
+const roomLanguages: RoomLanguages = {};
 
 // Handle other collaboration features.
 io.on('connection', (socket) => {
   console.log('New connection:', socket.id);
 
-  // Handle language changes in code editor.
-  socket.on('language-change', (newLanguage) => {
-    // Broadcast this change to all connected clients.
-    io.emit('receive-language-change', newLanguage);
+  // Listen for room joining.
+  socket.on('join-room', (roomId) => {
+    // Join the user to the specified room.
+    socket.join(roomId);
+
+    // Provide the client with the previously selected language for that room.
+    const initialLanguage = roomLanguages[roomId] || EditorLanguageEnum.javascript;
+    // Send the initial language to this user.
+    socket.emit('initial-language', initialLanguage);
   });
 
-  // Handle chat messages.
+  // Listen for language changes.
+  socket.on('language-change', (roomId, newLanguage) => {
+    // Update the selected language for the room.
+    roomLanguages[roomId] = newLanguage;
+    // Broadcast this change to all connected users in this room.
+    io.to(roomId).emit('receive-language-change', newLanguage);
+  });
+
+  // Listen for chat messages.
   socket.on('chat-message', (message) => {
     // Broadcast the message to all connected clients.
     io.emit('receive-chat-message', message);
