@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
   });
 
   // Listen for language changes.
-  socket.on('language-change', (roomId, newLanguage) => {
+  socket.on('language-change', (roomId: string, newLanguage: EditorLanguageEnum) => {
     // Update the selected language for the room.
     roomLanguages[roomId] = newLanguage;
     // Broadcast this change to all connected users in this room.
