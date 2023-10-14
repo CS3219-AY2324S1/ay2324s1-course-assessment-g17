@@ -6,11 +6,15 @@ import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import EditProfile from './EditProfile';
 import DeregisterButton from '../auth/DeregisterButton';
+import HeatmapComponent from '../../components/user/Heatmap';
 
 const ViewProfile: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const user = useAppSelector(selectUser);
+  if (user === null) {
+    return <div>User not found</div>;
+  }
 
   return (
     <Box width="100%" height="85vh" my={5}>
@@ -73,6 +77,7 @@ const ViewProfile: React.FC = () => {
             </Text>
           </HStack>
         </Box>
+        <HeatmapComponent user={user} />
         <Flex justifyContent="center" mt={4} mb={6}>
           <DeregisterButton />
         </Flex>
