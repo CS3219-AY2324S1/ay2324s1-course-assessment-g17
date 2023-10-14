@@ -1,5 +1,4 @@
 import * as amqp from "amqplib/callback_api";
-import { v4 as uuidv4 } from "uuid";
 import Pair from "./models/pair";
 
 export function startRabbitMQ() {
