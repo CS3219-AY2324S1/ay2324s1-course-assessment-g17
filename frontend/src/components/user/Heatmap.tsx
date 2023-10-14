@@ -3,6 +3,7 @@ import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
 import { type User } from '../../types/users/users';
 import './Heatmap.css';
+import Tooltip from 'react-tooltip';
 
 interface HeatmapProps {
   user: User;
@@ -25,20 +26,16 @@ const HeatmapComponent: React.FC<HeatmapProps> = ({ user }) => {
       try {
         const response = await fetch(`http://localhost:8000/api/user/get-answered-questions/${user.id}`);
         const data = (await response.json()) as AnsweredQuestion[];
-        console.log(data);
         const activityMap: Record<string, number> = {};
         data.forEach((item: { answeredAt: string }) => {
           const date = item.answeredAt.split('T')[0];
           activityMap[date] = activityMap[date] !== undefined ? activityMap[date] + 1 : 1;
-          console.log(date);
         });
 
         const formattedData = Object.keys(activityMap).map((date) => ({
           date,
           count: activityMap[date],
         }));
-
-        console.log(formattedData);
 
         setActivityData(formattedData);
       } catch (error) {
@@ -52,18 +49,30 @@ const HeatmapComponent: React.FC<HeatmapProps> = ({ user }) => {
   }, [user.id]);
 
   return (
-    <CalendarHeatmap
-      startDate={new Date(new Date().getFullYear(), new Date().getMonth() - 6, new Date().getDate())}
-      endDate={new Date(new Date().getFullYear(), new Date().getMonth() + 6, new Date().getDate())}
-      values={activityData}
-      classForValue={(value) => {
-        if (value !== null && typeof value === 'object' && 'count' in value) {
-          const countValue = value as { count: number };
-          return `color-github-${countValue.count}`;
-        }
-        return 'color-empty';
-      }}
-    />
+    <div>
+      <CalendarHeatmap
+        startDate={new Date(new Date().getFullYear(), new Date().getMonth() - 6, new Date().getDate())}
+        endDate={new Date(new Date().getFullYear(), new Date().getMonth() + 6, new Date().getDate())}
+        values={activityData}
+        classForValue={(value) => {
+          if (value !== null && typeof value === 'object' && 'count' in value) {
+            const countValue = value as { count: number };
+            return `color-github-${countValue.count}`;
+          }
+          return 'color-empty';
+        }}
+        tooltipDataAttrs={(value: { date?: string; count?: number } | null) => {
+          if (value?.date === undefined || value.count === null) {
+            return { 'data-tip': `No question recorded!` };
+          }
+          const dateParts = value.date.split('-');
+          const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+          const pluralized = value.count === 1 ? 'question' : 'questions';
+          return { 'data-tip': `${value.count} ${pluralized} solved on ${formattedDate}!` };
+        }}
+      />
+      <Tooltip />
+    </div>
   );
 };
 
