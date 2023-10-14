@@ -38,7 +38,7 @@ const CollaborationRoom: React.FC = () => {
       navigate('/');
       return;
     }
-    const REACT_APP_COLLAB_URL = 'http://localhost:8081';
+    const REACT_APP_COLLAB_URL = 'http://localhost:8082';
     const response = await axios.get<{ authorised: boolean }>(REACT_APP_COLLAB_URL + '/api/check-authorization', {
       params: {
         userId: user.id,

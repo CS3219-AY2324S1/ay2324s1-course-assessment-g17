@@ -27,11 +27,6 @@ const server = createServer((_request, response) => {
   response.end("Binded");
 });
 
-app.listen(process.env.PORT || 8081, () => {
-  console.log(`Express server is running on port ${process.env.PORT || 8081}`);
-});
-
-app.get("/api/check-authorization", checkAuthorisedUser);
 const wss = new WebSocketServer({ server: server });
 
 function onError(error: any) {
@@ -51,9 +46,6 @@ wss.on("connection", (ws, req) => {
   console.log("connection");
 });
 
-app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
-);
 const httpServer = createServer(app);
 
 // Create a Socket.IO instance HTTP server.
@@ -66,6 +58,8 @@ const io = new Server(httpServer, {
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(`Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`);
 });
+
+app.get("/api/check-authorization", checkAuthorisedUser);
 
 interface RoomLanguages {
   [roomId: string]: EditorLanguageEnum;
