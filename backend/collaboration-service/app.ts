@@ -4,9 +4,9 @@ import { WebSocketServer } from "ws";
 import { startRabbitMQ } from "./consumer";
 import express from "express";
 import { checkAuthorisedUser } from "./controllers/pair";
+import cors from "cors";
 
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
-const cors = require("cors");
 
 const mongoose = require("mongoose");
 mongoose.connect(process.env.MONGODB_URL, {
@@ -19,6 +19,8 @@ const server = createServer((_request, response) => {
 });
 
 const app = express();
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+
 app.listen(process.env.PORT || 8081, () => {
   console.log(`Express server is running on port ${process.env.PORT || 8081}`);
 });
@@ -44,5 +46,4 @@ wss.on("connection", (ws, req) => {
 
 startRabbitMQ();
 
-app.use(cors());
 export default app;
