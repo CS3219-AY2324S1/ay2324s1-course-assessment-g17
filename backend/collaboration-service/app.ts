@@ -6,6 +6,9 @@ import express from "express";
 import { checkAuthorisedUser } from "./controllers/pair";
 import cors from "cors";
 
+const app = express();
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 
 const mongoose = require("mongoose");
@@ -17,9 +20,6 @@ const server = createServer((_request, response) => {
   response.writeHead(200, { "Content-Type": "text/plain" });
   response.end("Binded");
 });
-
-const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 
 app.listen(process.env.PORT || 8081, () => {
   console.log(`Express server is running on port ${process.env.PORT || 8081}`);

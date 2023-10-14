@@ -8,6 +8,7 @@ import {
   NumberInput,
   NumberInputField,
   Button,
+  useToast,
 } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
 import CodeEditor from '../../components/code/CodeEditor';
@@ -22,6 +23,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const CollaborationRoom: React.FC = () => {
+  const toast = useToast();
   const navigate = useNavigate();
   const editorTheme = useColorModeValue('light', 'vs-dark');
   const [showUserTab, toggleShowUserTab] = useState(false);
@@ -29,32 +31,33 @@ const CollaborationRoom: React.FC = () => {
   const [questionId, setQuestionId] = useState<number | undefined>(undefined);
   const { roomId } = useParams();
   const user = useAppSelector(selectUser);
-  const COLLAB_URL = 'http://localhost:8081';
 
+  const checkAuthorization = async (): Promise<void> => {
+    if (user === null) {
+      console.error('User ID is undefined');
+      navigate('/');
+      return;
+    }
+    const REACT_APP_COLLAB_URL = 'http://localhost:8081';
+    const response = await axios.get<{ authorised: boolean }>(REACT_APP_COLLAB_URL + '/api/check-authorization', {
+      params: {
+        userId: user.id,
+        roomId,
+      },
+    });
+
+    if (!response.data.authorised) {
+      toast({
+        title: 'Invalid permission',
+        description: 'Room does not belong to you.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/');
+    }
+  };
   useEffect(() => {
-    const checkAuthorization = async (): Promise<void> => {
-      if (user === null) {
-        console.error('User ID is undefined');
-        navigate('/');
-        return;
-      }
-      try {
-        const response = await axios.get<{ authorised: boolean }>(COLLAB_URL + '/api/check-authorization', {
-          params: {
-            userId: user.id,
-            roomId,
-          },
-        });
-
-        if (!response.data.authorised) {
-          console.error('Error checking authorization:', response.data);
-          navigate('/');
-        }
-      } catch (error) {
-        console.error('Error checking authorization:', error);
-      }
-    };
-
     checkAuthorization().catch((error) => {
       console.error('Error checking authorization:', error);
     });
