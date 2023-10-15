@@ -1,4 +1,4 @@
-import { Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { Button, Flex, Input, Stack, Text } from '@chakra-ui/react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import IconWithText from '../../components/content/IconWithText';
@@ -19,7 +19,9 @@ const Forum: React.FC = () => {
         <Text fontSize="xl" fontWeight="bold" textAlign="center" fontStyle="italic" color="gray.600">
           Get code help and start discussions!
         </Text>
-        <Flex justifyContent="flex-end" w="85%">
+        <Flex justifyContent="space-between" alignItems="center" w="85%" style={{ marginTop: '30px' }}>
+          {/* Placeholder for search bar */}
+          <Input placeholder="Search post..." style={{ marginRight: '10px' }} />
           <Link to="/forum/new-post">
             <Button leftIcon={<AddIcon />} colorScheme="teal">
               New Post
