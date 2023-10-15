@@ -8,14 +8,17 @@ import {
   NumberInput,
   NumberInputField,
   Button,
+  useToast,
 } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
 import CodeEditor from '../../components/code/CodeEditor';
 import CollaboratorUsers from './CollaboratorUsers';
 import RoomInfo from './RoomInfo';
 import UserTab from './UserTab';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import QuestionDetails from '../questions/QuestionDetails';
+import { io, type Socket } from 'socket.io-client';
+import { SocketProvider } from '../../context/socket';
 
 const CollaborationRoom: React.FC = () => {
   const editorTheme = useColorModeValue('light', 'vs-dark');
@@ -24,7 +27,7 @@ const CollaborationRoom: React.FC = () => {
   const [questionId, setQuestionId] = useState<number | undefined>(undefined);
 
   return (
-    <>
+    <SocketProvider>
       <Flex mt={4} mx={4} justifyContent="space-between">
         <RoomInfo />
         <CollaboratorUsers
@@ -37,6 +40,7 @@ const CollaborationRoom: React.FC = () => {
         <Allotment defaultSizes={[6, 10, 4]}>
           <Allotment.Pane>
             <VStack as="div" style={{ overflowY: 'auto', height: '100%', paddingLeft: '16px', paddingRight: '16px' }}>
+              {/* TODO: something about this box */}
               <Box
                 width="100%"
                 padding={4}
@@ -86,7 +90,7 @@ const CollaborationRoom: React.FC = () => {
           </Allotment.Pane>
         </Allotment>
       </Box>
-    </>
+    </SocketProvider>
   );
 };
 
