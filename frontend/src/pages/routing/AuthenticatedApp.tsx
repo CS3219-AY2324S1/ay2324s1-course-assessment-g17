@@ -9,6 +9,8 @@ import Home from '../home/Home';
 import CollaborationRoom from '../collaboration/CollaborationRoom';
 import Matching from '../matching/Matching';
 import ProtectedRoute from './ProtectedRoute';
+import Forum from '../community/Forum';
+import { CreatePost } from '../community/CreatePost';
 
 const AuthenticatedApp: React.FC = () => {
   return (
@@ -25,6 +27,9 @@ const AuthenticatedApp: React.FC = () => {
       <Route path="/matching" element={<Matching />} />
       {/* Collaboration routes */}
       <Route path="/collaborate/:roomId" element={<CollaborationRoom />} />
+      {/* Forum routes */}
+      <Route path="/forum" element={<Forum />} />
+      <Route path="/forum/new-post" element={<CreatePost />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
