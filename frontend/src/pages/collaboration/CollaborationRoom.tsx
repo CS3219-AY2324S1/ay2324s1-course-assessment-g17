@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
 import CodeEditor from '../../components/code/CodeEditor';
+import ChatBox from '../../components/chat/ChatBox';
 import CollaboratorUsers from './CollaboratorUsers';
 import RoomInfo from './RoomInfo';
 import UserTab from './UserTab';
@@ -80,9 +81,19 @@ const CollaborationRoom: React.FC = () => {
             </Box>
           </Allotment.Pane>
           <Allotment.Pane visible={showUserTab}>
-            <Box as="div" style={{ maxHeight: '85vh' }}>
-              <UserTab />
-            </Box>
+            <VStack as="div" style={{ height: '100%' }}>
+              <Box
+                width="100%"
+                padding={4}
+                alignSelf="flex-start"
+                _light={{ backgroundColor: 'gray.200' }}
+                _dark={{ backgroundColor: 'gray.700' }}
+                borderRadius={8}
+              >
+                <UserTab />
+              </Box>
+              <ChatBox />
+            </VStack>
           </Allotment.Pane>
         </Allotment>
       </Box>

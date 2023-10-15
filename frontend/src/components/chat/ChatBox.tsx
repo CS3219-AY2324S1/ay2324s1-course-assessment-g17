@@ -1,18 +1,21 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { HStack, useToast, Input, IconButton } from '@chakra-ui/react';
+import { useToast, Input, IconButton, VStack } from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
 import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { selectUser } from '../../reducers/authSlice';
 import { useAppSelector } from '../../reducers/hooks';
 import type { Message } from '../../types/chat/messages';
+// import { selectAwareness } from '../../reducers/awarenessSlice';
 // import type { User } from '../../types/users/users';
+import './App.css';
 
-const Chat: React.FC = () => {
+const ChatBox: React.FC = () => {
   const toast = useToast();
   const { roomId } = useParams();
-  const user = useAppSelector(selectUser);
+  // const awareness = useAppSelector(selectAwareness);
+  const currentUser = useAppSelector(selectUser);
 
   const socket = useRef<Socket | null>(null);
 
@@ -87,7 +90,7 @@ const Chat: React.FC = () => {
   const sendMessage = (): void => {
     if (newMessage.trim().length !== 0) {
       const outMessage: Message = {
-        user: user,
+        user: currentUser,
         text: newMessage,
         time: new Date(), // current timestamp
       };
@@ -107,38 +110,45 @@ const Chat: React.FC = () => {
   }, [messages]);
 
   return (
-    <main className="chat-box">
-      <div className="messages-wrapper">
-        {messages.map((message) => (
-          <div className="message__chats" key={message.time.toString()}>
-            <div className="sender__name">{message.user?.username}</div>
-            <div className="message__sender">
-              <p>{message.text}</p>
+    <>
+      <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px', width: '100%' }}>
+        <div className="messages-wrapper" style={{ width: '100%' }}>
+          {messages.map((message) => (
+            <div
+              className={`chat-bubble${message.user?.username === currentUser?.username ? '-right' : ''}`}
+              key={message.time.toString()}
+            >
+              {/* <img
+                className="chat-bubble__left"
+                src={message.avatar}
+                alt="user avatar"
+              /> */}
+              {/* <div className="chat-bubble__left"> */}
+              <p className="user-name">{message.user?.username}</p>
+              <p className="user-message">{message.text}</p>
+              {/* </div> */}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
         <div className="message__status">
+          {/* Possibility of adding status of messages */}
           <div ref={lastMessageRef} />
         </div>
-      </div>
-      <div className="chat__footer" style={{ position: 'absolute', bottom: 0, width: '100%' }}>
-        <form className="form" onSubmit={handleSubmit}>
-          <HStack width="100%">
-            <Input
-              type="text"
-              placeholder="Share your thoughts"
-              className="message"
-              value={newMessage}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setNewMessage(e.target.value);
-              }}
-            />
-            <IconButton className="sendBtn" colorScheme="teal" aria-label="" size="lg" icon={<CheckIcon />} />
-          </HStack>
-        </form>
-      </div>
-    </main>
+      </VStack>
+      <form className="form" onSubmit={handleSubmit} style={{ width: '100%' }}>
+        <Input
+          type="text"
+          placeholder="Share your thoughts"
+          className="form-input__input"
+          value={newMessage}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            setNewMessage(e.target.value);
+          }}
+        />
+        <IconButton type="submit" colorScheme="teal" aria-label="" size="lg" icon={<CheckIcon />} />
+      </form>
+    </>
   );
 };
 
-export default Chat;
+export default ChatBox;
