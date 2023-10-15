@@ -73,8 +73,6 @@ interface RoomMessages {
 const roomLanguages: RoomLanguages = {};
 // Store the messages for each room.
 const roomMessages: RoomMessages = {};
-// Store the typing users for each room.
-const roomTyping = new Map<string, Set<User>>();
 
 // Handle other collaboration features.
 io.on('connection', (socket) => {
@@ -89,15 +87,11 @@ io.on('connection', (socket) => {
     const initialLanguage = roomLanguages[roomId] || EditorLanguageEnum.javascript;
     // Provide the client with previously sent messages to the room
     const initialMessages = roomMessages[roomId];
-    // Provide the client with currently typing users to the room
-    const initialTyping = roomTyping.get(roomId);
-    
+
     // Send the initial language to this user.
     socket.emit('initial-language', initialLanguage);
     // Send the initial messages to this user.
     socket.emit('initial-messages', initialMessages);
-    // Send the initial typing to this user.
-    socket.emit('initial-typing', initialTyping);
   }); 
 
   // Listen for language changes.
@@ -116,25 +110,6 @@ io.on('connection', (socket) => {
     }
     roomMessages[roomId] = [...roomMessages[roomId], message]; // Append the new message
     io.emit('receive-chat-message', message);
-  });
-
-  // Listen for chat messages.
-  socket.on('typing', (roomId: string, user: User) => {
-    if (!(roomTyping.has(roomId))) {
-      roomTyping.set(roomId, new Set<User>());
-    }
-    roomTyping.get(roomId)!.add(user);
-    // Broadcast the message to all connected clients.
-    io.emit('typingResponse', roomTyping.get(roomId));
-  });
-
-  // Listen for chat messages.
-  socket.on('stopTyping', (roomId: string, user: User) => {
-    if (roomTyping.has(roomId)) {
-      roomTyping.get(roomId)!.delete(user);
-    }
-    // Broadcast the message to all connected clients.
-    io.emit('typingResponse', roomTyping.get(roomId));
   });
 
   // Handle user disconnection.

@@ -80,7 +80,7 @@ const CollaborationRoom: React.FC = () => {
             </Box>
           </Allotment.Pane>
           <Allotment.Pane visible={showUserTab}>
-            <Box as="div" style={{ overflowY: 'auto', height: '100%' }}>
+            <Box as="div" style={{ maxHeight: '85vh' }}>
               <UserTab />
             </Box>
           </Allotment.Pane>

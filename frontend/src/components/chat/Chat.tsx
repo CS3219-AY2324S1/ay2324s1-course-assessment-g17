@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { useToast } from '@chakra-ui/react';
+import { HStack, useToast, Input, IconButton } from '@chakra-ui/react';
+import { CheckIcon } from '@chakra-ui/icons';
 import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { selectUser } from '../../reducers/authSlice';
 import { useAppSelector } from '../../reducers/hooks';
 import type { Message } from '../../types/chat/messages';
-import type { User } from '../../types/users/users';
+// import type { User } from '../../types/users/users';
 
 const Chat: React.FC = () => {
   const toast = useToast();
@@ -42,7 +43,6 @@ const Chat: React.FC = () => {
 
   const [newMessage, setNewMessage] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [typingStatus, setTypingStatus] = useState<Set<User> | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   // Set previous messages
@@ -55,14 +55,6 @@ const Chat: React.FC = () => {
       // Set the initial messages received from the server.
       if (initialMessages != null) {
         setMessages(initialMessages);
-      }
-    });
-
-    // Listen for the "initial-typing" event from the Socket.IO server.
-    socket.current?.on('initial-typing', (initialTyping: Set<User> | null) => {
-      // Set the initial messages received from the server.
-      if (initialTyping != null) {
-        setTypingStatus(initialTyping);
       }
     });
   };
@@ -92,14 +84,6 @@ const Chat: React.FC = () => {
     });
   }, [messages]);
 
-  useEffect(() => {
-    if (newMessage.trim() !== '') {
-      handleTyping();
-    } else {
-      handleStopTyping();
-    }
-  }, [newMessage]);
-
   const sendMessage = (): void => {
     if (newMessage.trim().length !== 0) {
       const outMessage: Message = {
@@ -118,74 +102,42 @@ const Chat: React.FC = () => {
   };
 
   useEffect(() => {
-    socket.current?.on('typingResponse', (typingUsers: Set<User>) => {
-      setTypingStatus(typingUsers);
-    });
-  }, [socket]);
-
-  // useEffect(() => {
-  //   socket.current?.on('stopTypingResponse', (typinguser: User) => {
-  //     setTypingStatus((prevTypingStatus) => {
-  //       const updatedTypingStatus = new Set(prevTypingStatus);
-  //       updatedTypingStatus.delete(typinguser);
-  //       return updatedTypingStatus;
-  //     });
-  //   });
-  // }, [socket]);
-
-  const handleTyping = (): void => {
-    socket.current?.emit('typing', roomId, user);
-  };
-
-  const handleStopTyping = (): void => {
-    socket.current?.emit('stopTyping', roomId, user);
-  };
-
-  useEffect(() => {
     // 👇️ scroll to bottom every time messages change
     lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   return (
-    <div>
-      <>
-        <div className="message__container">
-          {messages.map((message) => (
-            <div className="message__chats" key={message.time.toString()}>
-              <div className="sender__name">{message.user?.username}</div>
-              <div className="message__sender">
-                <p>{message.text}</p>
-              </div>
+    <main className="chat-box">
+      <div className="messages-wrapper">
+        {messages.map((message) => (
+          <div className="message__chats" key={message.time.toString()}>
+            <div className="sender__name">{message.user?.username}</div>
+            <div className="message__sender">
+              <p>{message.text}</p>
             </div>
-          ))}
-
-          <div className="message__status">
-            {typingStatus !== null &&
-              Array.from(typingStatus).map((item: User) => (
-                <div key={item.username}>
-                  <p>{item.username} is typing...</p>
-                </div>
-              ))}
           </div>
+        ))}
+        <div className="message__status">
           <div ref={lastMessageRef} />
         </div>
-
-        <div className="chat__footer">
-          <form className="form" onSubmit={handleSubmit}>
-            <input
+      </div>
+      <div className="chat__footer" style={{ position: 'absolute', bottom: 0, width: '100%' }}>
+        <form className="form" onSubmit={handleSubmit}>
+          <HStack width="100%">
+            <Input
               type="text"
-              placeholder="Write message"
+              placeholder="Share your thoughts"
               className="message"
               value={newMessage}
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 setNewMessage(e.target.value);
               }}
             />
-            <button className="sendBtn">Send</button>
-          </form>
-        </div>
-      </>
-    </div>
+            <IconButton className="sendBtn" colorScheme="teal" aria-label="" size="lg" icon={<CheckIcon />} />
+          </HStack>
+        </form>
+      </div>
+    </main>
   );
 };
 
