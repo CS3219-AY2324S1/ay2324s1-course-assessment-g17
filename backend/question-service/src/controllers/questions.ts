@@ -50,7 +50,10 @@ export const getQuestions: RequestHandler[] = [
         });
       }
       if (requestData.limit) {
-        questionQuery = questionQuery.limit(requestData.limit);
+        const count = await questionQuery.clone().count().exec();
+        questionQuery = questionQuery
+          .skip(Math.floor(Math.random() * (count - requestData.limit)))
+          .limit(requestData.limit);
       }
       const questions = await questionQuery.exec();
       res.status(200).json({ data: questions });
