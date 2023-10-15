@@ -7,6 +7,7 @@ import { selectUser } from '../../reducers/authSlice';
 import EditProfile from './EditProfile';
 import DeregisterButton from '../auth/DeregisterButton';
 import HeatmapComponent from '../../components/user/Heatmap';
+import ProgressBar from '../../components/user/ProgressBar';
 
 const ViewProfile: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -78,6 +79,7 @@ const ViewProfile: React.FC = () => {
           </HStack>
         </Box>
         <HeatmapComponent user={user} />
+        <ProgressBar user={user} />
         <Flex justifyContent="center" mt={4} mb={6}>
           <DeregisterButton />
         </Flex>
