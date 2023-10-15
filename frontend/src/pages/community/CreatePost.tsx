@@ -5,8 +5,8 @@ export const CreatePost: React.FC = () => {
   return (
     <PostForm
       formTitle={'Create Post'}
-      dialogBody={'Are you sure? Any progress on the form will not be saved. This action is irreversible!'}
-      dialogHeader={'Cancel Question Creation'}
+      dialogBody={'Are you sure? Your post will not be saved!'}
+      dialogHeader={'Cancel Post Creation'}
       submitButtonLabel={'Submit Post'}
     />
   );
