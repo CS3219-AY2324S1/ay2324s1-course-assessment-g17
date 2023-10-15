@@ -46,20 +46,29 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const socket = useRef<Socket | null>(null);
 
   // Create a Socket.IO client instance when the component is initialized
-  const socketIoURL = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
-  if (socketIoURL === undefined) {
-    toast({
-      title: 'Server Error',
-      description: 'Could not connect to the server',
-      status: 'error',
-      duration: 2000,
-      isClosable: true,
-    });
-    console.error('Server Error: Could not connect to the server');
-  } else {
-    // Initialize the socket variable
-    socket.current = io(socketIoURL);
-  }
+  useEffect(() => {
+    const socketIoURL = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
+
+    if (socketIoURL === undefined) {
+      // Handle the error
+      toast({
+        title: 'Server Error',
+        description: 'Could not connect to the server',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error('Server Error: Could not connect to the server');
+    } else {
+      // Initialize the socket variable
+      socket.current = io(socketIoURL);
+
+      // Clean up the socket connection when the component unmounts
+      return () => {
+        socket.current?.disconnect();
+      };
+    }
+  }, []); // Empty dependency array ensures this runs only once.
 
   const handleLanguageChange = (newLanguage: EditorLanguageEnum): void => {
     setSelectedLanguage(newLanguage);

@@ -3,6 +3,7 @@ import React from 'react';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectAwareness } from '../../reducers/awarenessSlice';
 import UserProfileEntry from './UserProfileEntry';
+import Chat from '../../components/chat/Chat';
 
 const UserTab: React.FC = () => {
   const awareness = useAppSelector(selectAwareness);
@@ -30,10 +31,7 @@ const UserTab: React.FC = () => {
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel pb={4}>
-          {/* Not implemented yet */}
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-          magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-          consequat.
+          <Chat />
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
