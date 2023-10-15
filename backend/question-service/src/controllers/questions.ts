@@ -1,16 +1,64 @@
 import { RequestHandler } from "express";
 import QuestionModel, { categoryEnum } from "../models/question";
-import { body, matchedData, validationResult, param } from "express-validator";
+import {
+  body,
+  matchedData,
+  validationResult,
+  param,
+  query,
+} from "express-validator";
 import { complexityEnum } from "../models/question";
 
-export const getQuestions: RequestHandler = async (req, res, next) => {
-  try {
-    const questions = await QuestionModel.find().exec();
-    res.status(200).json({ data: questions });
-  } catch (error) {
-    next(error);
-  }
-};
+export const getQuestions: RequestHandler[] = [
+  query("categories")
+    .optional()
+    .isArray()
+    .withMessage("categories should be an array.")
+    .custom((categories: string[]) => {
+      for (const category of categories) {
+        if (!categoryEnum.includes(category)) {
+          throw new Error(`Invalid category: ${category}`);
+        }
+      }
+      return true;
+    }),
+  query("complexities")
+    .optional()
+    .isArray()
+    .isIn(complexityEnum)
+    .withMessage(`complexities should be one of ${complexityEnum.join(", ")}.`),
+  query("limit").optional().isInt().toInt(),
+  async (req, res, next) => {
+    if (!validationResult(req).isEmpty()) {
+      res.status(400).json({ errors: validationResult(req).array() });
+      return;
+    }
+
+    try {
+      const requestData = matchedData(req, { includeOptionals: true });
+      let questionQuery = QuestionModel.find();
+      if (requestData.categories) {
+        questionQuery = questionQuery.where({
+          categories: {
+            $elemMatch: { $in: requestData.categories },
+          },
+        });
+      }
+      if (requestData.complexities) {
+        questionQuery = questionQuery.where({
+          complexity: requestData.complexities,
+        });
+      }
+      if (requestData.limit) {
+        questionQuery = questionQuery.limit(requestData.limit);
+      }
+      const questions = await questionQuery.exec();
+      res.status(200).json({ data: questions });
+    } catch (error) {
+      next(error);
+    }
+  },
+];
 
 export const getQuestion: RequestHandler[] = [
   param("questionId").isNumeric().withMessage("questionId should be a number."),
@@ -176,7 +224,7 @@ export const updateQuestion: RequestHandler[] = [
     const finalQuestion = await QuestionModel.findByIdAndUpdate(
       existingQuestion._id,
       formData,
-      { new: true },
+      { new: true }
     );
 
     res.status(200).json({ data: finalQuestion, status: "success" });
