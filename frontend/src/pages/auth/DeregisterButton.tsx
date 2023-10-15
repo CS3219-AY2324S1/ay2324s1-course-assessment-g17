@@ -1,7 +1,7 @@
 import React from 'react';
-import ConfirmationDialog from '../../components/content/ConfirmationDialog';
+import { IconButton, Icon, useToast, Flex, Box } from '@chakra-ui/react';
+import { WarningTwoIcon } from '@chakra-ui/icons';
 import AuthAPI from '../../api/users/auth';
-import { useToast } from '@chakra-ui/react';
 import { logOut } from '../../reducers/authSlice';
 import { useAppDispatch } from '../../reducers/hooks';
 
@@ -24,15 +24,16 @@ const DeregisterButton: React.FC = () => {
         });
       });
   };
+
   return (
-    <ConfirmationDialog
-      dialogHeader={'Delete Account'}
-      dialogBody={'Are you sure you want to delete your account? This action is irreversible!'}
-      mainButtonLabel={'Delete Account'}
-      rightButtonLabel={'Yes, delete my account permanently!'}
-      onConfirm={handleClick}
-      mainButtonProps={{ colorScheme: 'red' }}
-    />
+    <Box onClick={handleClick} cursor="pointer">
+      <Flex align="center">
+        <IconButton isRound aria-label="Delete Account" icon={<Icon as={WarningTwoIcon} />} bgColor="transparent" />
+        <Flex direction="column" ml={2}>
+          <span>Delete Account</span>
+        </Flex>
+      </Flex>
+    </Box>
   );
 };
 
