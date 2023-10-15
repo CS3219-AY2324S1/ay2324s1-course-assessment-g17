@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 const CollaborationQuestion: React.FC = () => {
   const [questionIdInput, setQuestionIdInput] = useState<number | undefined>(undefined);
   const [questionId, setQuestionId] = useState<number | undefined>(undefined);
+  const [disableSelection, setDisableSelection] = useState(false);
   const { socket } = useContext(SocketContext);
   const { roomId } = useParams();
 
@@ -15,13 +16,14 @@ const CollaborationQuestion: React.FC = () => {
     socket?.on('set-question', (questionId: number) => {
       setQuestionId(questionId);
       setQuestionIdInput(questionId);
+      // disable manual question selection for normal matches (?)
+      setDisableSelection(true);
     });
     socket?.emit('join-room', roomId);
   }, [socket]);
 
   return (
     <VStack as="div" style={{ overflowY: 'auto', height: '100%', paddingLeft: '16px', paddingRight: '16px' }}>
-      {/* TODO: something about this box */}
       <Box
         width="100%"
         padding={4}
@@ -35,9 +37,11 @@ const CollaborationQuestion: React.FC = () => {
           <NumberInput
             size="sm"
             maxWidth="80px"
+            value={questionIdInput}
             onChange={(e) => {
               setQuestionIdInput(parseInt(e, 10));
             }}
+            isDisabled={disableSelection}
           >
             <NumberInputField />
           </NumberInput>
@@ -46,6 +50,7 @@ const CollaborationQuestion: React.FC = () => {
             onClick={() => {
               setQuestionId(questionIdInput);
             }}
+            disabled={disableSelection}
           >
             Update
           </Button>

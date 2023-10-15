@@ -52,7 +52,9 @@ export const getQuestions: RequestHandler[] = [
       if (requestData.limit) {
         const count = await questionQuery.clone().count().exec();
         questionQuery = questionQuery
-          .skip(Math.floor(Math.random() * (count - requestData.limit)))
+          .skip(
+            Math.max(0, Math.floor(Math.random() * (count - requestData.limit)))
+          )
           .limit(requestData.limit);
       }
       const questions = await questionQuery.exec();
