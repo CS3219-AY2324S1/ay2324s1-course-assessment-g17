@@ -4,6 +4,7 @@ import 'react-calendar-heatmap/dist/styles.css';
 import { type User } from '../../types/users/users';
 import './Heatmap.css';
 import Tooltip from 'react-tooltip';
+import { Flex, Text } from '@chakra-ui/react';
 
 interface HeatmapProps {
   user: User;
@@ -20,18 +21,21 @@ interface AnsweredQuestion {
 
 const HeatmapComponent: React.FC<HeatmapProps> = ({ user }) => {
   const [activityData, setActivityData] = useState<Array<{ date: string; count: number }>>([]);
-
+  const [totalCount, setTotalCount] = useState(0);
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
       try {
         const response = await fetch(`http://localhost:8000/api/user/get-answered-questions/${user.id}`);
         const data = (await response.json()) as AnsweredQuestion[];
         const activityMap: Record<string, number> = {};
+        let total = 0;
         data.forEach((item: { answeredAt: string }) => {
           const date = item.answeredAt.split('T')[0];
           activityMap[date] = activityMap[date] !== undefined ? activityMap[date] + 1 : 1;
+          total++;
         });
 
+        setTotalCount(total);
         const formattedData = Object.keys(activityMap).map((date) => ({
           date,
           count: activityMap[date],
@@ -49,7 +53,11 @@ const HeatmapComponent: React.FC<HeatmapProps> = ({ user }) => {
   }, [user.id]);
 
   return (
-    <div>
+    <Flex direction="column" align="left" textAlign="left">
+      <Text fontSize="sm" mb={2}>
+        {' '}
+        {totalCount} submissions in last year{' '}
+      </Text>
       <CalendarHeatmap
         startDate={new Date(new Date().getFullYear(), new Date().getMonth() - 6, new Date().getDate())}
         endDate={new Date(new Date().getFullYear(), new Date().getMonth() + 6, new Date().getDate())}
@@ -72,7 +80,7 @@ const HeatmapComponent: React.FC<HeatmapProps> = ({ user }) => {
         }}
       />
       <Tooltip />
-    </div>
+    </Flex>
   );
 };
 
