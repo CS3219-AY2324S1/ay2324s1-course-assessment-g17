@@ -56,7 +56,7 @@ const HeatmapComponent: React.FC<HeatmapProps> = ({ user }) => {
     <Flex direction="column" align="left" textAlign="left">
       <Text fontSize="sm" mb={2}>
         {' '}
-        {totalCount} submissions in last year{' '}
+        {totalCount} {totalCount === 1 ? 'submission' : 'submissions'} in last year{' '}
       </Text>
       <CalendarHeatmap
         startDate={new Date(new Date().getFullYear(), new Date().getMonth() - 6, new Date().getDate())}

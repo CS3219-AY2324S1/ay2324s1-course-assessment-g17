@@ -23,7 +23,7 @@ const ViewProfile: React.FC = () => {
     <>
       <Flex flexDirection={{ base: 'column', md: 'row' }} width="100%" minHeight="85vh" my={5}>
         <CardComponent>
-          <Flex alignItems="center">
+          <Flex alignItems="center" ml={12} mt={2}>
             <Avatar bg="black" />
             <Text ml={3} fontSize="xl" fontWeight="bold" textAlign="center">
               {user?.username}
@@ -74,9 +74,9 @@ const ViewProfile: React.FC = () => {
                 {(user?.languages?.length ?? 0) > 0 ? user?.languages?.map((lang) => lang.language).join(', ') : 'None'}
               </Text>
             </HStack>
-            <Flex justifyContent="center" mt={4} mb={6}>
+            <HStack spacing={5} align="center" mt={4}>
               <DeregisterButton />
-            </Flex>
+            </HStack>
           </Box>
         </CardComponent>
         <Flex flexDirection="column" width="100%">

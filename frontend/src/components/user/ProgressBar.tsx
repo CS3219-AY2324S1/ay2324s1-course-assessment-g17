@@ -66,31 +66,31 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ user }) => {
 
   return (
     <Flex direction="column">
-      <Text fontSize="sm" m={2}>
+      <Text fontSize="md" m={2}>
         Solved Problems
       </Text>
       <Flex width="100%" direction="row" align="center">
-        <CircularProgress size="120px" value={totalPercentage} color="yellow.400">
-          <CircularProgressLabel fontSize="14px">{totalSolved} solved</CircularProgressLabel>
+        <CircularProgress size="180px" value={totalPercentage} color="yellow.400">
+          <CircularProgressLabel fontSize="18px">{totalSolved} solved</CircularProgressLabel>
         </CircularProgress>
         <Flex width="100%" direction="column" align="left" textAlign="left" ml={6}>
           <Flex justify="space-between" align="center" mb={2}>
-            <Text fontSize="xs">Easy</Text>
-            <Text fontSize="2xs" color="gray.500">
+            <Text fontSize="sm">Easy</Text>
+            <Text fontSize="sm" color="gray.500">
               {easyCount}/{totalEasy}
             </Text>
           </Flex>
           <Progress value={easyPercentage} colorScheme="green" mb={2} />
           <Flex justify="space-between" align="center" mb={2}>
-            <Text fontSize="xs">Medium</Text>
-            <Text fontSize="2xs" color="gray.500">
+            <Text fontSize="sm">Medium</Text>
+            <Text fontSize="sm" color="gray.500">
               {mediumCount}/{totalMedium}
             </Text>
           </Flex>
           <Progress value={mediumPercentage} colorScheme="yellow" mb={2} />
           <Flex justify="space-between" align="center" mb={2}>
-            <Text fontSize="xs">Hard</Text>
-            <Text fontSize="2xs" color="gray.500">
+            <Text fontSize="sm">Hard</Text>
+            <Text fontSize="sm" color="gray.500">
               {hardCount}/{totalHard}
             </Text>
           </Flex>

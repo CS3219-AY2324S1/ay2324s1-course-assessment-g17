@@ -27,7 +27,7 @@ const DeregisterButton: React.FC = () => {
 
   return (
     <Box onClick={handleClick} cursor="pointer">
-      <Flex align="center">
+      <Flex align="center" ml={-2}>
         <IconButton isRound aria-label="Delete Account" icon={<Icon as={WarningTwoIcon} />} bgColor="transparent" />
         <Flex direction="column" ml={2}>
           <span>Delete Account</span>
