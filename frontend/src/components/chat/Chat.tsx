@@ -42,7 +42,7 @@ const Chat: React.FC = () => {
 
   const [newMessage, setNewMessage] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [typingStatus, setTypingStatus] = useState<User[]>([]);
+  const [typingStatus, setTypingStatus] = useState<Set<User> | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   // Set previous messages
@@ -59,7 +59,7 @@ const Chat: React.FC = () => {
     });
 
     // Listen for the "initial-typing" event from the Socket.IO server.
-    socket.current?.on('initial-typing', (initialTyping: User[] | null) => {
+    socket.current?.on('initial-typing', (initialTyping: Set<User> | null) => {
       // Set the initial messages received from the server.
       if (initialTyping != null) {
         setTypingStatus(initialTyping);
@@ -118,17 +118,20 @@ const Chat: React.FC = () => {
   };
 
   useEffect(() => {
-    socket.current?.on('typingResponse', (typinguser: User) => {
-      setTypingStatus((typingStatus) => typingStatus.filter((item) => item !== typinguser));
-      setTypingStatus((typingStatus) => [...typingStatus, typinguser]);
+    socket.current?.on('typingResponse', (typingUsers: Set<User>) => {
+      setTypingStatus(typingUsers);
     });
   }, [socket]);
 
-  useEffect(() => {
-    socket.current?.on('stopTypingResponse', (typinguser: User) => {
-      setTypingStatus((typingStatus) => typingStatus.filter((item) => item !== typinguser));
-    });
-  }, [socket]);
+  // useEffect(() => {
+  //   socket.current?.on('stopTypingResponse', (typinguser: User) => {
+  //     setTypingStatus((prevTypingStatus) => {
+  //       const updatedTypingStatus = new Set(prevTypingStatus);
+  //       updatedTypingStatus.delete(typinguser);
+  //       return updatedTypingStatus;
+  //     });
+  //   });
+  // }, [socket]);
 
   const handleTyping = (): void => {
     socket.current?.emit('typing', roomId, user);
@@ -157,11 +160,12 @@ const Chat: React.FC = () => {
           ))}
 
           <div className="message__status">
-            {typingStatus.map((item) => (
-              <div key={item.username}>
-                <p>{item.username} is typing...</p>
-              </div>
-            ))}
+            {typingStatus !== null &&
+              Array.from(typingStatus).map((item: User) => (
+                <div key={item.username}>
+                  <p>{item.username} is typing...</p>
+                </div>
+              ))}
           </div>
           <div ref={lastMessageRef} />
         </div>

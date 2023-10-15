@@ -68,16 +68,13 @@ interface RoomLanguages {
 interface RoomMessages {
   [roomId: string]: Message[];
 }
-interface RoomTyping {
-  [roomId: string]: User[];
-}
 
 // Store the selected language for each room.
 const roomLanguages: RoomLanguages = {};
 // Store the messages for each room.
 const roomMessages: RoomMessages = {};
-// Store thr typing users for each room.
-const roomTyping: RoomTyping = {};
+// Store the typing users for each room.
+const roomTyping = new Map<string, Set<User>>();
 
 // Handle other collaboration features.
 io.on('connection', (socket) => {
@@ -91,9 +88,9 @@ io.on('connection', (socket) => {
     // Provide the client with the previously selected language for that room.
     const initialLanguage = roomLanguages[roomId] || EditorLanguageEnum.javascript;
     // Provide the client with previously sent messages to the room
-    const initialMessages = roomMessages[roomId]
+    const initialMessages = roomMessages[roomId];
     // Provide the client with currently typing users to the room
-    const initialTyping = roomTyping[roomId]
+    const initialTyping = roomTyping.get(roomId);
     
     // Send the initial language to this user.
     socket.emit('initial-language', initialLanguage);
@@ -123,24 +120,21 @@ io.on('connection', (socket) => {
 
   // Listen for chat messages.
   socket.on('typing', (roomId: string, user: User) => {
-    if (!(roomId in roomTyping)) {
-      roomTyping[roomId] = [];
+    if (!(roomTyping.has(roomId))) {
+      roomTyping.set(roomId, new Set<User>());
     }
-    if (!roomTyping[roomId].includes(user)) {
-      roomTyping[roomId] = [...roomTyping[roomId], user]; // Append the new message
-    }
+    roomTyping.get(roomId)!.add(user);
     // Broadcast the message to all connected clients.
-    io.emit('typingResponse', user);
+    io.emit('typingResponse', roomTyping.get(roomId));
   });
 
   // Listen for chat messages.
   socket.on('stopTyping', (roomId: string, user: User) => {
-    if (!(roomId in roomTyping)) {
-      roomTyping[roomId] = [];
+    if (roomTyping.has(roomId)) {
+      roomTyping.get(roomId)!.delete(user);
     }
-    roomTyping[roomId] = roomTyping[roomId].filter((item) => item !== user);
     // Broadcast the message to all connected clients.
-    io.emit('stopTypingResponse', user);
+    io.emit('typingResponse', roomTyping.get(roomId));
   });
 
   // Handle user disconnection.
