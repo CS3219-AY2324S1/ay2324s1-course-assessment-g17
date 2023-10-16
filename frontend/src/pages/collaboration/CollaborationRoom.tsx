@@ -81,10 +81,9 @@ const CollaborationRoom: React.FC = () => {
             </Box>
           </Allotment.Pane>
           <Allotment.Pane visible={showUserTab}>
-            <VStack as="div" style={{ height: '100%' }}>
+            <VStack as="div" style={{ height: '100%', width: '100%', paddingLeft: '16px', paddingRight: '16px' }}>
               <Box
                 width="100%"
-                padding={4}
                 alignSelf="flex-start"
                 _light={{ backgroundColor: 'gray.200' }}
                 _dark={{ backgroundColor: 'gray.700' }}

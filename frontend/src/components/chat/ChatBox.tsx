@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { useToast, Input, IconButton, VStack } from '@chakra-ui/react';
+import { useToast, Input, IconButton, VStack, HStack, Box, Text } from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
 import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
@@ -109,26 +109,69 @@ const ChatBox: React.FC = () => {
     lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  function formatDate(dateTime: Date): string {
+    const formattedDate = dateTime.toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }); // Convert Date
+    return formattedDate;
+  }
+
+  function formatTime(dateTime: Date): string {
+    const formattedTime = dateTime.toLocaleString('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    }); // Convert Time
+    return formattedTime;
+  }
+
+  // Initialize a variable to keep track of the previous date
+  let prevDate = new Date(0);
+
+  const messageElements = messages.map((message) => {
+    const currentDate = new Date(message.time);
+    const isDifferentDay = formatDate(currentDate) !== formatDate(prevDate);
+    const differenceTime = (currentDate.getTime() - prevDate.getTime()) / 1000 / 60;
+    const isDifferentTime = differenceTime >= 15;
+    prevDate = currentDate;
+
+    return (
+      <div key={message.time.toString()} style={{ margin: '5px' }}>
+        {/* Insert a date divider if it's a different day */}
+        {isDifferentDay && (
+          <Box as="span" flex="1" textAlign="center">
+            <Text fontWeight="bold">{formatDate(currentDate)}</Text>
+          </Box>
+        )}
+        {isDifferentTime && (
+          <Box as="span" flex="1" textAlign="center">
+            <Text fontWeight="bold">{formatTime(currentDate)}</Text>
+          </Box>
+        )}
+        <div className={`chat-bubble ${message.user?.username === currentUser?.username ? 'right' : 'left'}`}>
+          <HStack style={{ width: '100%' }}>
+            <div className="user-name" style={{ width: '100%' }}>
+              {message.user?.username}
+              {message.user?.username === currentUser?.username ? ' (Me)' : ''}
+            </div>
+            <div className="user-name" style={{ width: '100%', textAlign: 'right' }}>
+              {formatTime(new Date(message.time))}
+            </div>
+          </HStack>
+          <div className="user-message">{message.text}</div>
+        </div>
+      </div>
+    );
+  });
+
   return (
     <>
-      <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px', width: '100%' }}>
+      <VStack as="div" style={{ overflowY: 'auto', width: '100%' }}>
         <div className="messages-wrapper" style={{ width: '100%' }}>
-          {messages.map((message) => (
-            <div
-              className={`chat-bubble${message.user?.username === currentUser?.username ? '-right' : ''}`}
-              key={message.time.toString()}
-            >
-              {/* <img
-                className="chat-bubble__left"
-                src={message.avatar}
-                alt="user avatar"
-              /> */}
-              {/* <div className="chat-bubble__left"> */}
-              <p className="user-name">{message.user?.username}</p>
-              <p className="user-message">{message.text}</p>
-              {/* </div> */}
-            </div>
-          ))}
+          {messageElements}
         </div>
         <div className="message__status">
           {/* Possibility of adding status of messages */}
@@ -136,16 +179,26 @@ const ChatBox: React.FC = () => {
         </div>
       </VStack>
       <form className="form" onSubmit={handleSubmit} style={{ width: '100%' }}>
-        <Input
-          type="text"
-          placeholder="Share your thoughts"
-          className="form-input__input"
-          value={newMessage}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            setNewMessage(e.target.value);
-          }}
-        />
-        <IconButton type="submit" colorScheme="teal" aria-label="" size="lg" icon={<CheckIcon />} />
+        <HStack as="div" style={{ width: '100%' }}>
+          <Input
+            size="md"
+            type="text"
+            placeholder="Share your thoughts"
+            className="form-input__input"
+            value={newMessage}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setNewMessage(e.target.value);
+            }}
+          />
+          <IconButton
+            type="submit"
+            icon={<CheckIcon />}
+            colorScheme="teal"
+            aria-label="Send"
+            size="md"
+            variant="solid"
+          ></IconButton>
+        </HStack>
       </form>
     </>
   );

@@ -17,7 +17,7 @@ const UserTab: React.FC = () => {
           </Box>
           <AccordionIcon />
         </AccordionButton>
-        <AccordionPanel pb={4}>
+        <AccordionPanel>
           {awareness?.map((awareness, index) => <UserProfileEntry key={index} userAwareness={awareness} />)}
         </AccordionPanel>
       </AccordionItem>
