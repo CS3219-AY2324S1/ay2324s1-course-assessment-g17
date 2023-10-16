@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import Editor from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';
 import { Box, Button, Flex, HStack, Input, Select, useClipboard, useToast } from '@chakra-ui/react';
@@ -16,7 +16,7 @@ import { MonacoBinding } from 'y-monaco';
 import { selectUser } from '../../reducers/authSlice';
 import { useAppDispatch, useAppSelector } from '../../reducers/hooks';
 import { type AwarenessState, setAwareness } from '../../reducers/awarenessSlice';
-import { io, type Socket } from 'socket.io-client';
+import { SocketContext } from '../../context/socket';
 
 interface CodeEditorProps {
   defaultTheme: string;
@@ -43,46 +43,30 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const [selectedLanguage, setSelectedLanguage] = useState(EditorLanguageEnum.javascript);
   const [fontSize, setFontSize] = useState<number>(14);
 
-  const socket = useRef<Socket | null>(null);
-
-  // Create a Socket.IO client instance when the component is initialized
-  const socketIoURL = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
-  if (socketIoURL === undefined) {
-    toast({
-      title: 'Server Error',
-      description: 'Could not connect to the server',
-      status: 'error',
-      duration: 2000,
-      isClosable: true,
-    });
-    console.error('Server Error: Could not connect to the server');
-  } else {
-    // Initialize the socket variable
-    socket.current = io(socketIoURL);
-  }
+  const { socket } = useContext(SocketContext);
 
   const handleLanguageChange = (newLanguage: EditorLanguageEnum): void => {
     setSelectedLanguage(newLanguage);
 
     // Emit the selected language change to the Socket.IO server.
-    socket.current?.emit('language-change', roomId, newLanguage);
+    socket?.emit('language-change', roomId, newLanguage);
   };
 
   // Runs whenever the selected language dependency changes.
   useEffect(() => {
     // Listen for receive-language-change event from the Socket.IO server.
-    socket.current?.on('receive-language-change', (newLanguage: EditorLanguageEnum) => {
+    socket?.on('receive-language-change', (newLanguage: EditorLanguageEnum) => {
       // Update the selected language with the new language received from the Socket.IO server.
       setSelectedLanguage(newLanguage);
     });
-  }, [selectedLanguage]);
+  }, [socket, selectedLanguage]);
 
   const setInitialLanguage = (roomId: string): void => {
     // Emit a request to get the initial language for the room.
-    socket.current?.emit('join-room', roomId);
+    socket?.emit('join-room', roomId);
 
     // Listen for the "initial-language" event from the Socket.IO server.
-    socket.current?.on('initial-language', (initialLanguage: EditorLanguageEnum) => {
+    socket?.on('initial-language', (initialLanguage: EditorLanguageEnum) => {
       // Set the initial language received from the server.
       setSelectedLanguage(initialLanguage);
     });
@@ -102,7 +86,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     } else {
       setInitialLanguage(roomId);
     }
-  }, []);
+  }, [socket]);
 
   const handleCopy = (): void => {
     if (clipboardValue === undefined || clipboardValue === '') return;
