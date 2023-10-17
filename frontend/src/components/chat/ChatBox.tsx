@@ -6,16 +6,14 @@ import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { selectUser } from '../../reducers/authSlice';
 import { useAppSelector } from '../../reducers/hooks';
-import type { Message, File, FileMetadata } from '../../types/chat/messages';
+import { Message, MyFile, MyFileMetadata } from '../../types/chat/messages';
 import { selectAwareness } from '../../reducers/awarenessSlice';
 import type { User } from '../../types/users/users';
 import './App.css';
-import fileDownload from 'js-file-download'
-import { current } from '@reduxjs/toolkit';
 
 const ChatBox: React.FC = () => {
   const toast = useToast();
-  const { roomId } = useParams();
+  const roomId = '7b7974ac-76b0-4113-9d62-8c6cf17085ab';
   const awareness = useAppSelector(selectAwareness);
   const currentUser = useAppSelector(selectUser);
 
@@ -46,7 +44,7 @@ const ChatBox: React.FC = () => {
 
   const [newMessage, setNewMessage] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<MyFile[]>([]);
   const [receiveProgress, setReceiveProgress] = useState<number>(100);
   const [sendProgress, setSendProgress] = useState<number>(100);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
@@ -56,14 +54,6 @@ const ChatBox: React.FC = () => {
   const setInitial = (roomId: string, currentUser: User): void => {
     // Emit a request to join the room
     socket.current?.emit('join-room', roomId, currentUser);
-
-    // // Listen for the "initial-messages" event from the Socket.IO server.
-    // socket.current?.on('joined', (joinedUser: User) => {
-    //   // Set the initial messages received from the server.
-    //   if (initialMessages != null) {
-    //     setMessages(initialMessages);
-    //   }
-    // });
   };
 
   // Runs once when the component mounts to set the initial messages.
@@ -90,6 +80,16 @@ const ChatBox: React.FC = () => {
       setInitial(roomId, currentUser);
     }
   }, []);
+
+    socket.current?.on('joined-room', () => {
+      toast({
+        title: 'JOINED',
+        description: 'joined',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+    });
 
   // Runs whenever a chat message is emitted.
   socket.current?.on('receive-chat-message', (message) => {
@@ -119,26 +119,26 @@ const ChatBox: React.FC = () => {
       setNewMessage('');
     }
   };
-  
+
   // Handle file input
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    let filesInput  = e.target;
+    let filesInput = e.target;
     if (filesInput.files && filesInput.files[0]) {
       const file = filesInput.files[0];
       const reader = new FileReader();
       reader.onload = (e) => {
         if (reader.result instanceof ArrayBuffer) {
           const buffer = new Uint8Array(reader.result);
-          const outFileMetadata: FileMetadata = {
+          const outFileMetadata: MyFileMetadata = {
             user: currentUser,
             filename: file.name,
             buffer_size: buffer.length,
             time: new Date(),
-          }
-          const outFile: File = {
+          };
+          const outFile: MyFile = {
             metadata: outFileMetadata,
             buffer: buffer,
-          }
+          };
           shareFile(outFile);
         } else {
           toast({
@@ -150,31 +150,28 @@ const ChatBox: React.FC = () => {
           });
           console.error('Could not read file buffer: Invalid file buffer type');
         }
-        
-      }
+      };
+      reader.readAsArrayBuffer(file);
     }
+  };
 
   // Handle sharing file
-  const shareFile = (file: File): void => {
-		socket.current?.emit("file-meta", { 
-      metadata: file.metadata
+  const shareFile = (file: MyFile): void => {
+    socket.current?.emit('file-meta', {
+      metadata: file.metadata,
     });
-		
-		socket.current?.on("fs-share", () => {
+
+    socket.current?.on('fs-share', () => {
       let buffer = file.buffer;
       let buffer_size = file.metadata.buffer_size;
       if (buffer !== null) {
         let chunk = buffer.slice(0, TRANSFER_SIZE);
         buffer = buffer.slice(TRANSFER_SIZE, buffer.length);
-        setSendProgress(Math.trunc(
-          ((buffer_size - buffer.length) / buffer_size * 100)
-        ));
-        if(chunk.length !== 0){
-          
-          socket.current?.emit("file-raw", { chunk: chunk });
-        
+        setSendProgress(Math.trunc(((buffer_size - buffer.length) / buffer_size) * 100));
+        if (chunk.length !== 0) {
+          socket.current?.emit('file-raw', { chunk: chunk });
         } else {
-          console.log("Sent file successfully");
+          console.log('Sent file successfully');
           setFiles([...files, file]);
           setSendProgress(0);
         }
@@ -188,38 +185,60 @@ const ChatBox: React.FC = () => {
         });
         console.error('Could not share file: File buffer is empty');
       }
-		});
-	}
-  
+    });
+  }; // CONTAINED
+
   let sharedFile: {
     transmitted?: number;
     buffer?: ArrayBuffer[];
-    metadata?: FileMetadata;
-  };
+    metadata?: MyFileMetadata;
+  }; // CONTAINED
 
   // metadata get and then send request for transfer
-  socket.current?.on("fs-meta", (metadata: FileMetadata) => {
+  socket.current?.on('fs-meta', (metadata: MyFileMetadata) => {
     sharedFile.transmitted = 0;
     sharedFile.buffer = [];
     sharedFile.metadata = metadata;
-    socket.current?.emit("fs-share", { metadata: metadata })
-  });
+
+    socket.current?.emit('fs-share', { metadata: metadata });
+  }); // CONTAINED
 
   // start receiving and downloading file
-  socket.current?.on("file-raw", (chunk: Uint8Array) => {
+  socket.current?.on('file-raw', (chunk: Uint8Array) => {
     sharedFile.buffer?.push(chunk);
-    
+
     if (sharedFile.transmitted && sharedFile.metadata) {
       sharedFile.transmitted += chunk.byteLength;
-      setReceiveProgress(Math.trunc((
-        sharedFile.transmitted / sharedFile.metadata.buffer_size) * 100)
-      );
-      if (sharedFile.transmitted === sharedFile.metadata.buffer_size) {
-        console.log("Download file: ", sharedFile);
-        fileDownload(sharedFile.buffer, sharedFile.metadata.filename);
+      setReceiveProgress(Math.trunc((sharedFile.transmitted / sharedFile.metadata.buffer_size) * 100));
+      if (sharedFile.transmitted === sharedFile.metadata.buffer_size && sharedFile.buffer) {
+        const arrayOfArrayBuffers = sharedFile.buffer;
+        const totalLength = arrayOfArrayBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
+        const combinedUint8Array = new Uint8Array(totalLength);
+        let offset = 0;
+        arrayOfArrayBuffers.forEach((buffer) => {
+          combinedUint8Array.set(new Uint8Array(buffer), offset);
+          offset += buffer.byteLength;
+        });
+        const receivedFile: MyFile = { metadata: sharedFile.metadata, buffer: combinedUint8Array };
+        setFiles([...files, receivedFile]);
+        console.log('Download file: ', receivedFile);
+        downloadFile(combinedUint8Array, sharedFile.metadata.filename);
       }
     }
-  });
+  }); // CONTAINED
+
+  function downloadFile(buffer: Uint8Array, fileName: string): void {
+    const blob = new Blob([buffer]);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } // Hopefully this works
 
   // Format Date from Message
   function formatDate(dateTime: Date): string {
@@ -280,6 +299,30 @@ const ChatBox: React.FC = () => {
     );
   });
 
+  // Format Messages Display
+  const fileElements = files.map((file) => {
+    return (
+      <div key={file.metadata.time.toString()} style={{ margin: '5px' }}>
+        {/* Message Bubble */}
+        <div className={`chat-bubble ${file.metadata.user?.username === currentUser?.username ? 'right' : 'left'}`}>
+          <HStack style={{ width: '100%' }}>
+            <div className="user-name" style={{ width: '100%' }}>
+              {file.metadata.user?.username}
+              {file.metadata.user?.username === currentUser?.username ? ' (Me)' : ''}
+            </div>
+            <div className="user-name" style={{ width: '100%', textAlign: 'right' }}>
+              {formatTime(new Date(file.metadata.time))}
+            </div>
+          </HStack>
+          <div className="user-message">
+            <p>{file.metadata.filename}</p>
+            <p>{file.metadata.buffer_size}</p>
+          </div>
+        </div>
+      </div>
+    );
+  });
+
   // Actual return begins here
   return (
     <>
@@ -292,6 +335,17 @@ const ChatBox: React.FC = () => {
           <div ref={lastMessageRef} />
         </div>
       </VStack>
+      <VStack as="div" style={{ overflowY: 'auto', width: '100%' }}>
+        <div className="messages-wrapper" style={{ width: '100%' }}>
+          {fileElements}
+        </div>
+      </VStack>
+      <div className="file-input">
+        <label htmlFor="file-input">Click here to Select files for sharing</label>
+        <input onChange={handleFileChange} type="file" id="file-input" />
+        <p>Receive Progress: {receiveProgress}%</p>
+        <p>Send Progress: {sendProgress}%</p>
+      </div>
       <form className="form" onSubmit={handleSubmit} style={{ width: '100%' }}>
         <HStack as="div" style={{ width: '100%' }}>
           <Input
@@ -316,6 +370,6 @@ const ChatBox: React.FC = () => {
       </form>
     </>
   );
-}};
+};
 
 export default ChatBox;

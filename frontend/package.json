@@ -76,9 +76,9 @@
     ]
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.2",
     "@types/randomcolor": "^0.5.7",
     "@types/uuid": "^9.0.4",
-    "@types/dompurify": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
     "eslint": "^8.49.0",
@@ -89,6 +89,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.33.2",
+    "js-file-download": "^0.4.12",
     "prettier": "^3.0.3",
     "typescript": "^4.9.5"
   }

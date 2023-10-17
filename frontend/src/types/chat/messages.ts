@@ -6,14 +6,14 @@ export interface Message {
   time: Date;
 }
 
-export interface FileMetadata {
+export interface MyFileMetadata {
   user: User | null;
   filename: string;
   buffer_size: number;
   time: Date;
 }
 
-export interface File {
-  metadata: FileMetadata;
+export interface MyFile {
+  metadata: MyFileMetadata;
   buffer: Uint8Array | null;
 }

@@ -1,10 +1,10 @@
 {
-  "name": "collaboration-service",
+  "name": "chat-service",
   "version": "1.0.0",
   "description": "",
   "main": "app.ts",
   "scripts": {
-    "start": "HOST=localhost PORT=8081 npx y-websocket & nodemon --exec ts-node ./app.ts",
+    "start": "HOST=localhost PORT=8084 nodemon --exec ts-node app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
