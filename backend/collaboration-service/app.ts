@@ -69,6 +69,12 @@ interface RoomLanguages {
 // Store the selected language for each room.
 const roomLanguages: RoomLanguages = {};
 
+interface RoomCurrentQuestion {
+  [roomId: string]: number;
+}
+
+export const roomCurrentQuestion: RoomCurrentQuestion = {};
+
 // Handle other collaboration features.
 io.on("connection", (socket) => {
   console.log("New connection:", socket.id);
@@ -83,6 +89,9 @@ io.on("connection", (socket) => {
       roomLanguages[roomId] || EditorLanguageEnum.javascript;
     // Send the initial language to this user.
     socket.emit("initial-language", initialLanguage);
+
+    const initialQuestionId = roomCurrentQuestion[roomId];
+    if (initialQuestionId) socket.emit("set-question", initialQuestionId);
   });
 
   // Listen for language changes.
@@ -108,4 +117,4 @@ io.on("connection", (socket) => {
   });
 });
 
-startRabbitMQ();
+startRabbitMQ(io);
