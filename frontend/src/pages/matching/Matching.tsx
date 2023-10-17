@@ -70,7 +70,8 @@ const Matching: React.FC = () => {
   };
 
   const handleCancel: React.FormEventHandler<HTMLFormElement> = (e) => {
-    socket?.emit('disconnect');
+    e.preventDefault();
+    socket?.disconnect();
     setMatchingState(MatchingStateEnum.NO_REQUEST);
   };
 
