@@ -22,5 +22,7 @@ model Comment {
   id Int       @id @default(autoincrement())
   content String
   post Post    @relation(fields: [postId], references: [id])
+  username String
   postId Int
+  upvotes Int  @default(0)
 }
