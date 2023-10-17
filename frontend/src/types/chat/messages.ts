@@ -5,3 +5,15 @@ export interface Message {
   text: string;
   time: Date;
 }
+
+export interface FileMetadata {
+  user: User | null;
+  filename: string;
+  buffer_size: number;
+  time: Date;
+}
+
+export interface File {
+  metadata: FileMetadata;
+  buffer: Uint8Array | null;
+}
