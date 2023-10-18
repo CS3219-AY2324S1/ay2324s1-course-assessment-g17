@@ -11,6 +11,7 @@ export const QuestionComplexityEnumToLevelMap: Record<QuestionComplexityEnum, nu
 });
 
 export interface QuestionData {
+  id: number;
   questionID: number;
   title: string;
   categories: string[];
