@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
   socket.on("join-room", (roomId: string) => {
     // Join the user to the specified room.
     socket.join(roomId);
-    io.emit('joined-room');
+    io.emit("joined-room");
   });
 
   // Listen for chat messages.
@@ -55,25 +55,9 @@ io.on("connection", (socket) => {
     io.emit("receive-chat-message", message);
   });
 
-  // socket.on("file-meta", (metadata: MyFileMetadata) => {
-  //   io.emit("fs-meta", metadata);
-  // });
-
-  // socket.on("fs-share", (metadata: MyFileMetadata) => {
-  //   io.emit("fs-share", metadata);
-  // });
-
-  // socket.on("file-raw", (chunk: Uint8Array) => {
-  //   io.emit("file-raw", chunk);
-  // });
+  // Listen for file uploads
   socket.on("upload", (outFile: MyFile) => {
-    // fs.writeFile(
-    //   "upload/" + "test.png",
-    //   data,
-    //   { encoding: "base64" },
-    //   () => {}
-    // );
-
+    // Broadcast the file to all connected clients.
     io.emit("file-receive", outFile);
   });
 

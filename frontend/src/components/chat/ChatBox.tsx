@@ -6,15 +6,14 @@ import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { selectUser } from '../../reducers/authSlice';
 import { useAppSelector } from '../../reducers/hooks';
-import { Message, MyFile } from '../../types/chat/messages';
-import { selectAwareness } from '../../reducers/awarenessSlice';
+import type { Message, MyFile } from '../../types/chat/messages';
 import type { User } from '../../types/users/users';
 import './App.css';
+import type { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 
 const ChatBox: React.FC = () => {
   const toast = useToast();
   const { roomId } = useParams();
-  const awareness = useAppSelector(selectAwareness);
   const currentUser = useAppSelector(selectUser);
 
   const socket = useRef<Socket | null>(null);
@@ -45,19 +44,15 @@ const ChatBox: React.FC = () => {
   const [newMessage, setNewMessage] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [files, setFiles] = useState<MyFile[]>([]);
-  // const [receiveProgress, setReceiveProgress] = useState<number>(100);
-  // const [sendProgress, setSendProgress] = useState<number>(100);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-  // const TRANSFER_SIZE = 1024;
+  const lastFileRef = useRef<HTMLDivElement | null>(null);
 
   // Join the room
-  const setInitial = (roomId: string, currentUser: User): void => {
-    // Emit a request to join the room
-    socket.current?.emit('join-room', roomId, currentUser);
-  };
-
-  // Runs once when the component mounts to set the initial messages.
   useEffect(() => {
+    const setInitial = (roomId: string, currentUser: User): void => {
+      // Emit a request to join the room
+      socket.current?.emit('join-room', roomId, currentUser);
+    };
     if (roomId === undefined) {
       toast({
         title: 'Could not create room',
@@ -81,26 +76,47 @@ const ChatBox: React.FC = () => {
     }
   }, []);
 
-  // FOR TESTING
-  socket.current?.on('joined-room', () => {
+  // Receive the user has joined the room
+  // useEffect(() => {
+  socket.current?.on('joined-room', (joinedUser: User) => {
     toast({
-      title: 'JOINED',
-      description: 'joined',
-      status: 'error',
+      title: `${joinedUser.username} joined room`,
+      description: '',
+      status: 'success',
       duration: 2000,
       isClosable: true,
     });
   });
+  // }, []);
 
   // Runs whenever a chat message is emitted.
-  socket.current?.on('receive-chat-message', (message) => {
-    setMessages([...messages, message]);
-  });
+  useEffect(() => {
+    const handleReceiveChatMessage = (message: Message): void => {
+      setMessages((prev) => [...prev, message]);
+      toast({
+        title: 'sss',
+        description: '',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+    };
+    socket.current?.on('receive-chat-message', handleReceiveChatMessage);
+
+    // return () => {
+    //   socket.current?.off('receive-chat-message', handleReceiveChatMessage);
+    // };
+  }, []);
 
   // Scroll to bottom every time messages change
   useEffect(() => {
     lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Scroll to bottom every time messages change
+  useEffect(() => {
+    lastFileRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [files]);
 
   // Handle message submit
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
@@ -121,126 +137,6 @@ const ChatBox: React.FC = () => {
     }
   };
 
-  // // Handle file input
-  // const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
-  //   let filesInput = e.target;
-  //   if (filesInput.files && filesInput.files[0]) {
-  //     const file = filesInput.files[0];
-  //     const reader = new FileReader();
-  //     reader.onload = (e) => {
-  //       if (reader.result instanceof ArrayBuffer) {
-  //         const buffer = new Uint8Array(reader.result);
-  //         const outFileMetadata: MyFileMetadata = {
-  //           user: currentUser,
-  //           filename: file.name,
-  //           buffer_size: buffer.length,
-  //           time: new Date(),
-  //         };
-  //         const outFile: MyFile = {
-  //           metadata: outFileMetadata,
-  //           buffer: buffer,
-  //         };
-  //         shareFile(outFile);
-  //       } else {
-  //         toast({
-  //           title: 'Issue with file buffer read',
-  //           description: 'Invalid file buffer type',
-  //           status: 'error',
-  //           duration: 2000,
-  //           isClosable: true,
-  //         });
-  //         console.error('Could not read file buffer: Invalid file buffer type');
-  //       }
-  //     };
-  //     reader.readAsArrayBuffer(file);
-  //   }
-  // };
- 
-  // // Handle sharing file
-  // const shareFile = (file: MyFile): void => {
-  //   socket.current?.emit('file-meta', {
-  //     metadata: file.metadata,
-  //   });
-
-  //   socket.current?.on('fs-share', () => {
-  //     let buffer = file.buffer;
-  //     let buffer_size = file.metadata.buffer_size;
-  //     if (buffer !== null) {
-  //       let chunk = buffer.slice(0, TRANSFER_SIZE);
-  //       buffer = buffer.slice(TRANSFER_SIZE, buffer.length);
-  //       setSendProgress(Math.trunc(((buffer_size - buffer.length) / buffer_size) * 100));
-  //       if (chunk.length !== 0) {
-  //         socket.current?.emit('file-raw', { chunk: chunk });
-  //       } else {
-  //         console.log('Sent file successfully');
-  //         setFiles([...files, file]);
-  //         setSendProgress(0);
-  //       }
-  //     } else {
-  //       toast({
-  //         title: 'File buffer is empty',
-  //         description: 'File buffer is empty',
-  //         status: 'error',
-  //         duration: 2000,
-  //         isClosable: true,
-  //       });
-  //       console.error('Could not share file: File buffer is empty');
-  //     }
-  //   });
-  // }; // CONTAINED
-
-  // let sharedFile: {
-  //   transmitted?: number;
-  //   buffer?: ArrayBuffer[];
-  //   metadata?: MyFileMetadata;
-  // }; // CONTAINED
-
-  // // metadata get and then send request for transfer
-  // socket.current?.on('fs-meta', (metadata: MyFileMetadata) => {
-  //   sharedFile.transmitted = 0;
-  //   sharedFile.buffer = [];
-  //   sharedFile.metadata = metadata;
-
-  //   socket.current?.emit('fs-share', { metadata: metadata });
-  // }); // CONTAINED
-
-  // // start receiving and downloading file
-  // socket.current?.on('file-raw', (chunk: Uint8Array) => {
-  //   sharedFile.buffer?.push(chunk);
-
-  //   if (sharedFile.transmitted && sharedFile.metadata) {
-  //     sharedFile.transmitted += chunk.byteLength;
-  //     setReceiveProgress(Math.trunc((sharedFile.transmitted / sharedFile.metadata.buffer_size) * 100));
-  //     if (sharedFile.transmitted === sharedFile.metadata.buffer_size && sharedFile.buffer) {
-  //       const arrayOfArrayBuffers = sharedFile.buffer;
-  //       const totalLength = arrayOfArrayBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
-  //       const combinedUint8Array = new Uint8Array(totalLength);
-  //       let offset = 0;
-  //       arrayOfArrayBuffers.forEach((buffer) => {
-  //         combinedUint8Array.set(new Uint8Array(buffer), offset);
-  //         offset += buffer.byteLength;
-  //       });
-  //       const receivedFile: MyFile = { metadata: sharedFile.metadata, buffer: combinedUint8Array };
-  //       setFiles([...files, receivedFile]);
-  //       console.log('Download file: ', receivedFile);
-  //       downloadFile(combinedUint8Array, sharedFile.metadata.filename);
-  //     }
-  //   }
-  // }); // CONTAINED
-
-  // function downloadFile(buffer: Uint8Array, fileName: string): void {
-  //   const blob = new Blob([buffer]);
-  //   const url = URL.createObjectURL(blob);
-  //   const a = document.createElement('a');
-  //   a.href = url;
-  //   a.download = fileName;
-  //   a.style.display = 'none';
-  //   document.body.appendChild(a);
-  //   a.click();
-  //   document.body.removeChild(a);
-  //   URL.revokeObjectURL(url);
-  // } // Hopefully this works
-
   // Format Date from Message
   function formatDate(dateTime: Date): string {
     const formattedDate = dateTime.toLocaleString('en-US', {
@@ -260,30 +156,21 @@ const ChatBox: React.FC = () => {
     });
     return formattedTime;
   }
-  // Initialize a variable to keep track of the previous date
-  let prevDate = new Date(0);
 
-  // Format Messages Display
-  const messageElements = messages.map((message) => {
-    const currentDate = new Date(message.time);
-    const isDifferentDay = formatDate(currentDate) !== formatDate(prevDate);
-    const differenceTime = (currentDate.getTime() - prevDate.getTime()) / 1000 / 60;
-    const isDifferentTime = differenceTime >= 15;
-    prevDate = currentDate;
-    return (
-      <div key={currentDate.toLocaleString()} style={{ margin: '5px' }}>
-        {/* Insert a date/time divider if different day / time has passed */}
-        {isDifferentDay && (
-          <Box as="span" flex="1" textAlign="center">
-            <Text fontWeight="bold">{formatDate(currentDate)}</Text>
-          </Box>
-        )}
-        {isDifferentTime && (
-          <Box as="span" flex="1" textAlign="center">
-            <Text fontWeight="bold">{formatTime(currentDate)}</Text>
-          </Box>
-        )}
-        {/* Message Bubble */}
+  // Format and display messages
+  const messageList = (): ReactJSXElement => {
+    let prevMessageDate = new Date(0);
+
+    function shouldDisplayDateTime(currentDate: Date, prevMessageDate: Date): [boolean, boolean] {
+      const isDifferentDay = formatDate(currentDate) !== formatDate(prevMessageDate);
+      const differenceTime = (currentDate.getTime() - prevMessageDate.getTime()) / 1000 / 60;
+      const isDifferentTime = differenceTime >= 15;
+      return [isDifferentDay, isDifferentTime];
+    }
+
+    // Message component to display individual messages
+    const messageElement = (message: Message): ReactJSXElement => {
+      return (
         <div className={`chat-bubble ${message.user?.username === currentUser?.username ? 'right' : 'left'}`}>
           <HStack style={{ width: '100%' }}>
             <div className="user-name" style={{ width: '100%' }}>
@@ -296,15 +183,111 @@ const ChatBox: React.FC = () => {
           </HStack>
           <div className="user-message">{message.text}</div>
         </div>
+      );
+    };
+
+    return (
+      <div>
+        {messages.map((message, index) => {
+          const currentDate = new Date(message.time);
+          const [isDifferentDay, isDifferentTime] = shouldDisplayDateTime(currentDate, prevMessageDate);
+          prevMessageDate = currentDate;
+
+          return (
+            <div key={index} style={{ margin: '5px' }}>
+              {isDifferentDay && (
+                <Box as="span" flex="1" textAlign="center">
+                  <Text fontWeight="bold">{formatDate(currentDate)}</Text>
+                </Box>
+              )}
+              {isDifferentTime && (
+                <Box as="span" flex="1" textAlign="center">
+                  <Text fontWeight="bold">{formatTime(currentDate)}</Text>
+                </Box>
+              )}
+              {messageElement(message)}
+            </div>
+          );
+        })}
       </div>
     );
-  });
+  };
+
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  // select file
+  const selectFile = (): void => {
+    fileRef.current?.click();
+  };
+
+  // send file
+  const fileSelected = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files?.[0];
+    if (file == null) return;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const dataURL = reader.result as string;
+      const outFile: MyFile = {
+        user: currentUser,
+        dataURL,
+        filename: file.name,
+        time: new Date(), // current timestamp
+      };
+      socket.current?.emit('upload', outFile);
+
+      toast({
+        title: `Uploaded file ${outFile.filename}`,
+        description: '',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+
+      // After handling the file, clear the selection
+      clearFileSelection();
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  // Function to clear the file selection
+  const clearFileSelection = (): void => {
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    if (fileRef?.current) {
+      fileRef.current.value = ''; // Reset the input value to clear the selection
+    }
+  };
+
+  // Add the event listener when the component mounts
+  useEffect(() => {
+    const handleFileReceive = (outFile: MyFile): void => {
+      // Handle the received file data
+      toast({
+        title: `Received file ${outFile.filename}`,
+        description: '',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+      setFiles((prev) => [...prev, outFile]);
+    };
+
+    socket.current?.on('file-receive', handleFileReceive);
+
+    // return () => {
+    //   socket.current?.off('file-receive', handleFileReceive);
+    // };
+  }, []);
 
   // Format File Display
-  const fileElements = files.map((file) => {
+  let count = 0;
+  const fileElements = files.map((file, index) => {
     const currentDate = new Date(file.time);
+    count += 1;
     return (
-      <div key={currentDate.toLocaleString()} style={{ margin: '5px' }}>
+      <div key={index} style={{ margin: '5px' }}>
         {/* File Bubble */}
         <div className={`chat-bubble ${file.user?.username === currentUser?.username ? 'right' : 'left'}`}>
           <HStack style={{ width: '100%' }}>
@@ -318,7 +301,7 @@ const ChatBox: React.FC = () => {
           </HStack>
           <div className="user-message">
             <a href={file.dataURL} download={file.filename}>
-              {file.filename}
+              {count} {file.filename}
             </a>
           </div>
         </div>
@@ -326,47 +309,12 @@ const ChatBox: React.FC = () => {
     );
   });
 
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  // select file
-  const selectFile = () => {
-    fileRef.current?.click();
-  }
-
-  // send file
-  const fileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    
-    reader.onload = () => {
-      const dataURL = reader.result as string;
-      const outFile: MyFile = {
-        user: currentUser,
-        dataURL: dataURL,
-        filename: file.name,
-        time: new Date(), // current timestamp
-      };
-      socket.current?.emit("upload", outFile);
-      setFiles((prev) => [...prev, outFile]);
-    };
-
-    reader.readAsDataURL(file);
-  };
-
-  // receive file
-  socket.current?.on('file-receive', (outFile: MyFile) => {
-    // Handle the received file data
-    setFiles((prevFiles) => [...prevFiles, outFile]);
-  });
-
   // Actual return begins here
   return (
     <>
       <VStack as="div" style={{ overflowY: 'auto', width: '100%' }}>
         <div className="messages-wrapper" style={{ width: '100%' }}>
-          {messageElements}
+          {messageList()}
         </div>
         <div className="message__status">
           {/* Possibility of adding status of messages */}
@@ -377,54 +325,47 @@ const ChatBox: React.FC = () => {
       <VStack as="div" style={{ overflowY: 'auto', width: '100%' }}>
         <div className="messages-wrapper" style={{ width: '100%' }}>
           {fileElements}
+          <div className="message__status">
+            {/* Possibility of adding status of files */}
+            <div ref={lastFileRef} />
+          </div>
         </div>
       </VStack>
-      <div className="file-input">
-        <label htmlFor="file-input">Click here to Select files for sharing</label>
-        {/* <input onChange={handleFileChange} type="file" id="file-input" /> */}
-        {/* <p>Receive Progress: {receiveProgress}%</p>
-        <p>Send Progress: {sendProgress}%</p> */}
-      </div>
-      
-      <div>
-        <input
-          ref={fileRef}
-          type="file"
-          style={{ display: 'none' }}
-          onChange={fileSelected}
-        />
-        <IconButton
-          type="button"
-          icon={<AttachmentIcon />}
-          colorScheme="teal"
-          aria-label="Attach File"
-          size="md"
-          variant="solid"
-          onClick={selectFile}
-        />
-      </div>
-      <form className="form" onSubmit={handleSubmit} style={{ width: '100%' }}>
-        <HStack as="div" style={{ width: '100%' }}>
-          <Input
-            size="md"
-            type="text"
-            placeholder="Share your thoughts"
-            className="form-input__input"
-            value={newMessage}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              setNewMessage(e.target.value);
-            }}
-          />
+      <HStack as="div" style={{ width: '100%' }}>
+        <div>
+          <input ref={fileRef} type="file" style={{ display: 'none' }} onChange={fileSelected} />
           <IconButton
-            type="submit"
-            icon={<CheckIcon />}
-            colorScheme="teal"
-            aria-label="Send"
+            type="button"
+            icon={<AttachmentIcon />}
+            aria-label="Attach File"
             size="md"
             variant="solid"
-          ></IconButton>
-        </HStack>
-      </form>
+            onClick={selectFile}
+          />
+        </div>
+        <form className="form" onSubmit={handleSubmit} style={{ width: '100%' }}>
+          <HStack as="div" style={{ width: '100%' }}>
+            <Input
+              size="md"
+              type="text"
+              placeholder="Share your thoughts"
+              className="form-input__input"
+              value={newMessage}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                setNewMessage(e.target.value);
+              }}
+            />
+            <IconButton
+              type="submit"
+              icon={<CheckIcon />}
+              colorScheme="teal"
+              aria-label="Send"
+              size="md"
+              variant="solid"
+            ></IconButton>
+          </HStack>
+        </form>
+      </HStack>
     </>
   );
 };
