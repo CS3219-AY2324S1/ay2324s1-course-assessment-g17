@@ -1,4 +1,4 @@
-import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, useColorModeValue, Button, Spacer } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
 import CodeEditor from '../../components/code/CodeEditor';
 import CollaboratorUsers from './CollaboratorUsers';
@@ -16,6 +16,9 @@ const CollaborationRoom: React.FC = () => {
     <SocketProvider>
       <Flex mt={4} mx={4} justifyContent="space-between">
         <RoomInfo />
+        <Button mx={4}>Next Question</Button>
+        <Button>End Session</Button>
+        <Spacer />
         <CollaboratorUsers
           onUserTabToggle={() => {
             toggleShowUserTab(!showUserTab);
