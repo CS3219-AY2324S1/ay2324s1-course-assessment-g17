@@ -13,7 +13,7 @@ import './App.css';
 
 const ChatBox: React.FC = () => {
   const toast = useToast();
-  const roomId = '7b7974ac-76b0-4113-9d62-8c6cf17085ab';
+  const { roomId } = useParams();
   const awareness = useAppSelector(selectAwareness);
   const currentUser = useAppSelector(selectUser);
 
@@ -21,7 +21,7 @@ const ChatBox: React.FC = () => {
 
   // Create a Socket.IO client instance when the component is initialized
   useEffect(() => {
-    const socketIoURL = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
+    const socketIoURL = process.env.REACT_APP_CHAT_SERVICE_SOCKET_IO_BACKEND_URL;
 
     if (socketIoURL === undefined) {
       toast({
@@ -81,15 +81,16 @@ const ChatBox: React.FC = () => {
     }
   }, []);
 
-    socket.current?.on('joined-room', () => {
-      toast({
-        title: 'JOINED',
-        description: 'joined',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-      });
+  // FOR TESTING
+  socket.current?.on('joined-room', () => {
+    toast({
+      title: 'JOINED',
+      description: 'joined',
+      status: 'error',
+      duration: 2000,
+      isClosable: true,
     });
+  });
 
   // Runs whenever a chat message is emitted.
   socket.current?.on('receive-chat-message', (message) => {
@@ -115,7 +116,7 @@ const ChatBox: React.FC = () => {
         text: newMessage,
         time: new Date(), // current timestamp
       };
-      socket.current?.emit('chat-message', roomId, outMessage);
+      socket.current?.emit('chat-message', outMessage);
       setNewMessage('');
     }
   };
@@ -270,7 +271,7 @@ const ChatBox: React.FC = () => {
     const isDifferentTime = differenceTime >= 15;
     prevDate = currentDate;
     return (
-      <div key={message.time.toString()} style={{ margin: '5px' }}>
+      <div key={currentDate.toLocaleString()} style={{ margin: '5px' }}>
         {/* Insert a date/time divider if different day / time has passed */}
         {isDifferentDay && (
           <Box as="span" flex="1" textAlign="center">
@@ -335,6 +336,7 @@ const ChatBox: React.FC = () => {
           <div ref={lastMessageRef} />
         </div>
       </VStack>
+      {/* { currentUser?.username } */}
       <VStack as="div" style={{ overflowY: 'auto', width: '100%' }}>
         <div className="messages-wrapper" style={{ width: '100%' }}>
           {fileElements}
