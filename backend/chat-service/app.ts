@@ -55,16 +55,26 @@ io.on("connection", (socket) => {
     io.emit("receive-chat-message", message);
   });
 
-  socket.on("file-meta", (metadata: MyFileMetadata) => {
-    io.emit("fs-meta", metadata);
-  });
+  // socket.on("file-meta", (metadata: MyFileMetadata) => {
+  //   io.emit("fs-meta", metadata);
+  // });
 
-  socket.on("fs-share", (metadata: MyFileMetadata) => {
-    io.emit("fs-share", metadata);
-  });
+  // socket.on("fs-share", (metadata: MyFileMetadata) => {
+  //   io.emit("fs-share", metadata);
+  // });
 
-  socket.on("file-raw", (chunk: Uint8Array) => {
-    io.emit("file-raw", chunk);
+  // socket.on("file-raw", (chunk: Uint8Array) => {
+  //   io.emit("file-raw", chunk);
+  // });
+  socket.on("upload", (data: Buffer) => {
+    // fs.writeFile(
+    //   "upload/" + "test.png",
+    //   data,
+    //   { encoding: "base64" },
+    //   () => {}
+    // );
+
+    io.emit("uploaded", { buffer: data.toString("base64") });
   });
 
   // Handle user disconnection.

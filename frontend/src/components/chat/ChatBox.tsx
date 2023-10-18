@@ -45,10 +45,10 @@ const ChatBox: React.FC = () => {
   const [newMessage, setNewMessage] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [files, setFiles] = useState<MyFile[]>([]);
-  const [receiveProgress, setReceiveProgress] = useState<number>(100);
-  const [sendProgress, setSendProgress] = useState<number>(100);
+  // const [receiveProgress, setReceiveProgress] = useState<number>(100);
+  // const [sendProgress, setSendProgress] = useState<number>(100);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-  const TRANSFER_SIZE = 1024;
+  // const TRANSFER_SIZE = 1024;
 
   // Join the room
   const setInitial = (roomId: string, currentUser: User): void => {
@@ -121,125 +121,125 @@ const ChatBox: React.FC = () => {
     }
   };
 
-  // Handle file input
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    let filesInput = e.target;
-    if (filesInput.files && filesInput.files[0]) {
-      const file = filesInput.files[0];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (reader.result instanceof ArrayBuffer) {
-          const buffer = new Uint8Array(reader.result);
-          const outFileMetadata: MyFileMetadata = {
-            user: currentUser,
-            filename: file.name,
-            buffer_size: buffer.length,
-            time: new Date(),
-          };
-          const outFile: MyFile = {
-            metadata: outFileMetadata,
-            buffer: buffer,
-          };
-          shareFile(outFile);
-        } else {
-          toast({
-            title: 'Issue with file buffer read',
-            description: 'Invalid file buffer type',
-            status: 'error',
-            duration: 2000,
-            isClosable: true,
-          });
-          console.error('Could not read file buffer: Invalid file buffer type');
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-  };
+  // // Handle file input
+  // const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
+  //   let filesInput = e.target;
+  //   if (filesInput.files && filesInput.files[0]) {
+  //     const file = filesInput.files[0];
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       if (reader.result instanceof ArrayBuffer) {
+  //         const buffer = new Uint8Array(reader.result);
+  //         const outFileMetadata: MyFileMetadata = {
+  //           user: currentUser,
+  //           filename: file.name,
+  //           buffer_size: buffer.length,
+  //           time: new Date(),
+  //         };
+  //         const outFile: MyFile = {
+  //           metadata: outFileMetadata,
+  //           buffer: buffer,
+  //         };
+  //         shareFile(outFile);
+  //       } else {
+  //         toast({
+  //           title: 'Issue with file buffer read',
+  //           description: 'Invalid file buffer type',
+  //           status: 'error',
+  //           duration: 2000,
+  //           isClosable: true,
+  //         });
+  //         console.error('Could not read file buffer: Invalid file buffer type');
+  //       }
+  //     };
+  //     reader.readAsArrayBuffer(file);
+  //   }
+  // };
+ 
+  // // Handle sharing file
+  // const shareFile = (file: MyFile): void => {
+  //   socket.current?.emit('file-meta', {
+  //     metadata: file.metadata,
+  //   });
 
-  // Handle sharing file
-  const shareFile = (file: MyFile): void => {
-    socket.current?.emit('file-meta', {
-      metadata: file.metadata,
-    });
+  //   socket.current?.on('fs-share', () => {
+  //     let buffer = file.buffer;
+  //     let buffer_size = file.metadata.buffer_size;
+  //     if (buffer !== null) {
+  //       let chunk = buffer.slice(0, TRANSFER_SIZE);
+  //       buffer = buffer.slice(TRANSFER_SIZE, buffer.length);
+  //       setSendProgress(Math.trunc(((buffer_size - buffer.length) / buffer_size) * 100));
+  //       if (chunk.length !== 0) {
+  //         socket.current?.emit('file-raw', { chunk: chunk });
+  //       } else {
+  //         console.log('Sent file successfully');
+  //         setFiles([...files, file]);
+  //         setSendProgress(0);
+  //       }
+  //     } else {
+  //       toast({
+  //         title: 'File buffer is empty',
+  //         description: 'File buffer is empty',
+  //         status: 'error',
+  //         duration: 2000,
+  //         isClosable: true,
+  //       });
+  //       console.error('Could not share file: File buffer is empty');
+  //     }
+  //   });
+  // }; // CONTAINED
 
-    socket.current?.on('fs-share', () => {
-      let buffer = file.buffer;
-      let buffer_size = file.metadata.buffer_size;
-      if (buffer !== null) {
-        let chunk = buffer.slice(0, TRANSFER_SIZE);
-        buffer = buffer.slice(TRANSFER_SIZE, buffer.length);
-        setSendProgress(Math.trunc(((buffer_size - buffer.length) / buffer_size) * 100));
-        if (chunk.length !== 0) {
-          socket.current?.emit('file-raw', { chunk: chunk });
-        } else {
-          console.log('Sent file successfully');
-          setFiles([...files, file]);
-          setSendProgress(0);
-        }
-      } else {
-        toast({
-          title: 'File buffer is empty',
-          description: 'File buffer is empty',
-          status: 'error',
-          duration: 2000,
-          isClosable: true,
-        });
-        console.error('Could not share file: File buffer is empty');
-      }
-    });
-  }; // CONTAINED
+  // let sharedFile: {
+  //   transmitted?: number;
+  //   buffer?: ArrayBuffer[];
+  //   metadata?: MyFileMetadata;
+  // }; // CONTAINED
 
-  let sharedFile: {
-    transmitted?: number;
-    buffer?: ArrayBuffer[];
-    metadata?: MyFileMetadata;
-  }; // CONTAINED
+  // // metadata get and then send request for transfer
+  // socket.current?.on('fs-meta', (metadata: MyFileMetadata) => {
+  //   sharedFile.transmitted = 0;
+  //   sharedFile.buffer = [];
+  //   sharedFile.metadata = metadata;
 
-  // metadata get and then send request for transfer
-  socket.current?.on('fs-meta', (metadata: MyFileMetadata) => {
-    sharedFile.transmitted = 0;
-    sharedFile.buffer = [];
-    sharedFile.metadata = metadata;
+  //   socket.current?.emit('fs-share', { metadata: metadata });
+  // }); // CONTAINED
 
-    socket.current?.emit('fs-share', { metadata: metadata });
-  }); // CONTAINED
+  // // start receiving and downloading file
+  // socket.current?.on('file-raw', (chunk: Uint8Array) => {
+  //   sharedFile.buffer?.push(chunk);
 
-  // start receiving and downloading file
-  socket.current?.on('file-raw', (chunk: Uint8Array) => {
-    sharedFile.buffer?.push(chunk);
+  //   if (sharedFile.transmitted && sharedFile.metadata) {
+  //     sharedFile.transmitted += chunk.byteLength;
+  //     setReceiveProgress(Math.trunc((sharedFile.transmitted / sharedFile.metadata.buffer_size) * 100));
+  //     if (sharedFile.transmitted === sharedFile.metadata.buffer_size && sharedFile.buffer) {
+  //       const arrayOfArrayBuffers = sharedFile.buffer;
+  //       const totalLength = arrayOfArrayBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
+  //       const combinedUint8Array = new Uint8Array(totalLength);
+  //       let offset = 0;
+  //       arrayOfArrayBuffers.forEach((buffer) => {
+  //         combinedUint8Array.set(new Uint8Array(buffer), offset);
+  //         offset += buffer.byteLength;
+  //       });
+  //       const receivedFile: MyFile = { metadata: sharedFile.metadata, buffer: combinedUint8Array };
+  //       setFiles([...files, receivedFile]);
+  //       console.log('Download file: ', receivedFile);
+  //       downloadFile(combinedUint8Array, sharedFile.metadata.filename);
+  //     }
+  //   }
+  // }); // CONTAINED
 
-    if (sharedFile.transmitted && sharedFile.metadata) {
-      sharedFile.transmitted += chunk.byteLength;
-      setReceiveProgress(Math.trunc((sharedFile.transmitted / sharedFile.metadata.buffer_size) * 100));
-      if (sharedFile.transmitted === sharedFile.metadata.buffer_size && sharedFile.buffer) {
-        const arrayOfArrayBuffers = sharedFile.buffer;
-        const totalLength = arrayOfArrayBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
-        const combinedUint8Array = new Uint8Array(totalLength);
-        let offset = 0;
-        arrayOfArrayBuffers.forEach((buffer) => {
-          combinedUint8Array.set(new Uint8Array(buffer), offset);
-          offset += buffer.byteLength;
-        });
-        const receivedFile: MyFile = { metadata: sharedFile.metadata, buffer: combinedUint8Array };
-        setFiles([...files, receivedFile]);
-        console.log('Download file: ', receivedFile);
-        downloadFile(combinedUint8Array, sharedFile.metadata.filename);
-      }
-    }
-  }); // CONTAINED
-
-  function downloadFile(buffer: Uint8Array, fileName: string): void {
-    const blob = new Blob([buffer]);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  } // Hopefully this works
+  // function downloadFile(buffer: Uint8Array, fileName: string): void {
+  //   const blob = new Blob([buffer]);
+  //   const url = URL.createObjectURL(blob);
+  //   const a = document.createElement('a');
+  //   a.href = url;
+  //   a.download = fileName;
+  //   a.style.display = 'none';
+  //   document.body.appendChild(a);
+  //   a.click();
+  //   document.body.removeChild(a);
+  //   URL.revokeObjectURL(url);
+  // } // Hopefully this works
 
   // Format Date from Message
   function formatDate(dateTime: Date): string {
@@ -344,9 +344,9 @@ const ChatBox: React.FC = () => {
       </VStack>
       <div className="file-input">
         <label htmlFor="file-input">Click here to Select files for sharing</label>
-        <input onChange={handleFileChange} type="file" id="file-input" />
-        <p>Receive Progress: {receiveProgress}%</p>
-        <p>Send Progress: {sendProgress}%</p>
+        {/* <input onChange={handleFileChange} type="file" id="file-input" /> */}
+        {/* <p>Receive Progress: {receiveProgress}%</p>
+        <p>Send Progress: {sendProgress}%</p> */}
       </div>
       <form className="form" onSubmit={handleSubmit} style={{ width: '100%' }}>
         <HStack as="div" style={{ width: '100%' }}>
