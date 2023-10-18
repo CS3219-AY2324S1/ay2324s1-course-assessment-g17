@@ -6,7 +6,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import { Message, MyFileMetadata } from "../../frontend/src/types/chat/messages";
+import { Message, MyFile } from "../../frontend/src/types/chat/messages";
 import { User } from "../../frontend/src/types/users/users";
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
@@ -66,7 +66,7 @@ io.on("connection", (socket) => {
   // socket.on("file-raw", (chunk: Uint8Array) => {
   //   io.emit("file-raw", chunk);
   // });
-  socket.on("upload", (data: Buffer) => {
+  socket.on("upload", (outFile: MyFile) => {
     // fs.writeFile(
     //   "upload/" + "test.png",
     //   data,
@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
     //   () => {}
     // );
 
-    io.emit("uploaded", { buffer: data.toString("base64") });
+    io.emit("file-receive", outFile);
   });
 
   // Handle user disconnection.

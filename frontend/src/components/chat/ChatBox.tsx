@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useToast, Input, IconButton, VStack, HStack, Box, Text } from '@chakra-ui/react';
-import { CheckIcon } from '@chakra-ui/icons';
+import { CheckIcon, AttachmentIcon } from '@chakra-ui/icons';
 import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { selectUser } from '../../reducers/authSlice';
 import { useAppSelector } from '../../reducers/hooks';
-import { Message, MyFile, MyFileMetadata } from '../../types/chat/messages';
+import { Message, MyFile } from '../../types/chat/messages';
 import { selectAwareness } from '../../reducers/awarenessSlice';
 import type { User } from '../../types/users/users';
 import './App.css';
@@ -300,28 +300,65 @@ const ChatBox: React.FC = () => {
     );
   });
 
-  // Format Messages Display
+  // Format File Display
   const fileElements = files.map((file) => {
+    const currentDate = new Date(file.time);
     return (
-      <div key={file.metadata.time.toString()} style={{ margin: '5px' }}>
-        {/* Message Bubble */}
-        <div className={`chat-bubble ${file.metadata.user?.username === currentUser?.username ? 'right' : 'left'}`}>
+      <div key={currentDate.toLocaleString()} style={{ margin: '5px' }}>
+        {/* File Bubble */}
+        <div className={`chat-bubble ${file.user?.username === currentUser?.username ? 'right' : 'left'}`}>
           <HStack style={{ width: '100%' }}>
             <div className="user-name" style={{ width: '100%' }}>
-              {file.metadata.user?.username}
-              {file.metadata.user?.username === currentUser?.username ? ' (Me)' : ''}
+              {file.user?.username}
+              {file.user?.username === currentUser?.username ? ' (Me)' : ''}
             </div>
             <div className="user-name" style={{ width: '100%', textAlign: 'right' }}>
-              {formatTime(new Date(file.metadata.time))}
+              {formatTime(currentDate)}
             </div>
           </HStack>
           <div className="user-message">
-            <p>{file.metadata.filename}</p>
-            <p>{file.metadata.buffer_size}</p>
+            <a href={file.dataURL} download={file.filename}>
+              {file.filename}
+            </a>
           </div>
         </div>
       </div>
     );
+  });
+
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // select file
+  const selectFile = () => {
+    fileRef.current?.click();
+  }
+
+  // send file
+  const fileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    
+    reader.onload = () => {
+      const dataURL = reader.result as string;
+      const outFile: MyFile = {
+        user: currentUser,
+        dataURL: dataURL,
+        filename: file.name,
+        time: new Date(), // current timestamp
+      };
+      socket.current?.emit("upload", outFile);
+      setFiles((prev) => [...prev, outFile]);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  // receive file
+  socket.current?.on('file-receive', (outFile: MyFile) => {
+    // Handle the received file data
+    setFiles((prevFiles) => [...prevFiles, outFile]);
   });
 
   // Actual return begins here
@@ -347,6 +384,24 @@ const ChatBox: React.FC = () => {
         {/* <input onChange={handleFileChange} type="file" id="file-input" /> */}
         {/* <p>Receive Progress: {receiveProgress}%</p>
         <p>Send Progress: {sendProgress}%</p> */}
+      </div>
+      
+      <div>
+        <input
+          ref={fileRef}
+          type="file"
+          style={{ display: 'none' }}
+          onChange={fileSelected}
+        />
+        <IconButton
+          type="button"
+          icon={<AttachmentIcon />}
+          colorScheme="teal"
+          aria-label="Attach File"
+          size="md"
+          variant="solid"
+          onClick={selectFile}
+        />
       </div>
       <form className="form" onSubmit={handleSubmit} style={{ width: '100%' }}>
         <HStack as="div" style={{ width: '100%' }}>
