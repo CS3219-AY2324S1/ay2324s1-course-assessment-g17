@@ -1,11 +1,11 @@
-import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, useColorModeValue, VStack } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
 import CodeEditor from '../../components/code/CodeEditor';
 import ChatBox from '../../components/chat/ChatBox';
 import CollaboratorUsers from './CollaboratorUsers';
 import RoomInfo from './RoomInfo';
 import UserTab from './UserTab';
-import React, { useState } from 'react';
+import React from 'react';
 import { SocketProvider } from '../../context/socket';
 import CollaborationQuestion from './CollaborationQuestion';
 

@@ -45,7 +45,7 @@ wss.on("connection", (ws, req) => {
 // Create a separate server for Socket.IO.
 const app = express();
 app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })
+  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
 );
 const httpServer = createServer(app);
 
@@ -58,7 +58,7 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
   );
 });
 
@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
     // Provide the client with the previously selected language for that room.
     const initialLanguage =
       roomLanguages[roomId] || EditorLanguageEnum.javascript;
-    
+
     // Send the initial language to this user.
     socket.emit("initial-language", initialLanguage);
 
@@ -103,7 +103,7 @@ io.on("connection", (socket) => {
       roomLanguages[roomId] = newLanguage;
       // Broadcast this change to all connected users in this room.
       io.to(roomId).emit("receive-language-change", newLanguage);
-    }
+    },
   );
 
   // Listen for chat messages.

@@ -30,6 +30,7 @@ const io = new Server(httpServer, {
   cors: {
     origin: FRONTEND_URL,
   },
+  maxHttpBufferSize: 1e7,
 });
 
 httpServer.listen(SOCKET_IO_PORT, () => {

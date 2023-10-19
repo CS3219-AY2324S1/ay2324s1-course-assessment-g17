@@ -47,7 +47,7 @@ export function startRabbitMQ(io: Server) {
           });
 
           const questionIds = response.data.data.map(
-            (question: Question) => question.questionID
+            (question: Question) => question.questionID,
           );
 
           // If not enough questions, grab random questions.
@@ -63,8 +63,8 @@ export function startRabbitMQ(io: Server) {
             });
             questionIds.push(
               ...response.data.data.map(
-                (question: Question) => question.questionID
-              )
+                (question: Question) => question.questionID,
+              ),
             );
           }
 
@@ -85,10 +85,10 @@ export function startRabbitMQ(io: Server) {
 
           io.to(pairInfo.room_id).emit(
             "set-question",
-            pairInfo.question_ids[0]
+            pairInfo.question_ids[0],
           );
         },
-        { noAck: true }
+        { noAck: true },
       );
     });
   });

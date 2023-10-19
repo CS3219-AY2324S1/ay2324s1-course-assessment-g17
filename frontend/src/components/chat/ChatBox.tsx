@@ -227,31 +227,43 @@ const ChatBox: React.FC = () => {
     const file = e.target.files?.[0];
     if (file == null) return;
 
-    const reader = new FileReader();
+    // Check if the file size is below 10MB (10 * 1024 * 1024 bytes)
+    if (file.size <= 10 * 1024 * 1024) {
+      const reader = new FileReader();
 
-    reader.onload = () => {
-      const dataURL = reader.result as string;
-      const outFile: MyFile = {
-        user: currentUser,
-        dataURL,
-        filename: file.name,
-        time: new Date(), // current timestamp
+      reader.onload = () => {
+        const dataURL = reader.result as string;
+        const outFile: MyFile = {
+          user: currentUser,
+          dataURL,
+          filename: file.name,
+          time: new Date(), // current timestamp
+        };
+        socket.current?.emit('upload', outFile);
+
+        toast({
+          title: `Uploaded file ${outFile.filename}`,
+          description: '',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+        });
       };
-      socket.current?.emit('upload', outFile);
 
+      reader.readAsDataURL(file);
+    } else {
+      // Notify the user that the file is too large
       toast({
-        title: `Uploaded file ${outFile.filename}`,
-        description: '',
-        status: 'success',
+        title: 'File Size Exceeds 10MB',
+        description: 'Please select a file smaller than 10MB.',
+        status: 'error',
         duration: 2000,
         isClosable: true,
       });
+    }
 
-      // After handling the file, clear the selection
-      clearFileSelection();
-    };
-
-    reader.readAsDataURL(file);
+    // After handling the file in either case, clear the selection
+    clearFileSelection();
   };
 
   // Function to clear the file selection
