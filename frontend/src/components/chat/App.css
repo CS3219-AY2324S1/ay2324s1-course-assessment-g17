@@ -14,14 +14,14 @@
 
 /* Style for messages sent by the current user (on the right) */
 .chat-bubble.right {
-  background-color: #38b2ac; /* Adjust the background color as needed */
-  color: white; /* Adjust the text color as needed */
+  background-color: #38b2ac;
+  color: white;
 }
 
 /* Style for messages sent by others (on the left) */
 .chat-bubble.left {
-  background-color: whitesmoke; /* Adjust the background color as needed */
-  color: black; /* Adjust the text color as needed */
+  background-color: whitesmoke;
+  color: black;
 }
 
 .user-name {

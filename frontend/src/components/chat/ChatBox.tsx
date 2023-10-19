@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { useToast, Input, IconButton, VStack, HStack, Box, Text, Avatar, AvatarGroup, Tooltip } from '@chakra-ui/react';
+import { useToast, Input, IconButton, HStack, Box, Text } from '@chakra-ui/react';
 import { CheckIcon, AttachmentIcon, DownloadIcon } from '@chakra-ui/icons';
 import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
@@ -8,15 +8,14 @@ import { selectUser } from '../../reducers/authSlice';
 import { useAppSelector } from '../../reducers/hooks';
 import type { Message, MyFile } from '../../types/chat/messages';
 import type { User } from '../../types/users/users';
-import './App.css';
+import { Allotment } from 'allotment';
 import type { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import { selectAwareness } from '../../reducers/awarenessSlice';
+import './App.css';
 
 const ChatBox: React.FC = () => {
   const toast = useToast();
   const { roomId } = useParams();
   const currentUser = useAppSelector(selectUser);
-  const awareness = useAppSelector(selectAwareness);
 
   const socket = useRef<Socket | null>(null);
 
@@ -95,19 +94,8 @@ const ChatBox: React.FC = () => {
   useEffect(() => {
     const handleReceiveChatMessage = (message: Message): void => {
       setMessages((prev) => [...prev, message]);
-      toast({
-        title: 'sss',
-        description: '',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
     };
     socket.current?.on('receive-chat-message', handleReceiveChatMessage);
-
-    // return () => {
-    //   socket.current?.off('receive-chat-message', handleReceiveChatMessage);
-    // };
   }, []);
 
   // Scroll to bottom every time messages change
@@ -159,16 +147,16 @@ const ChatBox: React.FC = () => {
     return formattedTime;
   }
 
+  function shouldDisplayDateTime(currentDate: Date, prevMessageDate: Date): [boolean, boolean] {
+    const isDifferentDay = formatDate(currentDate) !== formatDate(prevMessageDate);
+    const differenceTime = (currentDate.getTime() - prevMessageDate.getTime()) / 1000 / 60;
+    const isDifferentTime = differenceTime >= 15;
+    return [isDifferentDay, isDifferentTime];
+  }
+
   // Format and display messages
   const messageList = (): ReactJSXElement => {
-    let prevMessageDate = new Date(0);
-
-    function shouldDisplayDateTime(currentDate: Date, prevMessageDate: Date): [boolean, boolean] {
-      const isDifferentDay = formatDate(currentDate) !== formatDate(prevMessageDate);
-      const differenceTime = (currentDate.getTime() - prevMessageDate.getTime()) / 1000 / 60;
-      const isDifferentTime = differenceTime >= 15;
-      return [isDifferentDay, isDifferentTime];
-    }
+    let prevDate = new Date(0);
 
     // Message component to display individual messages
     const messageElement = (message: Message): ReactJSXElement => {
@@ -192,21 +180,15 @@ const ChatBox: React.FC = () => {
       <div>
         {messages.map((message, index) => {
           const currentDate = new Date(message.time);
-          const [isDifferentDay, isDifferentTime] = shouldDisplayDateTime(currentDate, prevMessageDate);
-          prevMessageDate = currentDate;
+          const [isDifferentDay, isDifferentTime] = shouldDisplayDateTime(currentDate, prevDate);
+          prevDate = currentDate;
 
           return (
             <div key={index} style={{ margin: '5px' }}>
-              {isDifferentDay && (
-                <Box as="span" flex="1" textAlign="center">
-                  <Text fontWeight="bold">{formatDate(currentDate)}</Text>
-                </Box>
-              )}
-              {isDifferentTime && (
-                <Box as="span" flex="1" textAlign="center">
-                  <Text fontWeight="bold">{formatTime(currentDate)}</Text>
-                </Box>
-              )}
+              <Box as="span" flex="1" textAlign="center">
+                {isDifferentDay && <Text fontWeight="semibold">{formatDate(currentDate)}</Text>}
+                {isDifferentTime && <Text fontWeight="semibold">{formatTime(currentDate)}</Text>}
+              </Box>
               {messageElement(message)}
             </div>
           );
@@ -289,18 +271,14 @@ const ChatBox: React.FC = () => {
     };
 
     socket.current?.on('file-receive', handleFileReceive);
-
-    // return () => {
-    //   socket.current?.off('file-receive', handleFileReceive);
-    // };
   }, []);
 
   // Format File Display
-  const fileElements = files.map((file, index) => {
-    const currentDate = new Date(file.time);
-    return (
-      <div key={index} style={{ margin: '5px' }}>
-        {/* File Bubble */}
+  const fileList = (): ReactJSXElement => {
+    let prevDate = new Date(0);
+
+    const fileElement = (file: MyFile): ReactJSXElement => {
+      return (
         <div className={`chat-bubble ${file.user?.username === currentUser?.username ? 'right' : 'left'}`}>
           <HStack style={{ width: '100%' }}>
             <div className="user-name" style={{ width: '100%' }}>
@@ -308,7 +286,7 @@ const ChatBox: React.FC = () => {
               {file.user?.username === currentUser?.username ? ' (Me)' : ''}
             </div>
             <div className="user-name" style={{ width: '100%', textAlign: 'right' }}>
-              {formatTime(currentDate)}
+              {formatTime(file.time)}
             </div>
           </HStack>
           <div className="user-message">
@@ -327,49 +305,77 @@ const ChatBox: React.FC = () => {
                 </a>
               </div>
               <div style={{ width: '100%' }}>
-                <Text fontWeight="bold">{file.filename}</Text>
+                <Text fontWeight="semibold">{file.filename}</Text>
               </div>
             </HStack>
           </div>
         </div>
+      );
+    };
+
+    return (
+      <div>
+        {files.map((file, index) => {
+          const currentDate = new Date(file.time);
+          const [isDifferentDay, isDifferentTime] = shouldDisplayDateTime(currentDate, prevDate);
+          prevDate = currentDate;
+
+          return (
+            <div key={index} style={{ margin: '5px' }}>
+              <Box as="span" flex="1" textAlign="center">
+                {isDifferentDay && <Text fontWeight="semibold">{formatDate(currentDate)}</Text>}
+                {isDifferentTime && <Text fontWeight="semibold">{formatTime(currentDate)}</Text>}
+              </Box>
+              {fileElement(file)}
+            </div>
+          );
+        })}
       </div>
     );
-  });
+  };
 
   // Actual return begins here
   return (
     <>
-      <AvatarGroup size="sm" max={10} spacing={1}>
-        {awareness?.map((state, index) => (
-          <Box key={index}>
-            <Tooltip
-              hasArrow
-              label={`@${state.awareness.name}${currentUser?.id === state.awareness.userId ? ' (Me)' : ''}`}
+      <Text fontWeight="bold">Chat Messages and Shared Files</Text>
+
+      <Allotment defaultSizes={[7, 3]} vertical={true}>
+        <Allotment.Pane>
+          <div style={{ overflow: 'auto', height: '100%', width: '100%' }}>
+            <Box
+              width="100%"
+              height="100%"
+              alignSelf="flex-start"
+              _light={{ backgroundColor: 'gray.200' }}
+              _dark={{ backgroundColor: 'gray.700' }}
+              borderRadius={8}
             >
-              <Avatar size="sm" name={state.awareness.name} backgroundColor={state.awareness.color} color="black" />
-            </Tooltip>
-          </Box>
-        ))}
-      </AvatarGroup>
-      <VStack as="div" style={{ overflowY: 'auto', width: '100%' }}>
-        <div className="messages-wrapper" style={{ width: '100%' }}>
-          {messageList()}
-        </div>
-        <div className="message__status">
-          {/* Possibility of adding status of messages */}
-          <div ref={lastMessageRef} />
-        </div>
-      </VStack>
-      {/* { currentUser?.username } */}
-      <VStack as="div" style={{ overflowY: 'auto', width: '100%' }}>
-        <div className="messages-wrapper" style={{ width: '100%' }}>
-          {fileElements}
-          <div className="message__status">
-            {/* Possibility of adding status of files */}
-            <div ref={lastFileRef} />
+              <div className="messages-wrapper" style={{ width: '100%' }}>
+                {messageList()}
+                <div ref={lastMessageRef} />
+              </div>
+            </Box>
           </div>
-        </div>
-      </VStack>
+        </Allotment.Pane>
+        <Allotment.Pane>
+          <div style={{ overflow: 'auto', height: '100%', width: '100%' }}>
+            <Box
+              width="100%"
+              height="100%"
+              alignSelf="flex-start"
+              _light={{ backgroundColor: 'gray.200' }}
+              _dark={{ backgroundColor: 'gray.700' }}
+              borderRadius={8}
+            >
+              <div className="messages-wrapper" style={{ width: '100%' }}>
+                {fileList()}
+                <div ref={lastFileRef} />
+              </div>
+            </Box>
+          </div>
+        </Allotment.Pane>
+      </Allotment>
+
       <HStack as="div" style={{ width: '100%' }}>
         <div>
           <input ref={fileRef} type="file" style={{ display: 'none' }} onChange={fileSelected} />

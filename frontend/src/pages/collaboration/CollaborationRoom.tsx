@@ -19,7 +19,7 @@ const CollaborationRoom: React.FC = () => {
         <CollaboratorUsers />
       </Flex>
       <Box width="100%" height="80vh" my={5}>
-        <Allotment defaultSizes={[6, 10, 4]}>
+        <Allotment defaultSizes={[6, 10, 5]}>
           <Allotment.Pane>
             <CollaborationQuestion />
           </Allotment.Pane>
