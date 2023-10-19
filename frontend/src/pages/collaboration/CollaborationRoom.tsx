@@ -11,8 +11,16 @@ import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import { SocketContext, SocketProvider } from '../../context/socket';
 import axios from 'axios';
+interface Question {
+  questionID: string;
+  complexity: string;
+  categories: string[];
+}
 
 const CollaborationRoom: React.FC = () => {
+  const REACT_APP_COLLAB_URL = 'http://localhost:8082';
+  const REACT_APP_USER_URL = 'http://localhost:8000';
+
   const toast = useToast();
   const editorTheme = useColorModeValue('light', 'vs-dark');
   const [showUserTab, toggleShowUserTab] = useState(false);
@@ -21,6 +29,20 @@ const CollaborationRoom: React.FC = () => {
   const roomId = useParams<{ roomId: string }>();
 
   const navigate = useNavigate();
+  const addSavedQuestion = async (): Promise<void> => {
+    const currQuestionResponse = await axios.get<{ question: Question }>(
+      REACT_APP_COLLAB_URL + '/api/get-current-question',
+    );
+    const currQuestion = currQuestionResponse.data.question;
+    await axios.post(REACT_APP_USER_URL + '/user/add-answered-question', {
+      params: {
+        userId: user?.id,
+        questionId: currQuestion.questionID,
+        complexity: currQuestion.complexity,
+        categories: currQuestion.categories,
+      },
+    });
+  };
 
   const handleNextQuestion = (): void => {
     if (user === null) {
@@ -48,12 +70,22 @@ const CollaborationRoom: React.FC = () => {
     });
   };
 
-  socket?.on('both-users-agreed-next', () => {
-    // todo
-    socket?.emit('set-question', 1);
+  socket?.on('both-users-agreed-next', async () => {
+    const nextQuestion = await axios.get<{ question: string }>(REACT_APP_COLLAB_URL + '/api/select-next-question', {
+      params: {
+        roomId,
+      },
+    });
+    addSavedQuestion().catch((error) => {
+      console.error('Error adding saved question:', error);
+    });
+    socket?.emit('set-question', nextQuestion);
   });
 
   socket?.on('both-users-agreed-end', () => {
+    addSavedQuestion().catch((error) => {
+      console.error('Error adding saved question:', error);
+    });
     navigate('/');
   });
 
@@ -63,7 +95,7 @@ const CollaborationRoom: React.FC = () => {
       navigate('/');
       return;
     }
-    const REACT_APP_COLLAB_URL = 'http://localhost:8082';
+
     const response = await axios.get<{ authorised: boolean }>(REACT_APP_COLLAB_URL + '/api/check-authorization', {
       params: {
         userId: user.id,

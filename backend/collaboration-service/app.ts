@@ -4,7 +4,7 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
 import { startRabbitMQ } from "./consumer";
-import { checkAuthorisedUser } from "./controllers/pair";
+import { checkAuthorisedUser, getCurrentQuestion, selectNewQuestion } from "./controllers/pair";
 import cors from "cors";
 import { EditorLanguageEnum } from "../../frontend/src/types/code/languages";
 
@@ -62,7 +62,8 @@ httpServer.listen(SOCKET_IO_PORT, () => {
 });
 
 app.get("/api/check-authorization", checkAuthorisedUser);
-
+app.get("/api/select-next-question", selectNewQuestion);
+app.get("/api/get-current-question", getCurrentQuestion);
 interface RoomLanguages {
   [roomId: string]: EditorLanguageEnum;
 }
@@ -76,8 +77,17 @@ interface RoomCurrentQuestion {
 
 export const roomCurrentQuestion: RoomCurrentQuestion = {};
 
-const usersAgreedNext = {}; 
-const usersAgreedEnd = {};
+interface UsersAgreedNext {
+  [roomId: string]: Record<string, boolean>;
+}
+
+const usersAgreedNext: UsersAgreedNext = {};
+
+interface UsersAgreedEnd {
+  [roomId: string]: Record<string, boolean>;
+}
+
+const usersAgreedEnd: UsersAgreedEnd = {};
 
 // Handle other collaboration features.
 io.on("connection", (socket) => {
@@ -101,7 +111,6 @@ io.on("connection", (socket) => {
   socket.on("user-agreed-next", (roomId, userId) => {
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
     usersAgreedNext[roomId][userId] = true;
-
     if (Object.keys(usersAgreedNext[roomId]).length === 2) {
       io.to(roomId).emit("both-users-agreed-next");
       usersAgreedNext[roomId] = {};
