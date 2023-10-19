@@ -45,6 +45,7 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
       store[matchingInfo.user_id] = setTimeout(() => {
         // TODO: update match status
         markAsTimeout(matchingInfo);
+        clearTimeout(store[matchingInfo.user_id]);
         socket.emit("timeout");
       }, 30000);
     } else {
@@ -87,10 +88,13 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
       socket.emit("matchFound", { roomId });
       socket.to(result.socket_id).emit("matchFound", { roomId });
     }
-  });
-  socket.on("disconnect", () => {
-    // TODO: drop user from matching
-    console.log(`socket ${socket.id} disconnected`);
+
+    socket.on("disconnect", () => {
+      // TODO: drop user from matching
+      markAsTimeout(matchingInfo);
+      clearTimeout(store[matchingInfo.user_id]);
+      console.log(`socket ${socket.id} disconnected`);
+    });
   });
 };
 
