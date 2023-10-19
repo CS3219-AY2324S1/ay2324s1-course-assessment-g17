@@ -1,7 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { useToast, Input, IconButton, VStack, HStack, Box, Text } from '@chakra-ui/react';
-import { CheckIcon, AttachmentIcon } from '@chakra-ui/icons';
+import {
+  useToast,
+  Input,
+  IconButton,
+  VStack,
+  HStack,
+  Box,
+  Text,
+} from '@chakra-ui/react';
+import { CheckIcon, AttachmentIcon, DownloadIcon } from '@chakra-ui/icons';
 import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { selectUser } from '../../reducers/authSlice';
@@ -10,11 +18,14 @@ import type { Message, MyFile } from '../../types/chat/messages';
 import type { User } from '../../types/users/users';
 import './App.css';
 import type { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import { Avatar, AvatarGroup, Tooltip } from '@chakra-ui/react';
+import { selectAwareness } from '../../reducers/awarenessSlice';
 
 const ChatBox: React.FC = () => {
   const toast = useToast();
   const { roomId } = useParams();
   const currentUser = useAppSelector(selectUser);
+  const awareness = useAppSelector(selectAwareness);
 
   const socket = useRef<Socket | null>(null);
 
@@ -77,17 +88,17 @@ const ChatBox: React.FC = () => {
   }, []);
 
   // Receive the user has joined the room
-  // useEffect(() => {
-  socket.current?.on('joined-room', (joinedUser: User) => {
-    toast({
-      title: `${joinedUser.username} joined room`,
-      description: '',
-      status: 'success',
-      duration: 2000,
-      isClosable: true,
+  useEffect(() => {
+    socket.current?.on('joined-room', (joinedUser: User) => {
+      toast({
+        title: `${joinedUser.username} joined room`,
+        description: '',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
     });
-  });
-  // }, []);
+  }, []);
 
   // Runs whenever a chat message is emitted.
   useEffect(() => {
@@ -300,9 +311,24 @@ const ChatBox: React.FC = () => {
             </div>
           </HStack>
           <div className="user-message">
-            <a href={file.dataURL} download={file.filename}>
-              {count} {file.filename}
-            </a>
+            <HStack style={{ width: '100%' }}>
+              <div>
+                <a href={file.dataURL} download={file.filename}>
+                  <IconButton
+                    type="button"
+                    variant="solid"
+                    backgroundColor={file.user?.username === currentUser?.username ? 'teal' : 'lightgrey'}
+                    color={file.user?.username === currentUser?.username ? 'white' : 'black'}
+                    icon={<DownloadIcon />}
+                    aria-label="Download"
+                    size="md"
+                  ></IconButton>
+                </a>
+              </div>
+              <div style={{ width: '100%' }}>
+                <Text fontWeight="bold">{file.filename}</Text>
+              </div>
+            </HStack>
           </div>
         </div>
       </div>
@@ -312,6 +338,18 @@ const ChatBox: React.FC = () => {
   // Actual return begins here
   return (
     <>
+      <AvatarGroup size="sm" max={10} spacing={1}>
+        {awareness?.map((state, index) => (
+          <Box key={index}>
+            <Tooltip
+              hasArrow
+              label={`@${state.awareness.name}${currentUser?.id === state.awareness.userId ? ' (Me)' : ''}`}
+            >
+              <Avatar size="sm" name={state.awareness.name} backgroundColor={state.awareness.color} color="black" />
+            </Tooltip>
+          </Box>
+        ))}
+      </AvatarGroup>
       <VStack as="div" style={{ overflowY: 'auto', width: '100%' }}>
         <div className="messages-wrapper" style={{ width: '100%' }}>
           {messageList()}
@@ -356,6 +394,7 @@ const ChatBox: React.FC = () => {
               }}
             />
             <IconButton
+              isRound={true}
               type="submit"
               icon={<CheckIcon />}
               colorScheme="teal"

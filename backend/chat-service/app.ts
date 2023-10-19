@@ -46,7 +46,6 @@ io.on("connection", (socket) => {
   socket.on("join-room", (roomId: string) => {
     // Join the user to the specified room.
     socket.join(roomId);
-    io.emit("joined-room");
   });
 
   // Listen for chat messages.
@@ -63,9 +62,6 @@ io.on("connection", (socket) => {
 
   // Handle user disconnection.
   socket.on("disconnect", () => {
-    // roomId: string
-    // socket.leave(roomId); // more correct?
-    // socket?.disconnect(); // not correct?
     console.log("User disconnected:", socket.id);
   });
 });

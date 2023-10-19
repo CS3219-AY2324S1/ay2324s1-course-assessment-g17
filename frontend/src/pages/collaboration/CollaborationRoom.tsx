@@ -20,7 +20,6 @@ import QuestionDetails from '../questions/QuestionDetails';
 
 const CollaborationRoom: React.FC = () => {
   const editorTheme = useColorModeValue('light', 'vs-dark');
-  const [showUserTab, toggleShowUserTab] = useState(false);
   const [questionIdInput, setQuestionIdInput] = useState<number | undefined>(undefined);
   const [questionId, setQuestionId] = useState<number | undefined>(undefined);
 
@@ -28,11 +27,7 @@ const CollaborationRoom: React.FC = () => {
     <>
       <Flex mt={4} mx={4} justifyContent="space-between">
         <RoomInfo />
-        <CollaboratorUsers
-          onUserTabToggle={() => {
-            toggleShowUserTab(!showUserTab);
-          }}
-        />
+        <CollaboratorUsers />
       </Flex>
       <Box width="100%" height="80vh" my={5}>
         <Allotment defaultSizes={[6, 10, 4]}>
@@ -80,7 +75,7 @@ const CollaborationRoom: React.FC = () => {
               <CodeEditor enableRealTimeEditing defaultTheme={editorTheme} defaultDownloadedFileName="PeerPrep" />
             </Box>
           </Allotment.Pane>
-          <Allotment.Pane visible={showUserTab}>
+          <Allotment.Pane>
             <VStack as="div" style={{ height: '100%', width: '100%', paddingLeft: '16px', paddingRight: '16px' }}>
               <Box
                 width="100%"

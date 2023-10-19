@@ -5,11 +5,7 @@ import { selectUser } from '../../reducers/authSlice';
 import { HiUserGroup } from 'react-icons/hi';
 import React from 'react';
 
-interface CollaboratorUsersProps {
-  onUserTabToggle: () => void;
-}
-
-const CollaboratorUsers: React.FC<CollaboratorUsersProps> = ({ onUserTabToggle }: CollaboratorUsersProps) => {
+const CollaboratorUsers: React.FC = () => {
   const awareness = useAppSelector(selectAwareness);
   const currentUser = useAppSelector(selectUser);
 
@@ -27,7 +23,7 @@ const CollaboratorUsers: React.FC<CollaboratorUsersProps> = ({ onUserTabToggle }
           </Box>
         ))}
       </AvatarGroup>
-      <Button variant="outline" size="sm" leftIcon={<HiUserGroup size={20} />} onClick={onUserTabToggle}>
+      <Button variant="outline" size="sm" leftIcon={<HiUserGroup size={20} />}>
         {awareness?.length}
       </Button>
     </HStack>
