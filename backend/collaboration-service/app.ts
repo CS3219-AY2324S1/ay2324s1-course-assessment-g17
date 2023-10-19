@@ -4,8 +4,12 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
 import { startRabbitMQ } from "./consumer";
+import { checkAuthorisedUser } from "./controllers/pair";
 import cors from "cors";
 import { EditorLanguageEnum } from "../../frontend/src/types/code/languages";
+
+const app = express();
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;
@@ -42,11 +46,6 @@ wss.on("connection", (ws, req) => {
   console.log("connection");
 });
 
-// Create a separate server for Socket.IO.
-const app = express();
-app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })
-);
 const httpServer = createServer(app);
 
 // Create a Socket.IO instance HTTP server.
@@ -61,6 +60,8 @@ httpServer.listen(SOCKET_IO_PORT, () => {
     `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
   );
 });
+
+app.get("/api/check-authorization", checkAuthorisedUser);
 
 interface RoomLanguages {
   [roomId: string]: EditorLanguageEnum;

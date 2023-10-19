@@ -1,15 +1,16 @@
-import { Box, Flex, useColorModeValue, Button, Spacer, useToast } from '@chakra-ui/react';
+import { Box, Flex, useColorModeValue, Button, useToast, Spacer } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
 import CodeEditor from '../../components/code/CodeEditor';
 import CollaboratorUsers from './CollaboratorUsers';
 import RoomInfo from './RoomInfo';
 import UserTab from './UserTab';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import CollaborationQuestion from './CollaborationQuestion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import { SocketContext, SocketProvider } from '../../context/socket';
+import axios from 'axios';
 
 const CollaborationRoom: React.FC = () => {
   const toast = useToast();
@@ -56,6 +57,36 @@ const CollaborationRoom: React.FC = () => {
     navigate('/');
   });
 
+  const checkAuthorization = async (): Promise<void> => {
+    if (user === null) {
+      console.error('User ID is undefined');
+      navigate('/');
+      return;
+    }
+    const REACT_APP_COLLAB_URL = 'http://localhost:8082';
+    const response = await axios.get<{ authorised: boolean }>(REACT_APP_COLLAB_URL + '/api/check-authorization', {
+      params: {
+        userId: user.id,
+        roomId,
+      },
+    });
+
+    if (!response.data.authorised) {
+      toast({
+        title: 'Invalid permission',
+        description: 'Room does not belong to you.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/');
+    }
+  };
+  useEffect(() => {
+    checkAuthorization().catch((error) => {
+      console.error('Error checking authorization:', error);
+    });
+  }, []);
   return (
     <SocketProvider>
       <Flex mt={4} mx={4} justifyContent="space-between">
