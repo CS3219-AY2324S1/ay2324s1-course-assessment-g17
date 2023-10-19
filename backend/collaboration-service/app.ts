@@ -4,7 +4,11 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
 import { startRabbitMQ } from "./consumer";
-import { checkAuthorisedUser, getCurrentQuestion, selectNewQuestion } from "./controllers/pair";
+import {
+  checkAuthorisedUser,
+  getFirstQuestion,
+  getSecondQuestion,
+} from "./controllers/pair";
 import cors from "cors";
 import { EditorLanguageEnum } from "../../frontend/src/types/code/languages";
 
@@ -62,8 +66,8 @@ httpServer.listen(SOCKET_IO_PORT, () => {
 });
 
 app.get("/api/check-authorization", checkAuthorisedUser);
-app.get("/api/select-next-question", selectNewQuestion);
-app.get("/api/get-current-question", getCurrentQuestion);
+app.get("/api/get-first-question", getFirstQuestion);
+app.get("/api/get-second-question", getSecondQuestion);
 interface RoomLanguages {
   [roomId: string]: EditorLanguageEnum;
 }

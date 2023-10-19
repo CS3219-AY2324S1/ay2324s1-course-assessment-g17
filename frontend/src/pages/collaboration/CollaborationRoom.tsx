@@ -26,12 +26,12 @@ const CollaborationRoom: React.FC = () => {
   const [showUserTab, toggleShowUserTab] = useState(false);
   const user = useAppSelector(selectUser);
   const { socket } = useContext(SocketContext);
-  const roomId = useParams<{ roomId: string }>();
+  const roomId = useParams<{ roomId: string }>().roomId;
 
   const navigate = useNavigate();
-  const addSavedQuestion = async (): Promise<void> => {
+  const addSavedQuestion = async (currIndex: number): Promise<void> => {
     const currQuestionResponse = await axios.get<{ question: Question }>(
-      REACT_APP_COLLAB_URL + '/api/get-current-question',
+      REACT_APP_COLLAB_URL + (currIndex === 1 ? '/api/get-first-question' : '/api/get-second-question'),
     );
     const currQuestion = currQuestionResponse.data.question;
     await axios.post(REACT_APP_USER_URL + '/user/add-answered-question', {
@@ -44,6 +44,7 @@ const CollaborationRoom: React.FC = () => {
     });
   };
 
+  // a user clicked next
   const handleNextQuestion = (): void => {
     if (user === null) {
       return;
@@ -57,6 +58,7 @@ const CollaborationRoom: React.FC = () => {
     });
   };
 
+  // a user clicked end session
   const handleEndSession = (): void => {
     if (user === null) {
       return;
@@ -70,20 +72,22 @@ const CollaborationRoom: React.FC = () => {
     });
   };
 
+  // both users agreed to go to the next question
   socket?.on('both-users-agreed-next', async () => {
     const nextQuestion = await axios.get<{ question: string }>(REACT_APP_COLLAB_URL + '/api/select-next-question', {
       params: {
         roomId,
       },
     });
-    addSavedQuestion().catch((error) => {
+    addSavedQuestion(1).catch((error) => {
       console.error('Error adding saved question:', error);
     });
     socket?.emit('set-question', nextQuestion);
   });
 
+  // both users agreed to end the session
   socket?.on('both-users-agreed-end', () => {
-    addSavedQuestion().catch((error) => {
+    addSavedQuestion(2).catch((error) => {
       console.error('Error adding saved question:', error);
     });
     navigate('/');
@@ -115,9 +119,12 @@ const CollaborationRoom: React.FC = () => {
     }
   };
   useEffect(() => {
-    checkAuthorization().catch((error) => {
-      console.error('Error checking authorization:', error);
-    });
+    // delay check authorization to ensure pair is added
+    setTimeout(() => {
+      checkAuthorization().catch((error) => {
+        console.error('Error checking authorization:', error);
+      });
+    }, 10000);
   }, []);
   return (
     <SocketProvider>

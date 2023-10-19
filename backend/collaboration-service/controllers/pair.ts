@@ -27,31 +27,23 @@ export const checkAuthorisedUser = async (req: Request, res: Response) => {
   }
 };
 
-export async function selectNewQuestion(roomId: string) {
+export async function getFirstQuestion(roomId: string) {
   const pairInfo = await Pair.find({ room_id: roomId });
-  const categories = pairInfo[0].categories;
-  const complexity = pairInfo[0].complexity;
-  const completed = pairInfo[0].question_ids;
-  const response = await axios.get(questionsAPIUrl, {
-    params: {
-      categories: categories,
-      complexities: complexity,
+  const currentQuestionId = pairInfo[0].question_ids[0];
+  const currQuestion = await axios.get(
+    `${questionsAPIUrl}/${currentQuestionId}`,
+    {
+      headers: {
+        Cookie: `serverToken=${process.env.SERVER_SECRET};`,
+      },
     },
-    headers: {
-      Cookie: `serverToken=${process.env.SERVER_SECRET};`,
-    },
-  });
-
-  const questionIds = response.data.data.map(
-    (question: Question) => question.questionID,
   );
-  const nextQuestion = questionIds.filter((id: number) => !completed.includes(id))[0];
-  return nextQuestion;
+  return currQuestion;
 }
 
-export async function getCurrentQuestion(roomId: string) {
+export async function getSecondQuestion(roomId: string) {
   const pairInfo = await Pair.find({ room_id: roomId });
-  const currentQuestionId = pairInfo[0].question_ids[pairInfo[0].question_ids.length - 1];
+  const currentQuestionId = pairInfo[0].question_ids[1];
   const currQuestion = await axios.get(
     `${questionsAPIUrl}/${currentQuestionId}`,
     {
