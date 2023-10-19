@@ -106,12 +106,6 @@ io.on("connection", (socket) => {
     },
   );
 
-  // Listen for chat messages.
-  socket.on("chat-message", (message) => {
-    // Broadcast the message to all connected clients.
-    io.emit("receive-chat-message", message);
-  });
-
   // Handle user disconnection.
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);

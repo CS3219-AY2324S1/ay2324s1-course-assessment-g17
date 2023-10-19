@@ -11,12 +11,6 @@ import { Message, MyFile } from "../../frontend/src/types/chat/messages";
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;
 
-// const mongoose = require("mongoose");
-// mongoose.connect(process.env.MONGODB_URL, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
 // Create a separate server for Socket.IO.
 const app = express();
 app.use(
