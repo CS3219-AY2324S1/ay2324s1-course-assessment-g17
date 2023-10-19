@@ -14,7 +14,7 @@
 
 /* Style for messages sent by the current user (on the right) */
 .chat-bubble.right {
-  background-color: #38B2AC; /* Adjust the background color as needed */
+  background-color: #38b2ac; /* Adjust the background color as needed */
   color: white; /* Adjust the text color as needed */
 }
 

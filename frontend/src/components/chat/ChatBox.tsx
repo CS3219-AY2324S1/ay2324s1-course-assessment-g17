@@ -1,14 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import {
-  useToast,
-  Input,
-  IconButton,
-  VStack,
-  HStack,
-  Box,
-  Text,
-} from '@chakra-ui/react';
+import { useToast, Input, IconButton, VStack, HStack, Box, Text, Avatar, AvatarGroup, Tooltip } from '@chakra-ui/react';
 import { CheckIcon, AttachmentIcon, DownloadIcon } from '@chakra-ui/icons';
 import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
@@ -18,7 +10,6 @@ import type { Message, MyFile } from '../../types/chat/messages';
 import type { User } from '../../types/users/users';
 import './App.css';
 import type { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import { Avatar, AvatarGroup, Tooltip } from '@chakra-ui/react';
 import { selectAwareness } from '../../reducers/awarenessSlice';
 
 const ChatBox: React.FC = () => {
@@ -293,10 +284,8 @@ const ChatBox: React.FC = () => {
   }, []);
 
   // Format File Display
-  let count = 0;
   const fileElements = files.map((file, index) => {
     const currentDate = new Date(file.time);
-    count += 1;
     return (
       <div key={index} style={{ margin: '5px' }}>
         {/* File Bubble */}
