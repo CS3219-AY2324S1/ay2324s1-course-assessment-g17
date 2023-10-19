@@ -75,6 +75,9 @@ interface RoomCurrentQuestion {
 
 export const roomCurrentQuestion: RoomCurrentQuestion = {};
 
+const usersAgreedNext = {}; 
+const usersAgreedEnd = {};
+
 // Handle other collaboration features.
 io.on("connection", (socket) => {
   console.log("New connection:", socket.id);
@@ -92,6 +95,26 @@ io.on("connection", (socket) => {
 
     const initialQuestionId = roomCurrentQuestion[roomId];
     if (initialQuestionId) socket.emit("set-question", initialQuestionId);
+  });
+
+  socket.on("user-agreed-next", (roomId, userId) => {
+    usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
+    usersAgreedNext[roomId][userId] = true;
+
+    if (Object.keys(usersAgreedNext[roomId]).length === 2) {
+      io.to(roomId).emit("both-users-agreed-next");
+      usersAgreedNext[roomId] = {};
+    }
+  });
+
+  socket.on("user-agreed-end", (roomId, userId) => {
+    usersAgreedEnd[roomId] = usersAgreedEnd[roomId] || {};
+    usersAgreedEnd[roomId][userId] = true;
+
+    if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
+      io.to(roomId).emit("both-users-agreed-end");
+      usersAgreedEnd[roomId] = {};
+    }
   });
 
   // Listen for language changes.
