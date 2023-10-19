@@ -6,13 +6,6 @@ export interface Message {
   time: Date;
 }
 
-// export interface MyFileMetadata {
-//   user: User | null;
-//   filename: string;
-//   buffer_size: number;
-//   time: Date;
-// }
-
 export interface MyFile {
   user: User | null;
   dataURL: string;
