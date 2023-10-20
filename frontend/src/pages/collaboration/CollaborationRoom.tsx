@@ -51,7 +51,7 @@ const CollaborationRoom: React.FC = () => {
     }
     socket?.emit('user-agreed-next', roomId, user.id);
     toast({
-      title: 'Both users have agreed to go to the next question',
+      title: 'Both users have to agree to go to the next question',
       status: 'success',
       duration: 5000,
       isClosable: true,
@@ -65,7 +65,7 @@ const CollaborationRoom: React.FC = () => {
     }
     socket?.emit('user-agreed-end', roomId, user.id);
     toast({
-      title: 'Both users have agreed to end the session',
+      title: 'Both users have to agree to end the session',
       status: 'success',
       duration: 5000,
       isClosable: true,
