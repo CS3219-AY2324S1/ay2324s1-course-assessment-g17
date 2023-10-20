@@ -8,6 +8,8 @@ COPY package*.json ./
 
 RUN npm install --frozen-lockfile
 
+RUN npm install -g typescript ts-node
+
 COPY . .
 
 ENV RABBITMQ_URL="amqp://localhost:5672"
