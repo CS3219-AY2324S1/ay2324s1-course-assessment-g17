@@ -72,26 +72,31 @@ const CollaborationRoom: React.FC = () => {
     });
   };
 
-  // both users agreed to go to the next question
-  socket?.on('both-users-agreed-next', async () => {
-    const nextQuestion = await axios.get<{ question: string }>(REACT_APP_COLLAB_URL + '/api/select-next-question', {
-      params: {
-        roomId,
-      },
+  useEffect(() => {
+    socket?.on('both-users-agreed-next', async () => {
+      const nextQuestion = await axios.get<{ question: string }>(REACT_APP_COLLAB_URL + '/api/select-next-question', {
+        params: {
+          roomId,
+        },
+      });
+      addSavedQuestion(1).catch((error) => {
+        console.error('Error adding saved question:', error);
+      });
+      socket?.emit('set-question', nextQuestion);
     });
-    addSavedQuestion(1).catch((error) => {
-      console.error('Error adding saved question:', error);
-    });
-    socket?.emit('set-question', nextQuestion);
-  });
 
-  // both users agreed to end the session
-  socket?.on('both-users-agreed-end', () => {
-    addSavedQuestion(2).catch((error) => {
-      console.error('Error adding saved question:', error);
+    socket?.on('both-users-agreed-end', () => {
+      addSavedQuestion(2).catch((error) => {
+        console.error('Error adding saved question:', error);
+      });
+      navigate('/');
     });
-    navigate('/');
-  });
+
+    return () => {
+      socket?.off('both-users-agreed-next');
+      socket?.off('both-users-agreed-end');
+    };
+  }, [socket, roomId]);
 
   const checkAuthorization = async (): Promise<void> => {
     if (user === null) {
