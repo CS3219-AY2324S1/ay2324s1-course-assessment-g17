@@ -11,7 +11,6 @@ const questionsAPIUrl = process.env.QUESTIONS_API_URL! + "/questions";
 export const checkAuthorisedUser = async (req: Request, res: Response) => {
   const userId = req.query.userId;
   const roomId = req.query.roomId;
-
   try {
     const pairs = await Pair.find({ room_id: roomId });
     const userOneId = pairs[0].userOne;

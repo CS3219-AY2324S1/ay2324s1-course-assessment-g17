@@ -20,7 +20,7 @@ interface Question {
 const CollaborationRoom: React.FC = () => {
   const REACT_APP_COLLAB_URL = 'http://localhost:8082';
   const REACT_APP_USER_URL = 'http://localhost:8000';
-
+  const [pairCreated, setPairCreated] = useState(false);
   const toast = useToast();
   const editorTheme = useColorModeValue('light', 'vs-dark');
   const [showUserTab, toggleShowUserTab] = useState(false);
@@ -44,7 +44,7 @@ const CollaborationRoom: React.FC = () => {
     });
   };
 
-  // a user clicked next
+  // a user click next
   const handleNextQuestion = (): void => {
     if (user === null) {
       return;
@@ -58,7 +58,7 @@ const CollaborationRoom: React.FC = () => {
     });
   };
 
-  // a user clicked end session
+  // a user click end session
   const handleEndSession = (): void => {
     if (user === null) {
       return;
@@ -104,13 +104,13 @@ const CollaborationRoom: React.FC = () => {
       navigate('/');
       return;
     }
-
     const response = await axios.get<{ authorised: boolean }>(REACT_APP_COLLAB_URL + '/api/check-authorization', {
       params: {
         userId: user.id,
         roomId,
       },
     });
+    console.log('Response:', response.data);
 
     if (!response.data.authorised) {
       toast({
@@ -124,13 +124,15 @@ const CollaborationRoom: React.FC = () => {
     }
   };
   useEffect(() => {
-    // delay check authorization to ensure pair is added
-    setTimeout(() => {
+    socket?.on('pair-created', (pairInfo) => {
+      setPairCreated(true);
+      console.log('Pair created:', pairCreated);
+
       checkAuthorization().catch((error) => {
         console.error('Error checking authorization:', error);
       });
-    }, 10000);
-  }, []);
+    });
+  }, [socket, pairCreated]);
   return (
     <SocketProvider>
       <Flex mt={4} mx={4} justifyContent="space-between">
