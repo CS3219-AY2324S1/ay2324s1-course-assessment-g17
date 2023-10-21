@@ -1,0 +1,64 @@
+version: "3.9"
+services:
+  question-service:
+    build: ./backend/question-service
+    ports:
+      - 8080:8080
+    env_file:
+      - ./backend/question-service/.env.prod
+
+  user-service:
+    build: ./backend/user-service
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend/user-service:/usr/src/app
+    depends_on:
+      - postgres
+    env_file: ./backend/user-service/.env.prod
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: peerprep
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 1m30s
+    ports:
+      - 5432:5432
+
+  migration:
+    build: ./backend/user-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      [
+        "npx",
+        "prisma",
+        "db",
+        "push",
+        ";",
+        "npm",
+        "run",
+        "seed"
+      ]
+    env_file: ./backend/user-service/.env.prod
+
+  rabbitmq:
+    image: rabbitmq:management
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - 5672:5672
+      - 15672:15672
+  matching-service:
+    build: ./backend/matching-service
+    ports:
+      - 9000:9000
+    env: ./backend/matching-service/.env.prod
+  # https://medium.com/@sumankpaul/run-db-migration-script-in-docker-compose-ce8e447a77ba
