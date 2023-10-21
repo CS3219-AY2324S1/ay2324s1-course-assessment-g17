@@ -60,5 +60,5 @@ services:
     build: ./backend/matching-service
     ports:
       - 9000:9000
-    env: ./backend/matching-service/.env.prod
+    env_file: ./backend/matching-service/.env.prod
   # https://medium.com/@sumankpaul/run-db-migration-script-in-docker-compose-ce8e447a77ba
