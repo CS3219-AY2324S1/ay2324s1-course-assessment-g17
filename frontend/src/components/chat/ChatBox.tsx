@@ -343,14 +343,7 @@ const ChatBox: React.FC = () => {
       <Allotment defaultSizes={[7, 3]} vertical={true}>
         <Allotment.Pane>
           <div style={{ overflow: 'auto', height: '100%', width: '100%' }}>
-            <Box
-              width="100%"
-              height="100%"
-              alignSelf="flex-start"
-              _light={{ backgroundColor: 'gray.200' }}
-              _dark={{ backgroundColor: 'gray.700' }}
-              borderRadius={8}
-            >
+            <Box width="100%" height="100%" alignSelf="flex-start" borderRadius={8}>
               <div className="messages-wrapper" style={{ width: '100%' }}>
                 {messageList()}
                 <div ref={lastMessageRef} />
@@ -360,14 +353,7 @@ const ChatBox: React.FC = () => {
         </Allotment.Pane>
         <Allotment.Pane>
           <div style={{ overflow: 'auto', height: '100%', width: '100%' }}>
-            <Box
-              width="100%"
-              height="100%"
-              alignSelf="flex-start"
-              _light={{ backgroundColor: 'gray.200' }}
-              _dark={{ backgroundColor: 'gray.700' }}
-              borderRadius={8}
-            >
+            <Box width="100%" height="100%" alignSelf="flex-start" borderRadius={8}>
               <div className="messages-wrapper" style={{ width: '100%' }}>
                 {fileList()}
                 <div ref={lastFileRef} />
