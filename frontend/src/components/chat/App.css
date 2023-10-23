@@ -8,6 +8,15 @@
 .chat-bubble {
   padding: 10px;
   margin: 5px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  word-wrap: normal; /* Wrap long words if they don't fit */
+}
+
+.chat-bubble-dark {
+  padding: 10px;
+  margin: 5px;
+  margin-bottom: 10px;
   border-radius: 10px;
   word-wrap: normal; /* Wrap long words if they don't fit */
 }
@@ -18,10 +27,20 @@
   color: white;
 }
 
+.chat-bubble-dark.right {
+  background-color: #38b2ac;
+  color: white;
+}
+
 /* Style for messages sent by others (on the left) */
 .chat-bubble.left {
   background-color: whitesmoke;
   color: black;
+}
+
+.chat-bubble-dark.left {
+  background-color: #292b2f;
+  color: white;
 }
 
 .user-name {
@@ -30,6 +49,14 @@
   font-size: 0.9rem;
   color: #1c2c4c;
 }
+
+.user-name-dark {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: white;
+}
+
 .user-message {
   word-break: break-all;
 }

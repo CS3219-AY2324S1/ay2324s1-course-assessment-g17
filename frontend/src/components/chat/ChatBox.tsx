@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { useToast, Input, IconButton, HStack, Box, Text } from '@chakra-ui/react';
+import { useToast, Input, IconButton, HStack, Box, Text, useColorModeValue } from '@chakra-ui/react';
 import { CheckIcon, AttachmentIcon, DownloadIcon } from '@chakra-ui/icons';
 import { io, type Socket } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
@@ -16,7 +16,8 @@ const ChatBox: React.FC = () => {
   const toast = useToast();
   const { roomId } = useParams();
   const currentUser = useAppSelector(selectUser);
-
+  const bgColorClass = useColorModeValue('chat-bubble', 'chat-bubble-dark');
+  const usernameClass = useColorModeValue('user-name', 'user-name-dark');
   const socket = useRef<Socket | null>(null);
 
   // Create a Socket.IO client instance when the component is initialized
@@ -161,13 +162,13 @@ const ChatBox: React.FC = () => {
     // Message component to display individual messages
     const messageElement = (message: Message): ReactJSXElement => {
       return (
-        <div className={`chat-bubble ${message.user?.username === currentUser?.username ? 'right' : 'left'}`}>
+        <div className={`${bgColorClass} ${message.user?.username === currentUser?.username ? 'right' : 'left'}`}>
           <HStack style={{ width: '100%' }}>
-            <div className="user-name" style={{ width: '100%' }}>
+            <div className={usernameClass} style={{ width: '100%' }}>
               {message.user?.username}
               {message.user?.username === currentUser?.username ? ' (Me)' : ''}
             </div>
-            <div className="user-name" style={{ width: '100%', textAlign: 'right' }}>
+            <div className={usernameClass} style={{ width: '100%', textAlign: 'right' }}>
               {formatTime(new Date(message.time))}
             </div>
           </HStack>
@@ -279,13 +280,13 @@ const ChatBox: React.FC = () => {
 
     const fileElement = (file: MyFile): ReactJSXElement => {
       return (
-        <div className={`chat-bubble ${file.user?.username === currentUser?.username ? 'right' : 'left'}`}>
+        <div className={`${bgColorClass} ${file.user?.username === currentUser?.username ? 'right' : 'left'}`}>
           <HStack style={{ width: '100%' }}>
-            <div className="user-name" style={{ width: '100%' }}>
+            <div className={usernameClass} style={{ width: '100%' }}>
               {file.user?.username}
               {file.user?.username === currentUser?.username ? ' (Me)' : ''}
             </div>
-            <div className="user-name" style={{ width: '100%', textAlign: 'right' }}>
+            <div className={usernameClass} style={{ width: '100%', textAlign: 'right' }}>
               {formatTime(file.time)}
             </div>
           </HStack>
