@@ -9,7 +9,7 @@ import CollaborationQuestion from './CollaborationQuestion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
-import { SocketContext, SocketProvider } from '../../context/socket';
+import { SocketContext } from '../../context/socket';
 import axios from 'axios';
 interface Question {
   questionID: string;
@@ -48,6 +48,7 @@ const CollaborationRoom: React.FC = () => {
     if (user === null) {
       return;
     }
+    console.log(socket);
     socket?.emit('user-agreed-next', roomId, user.id);
     toast({
       title: 'Both users have to agree to go to the next question',
@@ -130,7 +131,7 @@ const CollaborationRoom: React.FC = () => {
   }, [socket, roomId]);
 
   return (
-    <SocketProvider>
+    <>
       <Flex mt={4} mx={4} justifyContent="space-between">
         <RoomInfo />
         <Button onClick={handleNextQuestion} mx={4}>
@@ -161,7 +162,7 @@ const CollaborationRoom: React.FC = () => {
           </Allotment.Pane>
         </Allotment>
       </Box>
-    </SocketProvider>
+    </>
   );
 };
 
