@@ -82,8 +82,6 @@ export function startRabbitMQ(io: Server) {
             });
 
           roomCurrentQuestion[pairInfo.room_id] = pairInfo.question_ids[0];
-          io.to(pairInfo.room_id).emit("pair-created", pairInfo);
-          console.log("pair created");
           io.to(pairInfo.room_id).emit(
             "set-question",
             pairInfo.question_ids[0]

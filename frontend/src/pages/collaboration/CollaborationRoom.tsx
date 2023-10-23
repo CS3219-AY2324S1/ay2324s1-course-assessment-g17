@@ -20,7 +20,6 @@ interface Question {
 const CollaborationRoom: React.FC = () => {
   const REACT_APP_COLLAB_URL = 'http://localhost:8082';
   const REACT_APP_USER_URL = 'http://localhost:8000';
-  const [pairCreated, setPairCreated] = useState(false);
   const toast = useToast();
   const editorTheme = useColorModeValue('light', 'vs-dark');
   const [showUserTab, toggleShowUserTab] = useState(false);
@@ -73,6 +72,38 @@ const CollaborationRoom: React.FC = () => {
   };
 
   useEffect(() => {
+    const checkAuthorization = async (): Promise<void> => {
+      if (user === null) {
+        console.error('User ID is undefined');
+        navigate('/');
+        return;
+      }
+      console.log('checking');
+      const response = await axios.get<{ authorised: boolean }>(REACT_APP_COLLAB_URL + '/api/check-authorization', {
+        params: {
+          userId: user.id,
+          roomId,
+        },
+      });
+      console.log('Response:', response.data);
+
+      if (!response.data.authorised) {
+        toast({
+          title: 'Invalid permission',
+          description: 'Room does not belong to you.',
+          status: 'warning',
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate('/');
+      }
+    };
+    checkAuthorization().catch((error) => {
+      console.error('Error checking authorization:', error);
+    });
+  }, []);
+
+  useEffect(() => {
     socket?.on('both-users-agreed-next', async () => {
       const nextQuestion = await axios.get<{ question: string }>(REACT_APP_COLLAB_URL + '/api/select-next-question', {
         params: {
@@ -98,41 +129,6 @@ const CollaborationRoom: React.FC = () => {
     };
   }, [socket, roomId]);
 
-  const checkAuthorization = async (): Promise<void> => {
-    if (user === null) {
-      console.error('User ID is undefined');
-      navigate('/');
-      return;
-    }
-    const response = await axios.get<{ authorised: boolean }>(REACT_APP_COLLAB_URL + '/api/check-authorization', {
-      params: {
-        userId: user.id,
-        roomId,
-      },
-    });
-    console.log('Response:', response.data);
-
-    if (!response.data.authorised) {
-      toast({
-        title: 'Invalid permission',
-        description: 'Room does not belong to you.',
-        status: 'warning',
-        duration: 5000,
-        isClosable: true,
-      });
-      navigate('/');
-    }
-  };
-  useEffect(() => {
-    socket?.on('pair-created', (pairInfo) => {
-      setPairCreated(true);
-      console.log('Pair created:', pairCreated);
-
-      checkAuthorization().catch((error) => {
-        console.error('Error checking authorization:', error);
-      });
-    });
-  }, [socket, pairCreated]);
   return (
     <SocketProvider>
       <Flex mt={4} mx={4} justifyContent="space-between">
