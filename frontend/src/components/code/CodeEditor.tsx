@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from 'react';
 import Editor from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';
 import { Box, Button, Flex, HStack, Input, Select, useClipboard, useToast } from '@chakra-ui/react';
-import { EditorLanguageEnum, EditorLanguageOptions } from '../../types/code/languages';
+import { EditorLanguageEnum, EditorLanguageEnumToLabelMap, EditorLanguageOptions } from '../../types/code/languages';
 import { MdCheck, MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-icons/md';
 import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
@@ -58,8 +58,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     socket?.on('receive-language-change', (newLanguage: EditorLanguageEnum) => {
       // Update the selected language with the new language received from the Socket.IO server.
       setSelectedLanguage(newLanguage);
+      toast({
+        title: `Language changed to ${EditorLanguageEnumToLabelMap[newLanguage]}`,
+        status: 'info',
+        duration: 2000,
+        isClosable: true,
+      });
     });
-  }, [socket, selectedLanguage]);
+  }, [socket]);
 
   const setInitialLanguage = (roomId: string): void => {
     // Emit a request to get the initial language for the room.
@@ -207,6 +213,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         <Select
           value={selectedLanguage}
           onChange={(e) => {
+            console.log('changing lang...');
             const newLanguage = e.target.value as EditorLanguageEnum;
             handleLanguageChange(newLanguage); // Set and emit the language change event to the server.
           }}
