@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
-    "@chakra-ui/react": "^2.8.0",
+    "@chakra-ui/react": "^2.8.1",
     "@choc-ui/chakra-autocomplete": "^5.2.5",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -80,6 +80,7 @@
   "devDependencies": {
     "@types/dompurify": "^3.0.2",
     "@types/randomcolor": "^0.5.7",
+    "@types/react-calendar-heatmap": "^1.6.5",
     "@types/uuid": "^9.0.4",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
