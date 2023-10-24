@@ -33,6 +33,7 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
 }: QuestionDetailsProps) => {
   const navigate = useNavigate();
   const isAdmin = useSelector(selectIsAdmin);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [question, setQuestion] = useState<QuestionData | null>(null);
   const colourScheme = useColorModeValue('gray.600', 'gray.400');
   const toast = useToast();
@@ -41,6 +42,7 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
     const fetchQuestion = async (): Promise<void> => {
       try {
         if (questionId !== null && questionId !== undefined) {
+          setIsLoading(true);
           const response = await new QuestionsAPI().getQuestionById(questionId);
           if (response == null) {
             if (redirectOnInvalid) {
@@ -61,6 +63,8 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
         }
       } catch (error) {
         console.error('Error fetching question:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -71,7 +75,7 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
     }
   }, [questionId]);
 
-  if (question === null || question === undefined) {
+  if (isLoading) {
     return (
       <Center h="100vh">
         <Spinner size="xl" />
@@ -81,6 +85,10 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
 
   if (questionId === null || questionId === undefined) {
     return <div>No question ID provided.</div>;
+  }
+
+  if (question === null) {
+    return <div>Could not find question.</div>;
   }
 
   return (
