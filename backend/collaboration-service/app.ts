@@ -55,13 +55,13 @@ const httpServer = createServer(app);
 // Create a Socket.IO instance HTTP server.
 const io = new Server(httpServer, {
   cors: {
-    origin: FRONTEND_URL, 
+    origin: FRONTEND_URL,
   },
 });
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
   );
 });
 
@@ -121,10 +121,10 @@ io.on("connection", (socket) => {
       usersAgreedNext[roomId] = {};
     }
   });
-  
+
   socket.on("change-question", (nextQuestionId) => {
     io?.emit("set-question", nextQuestionId);
-  })
+  });
 
   socket.on("user-agreed-end", (roomId, userId) => {
     usersAgreedEnd[roomId] = usersAgreedEnd[roomId] || {};
@@ -144,7 +144,7 @@ io.on("connection", (socket) => {
       roomLanguages[roomId] = newLanguage;
       // Broadcast this change to all connected users in this room.
       io.to(roomId).emit("receive-language-change", newLanguage);
-    }
+    },
   );
 
   // Listen for chat messages.

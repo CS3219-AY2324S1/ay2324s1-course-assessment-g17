@@ -66,7 +66,7 @@ export const getSecondQuestion = async (req: Request, res: Response) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
 
 export const getPairIds = async (req: Request, res: Response) => {
   const roomId = req.query.roomId;
@@ -78,4 +78,4 @@ export const getPairIds = async (req: Request, res: Response) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};

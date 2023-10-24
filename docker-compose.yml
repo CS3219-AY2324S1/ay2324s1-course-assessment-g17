@@ -59,5 +59,4 @@ services:
       - 8082:8082
     volumes:
       - ./backend/collaboration-service:/usr/src/app
-
 # https://medium.com/@sumankpaul/run-db-migration-script-in-docker-compose-ce8e447a77ba
