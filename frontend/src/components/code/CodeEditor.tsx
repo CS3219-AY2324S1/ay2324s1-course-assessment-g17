@@ -52,25 +52,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     socket?.emit('language-change', roomId, newLanguage);
   };
 
-  // Runs whenever the selected language dependency changes.
-  useEffect(() => {
-    // Listen for receive-language-change event from the Socket.IO server.
-    socket?.on('receive-language-change', (newLanguage: EditorLanguageEnum) => {
-      // Update the selected language with the new language received from the Socket.IO server.
-      setSelectedLanguage(newLanguage);
-      toast({
-        title: `Language changed to ${EditorLanguageEnumToLabelMap[newLanguage]}`,
-        status: 'info',
-        duration: 2000,
-        isClosable: true,
-      });
-    });
-  }, [socket]);
-
-  const setInitialLanguage = (roomId: string): void => {
-    // Emit a request to get the initial language for the room.
-    socket?.emit('join-room', roomId);
-
+  const setInitialLanguage = (): void => {
     // Listen for the "initial-language" event from the Socket.IO server.
     socket?.on('initial-language', (initialLanguage: EditorLanguageEnum) => {
       // Set the initial language received from the server.
@@ -91,7 +73,22 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       });
       console.error('Could not create room: Invalid room ID');
     } else {
-      setInitialLanguage(roomId);
+      setInitialLanguage();
+
+      // Listen for receive-language-change event from the Socket.IO server.
+      socket?.on('receive-language-change', (newLanguage: EditorLanguageEnum, username?: string) => {
+        // Update the selected language with the new language received from the Socket.IO server.
+        setSelectedLanguage(newLanguage);
+        toast({
+          title:
+            username === undefined
+              ? `Language changed to ${EditorLanguageEnumToLabelMap[newLanguage]}`
+              : `${username} changed language to ${EditorLanguageEnumToLabelMap[newLanguage]}`,
+          status: 'info',
+          duration: 2000,
+          isClosable: true,
+        });
+      });
     }
   }, [socket]);
 

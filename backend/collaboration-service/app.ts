@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
   console.log("New connection:", socket.id);
 
   // Listen for room joining.
-  socket.on("join-room", (roomId) => {
+  socket.on("join-room", (roomId: string, username?: string) => {
     // Join the user to the specified room.
     socket.join(roomId);
 
@@ -92,6 +92,13 @@ io.on("connection", (socket) => {
 
     const initialQuestionId = roomCurrentQuestion[roomId];
     if (initialQuestionId) socket.emit("set-question", initialQuestionId);
+
+    // Attach user's username and roomId to this connection
+    socket.data.username = username;
+    socket.data.roomId = roomId;
+  
+    // Broadcast to all connected users that this user has joined the room
+    io.to(roomId).emit("user-join", username);
   });
 
   // Listen for language changes.
@@ -101,7 +108,7 @@ io.on("connection", (socket) => {
       // Update the selected language for the room.
       roomLanguages[roomId] = newLanguage;
       // Broadcast this change to all connected users in this room.
-      io.to(roomId).emit("receive-language-change", newLanguage);
+      io.to(roomId).emit("receive-language-change", newLanguage, socket.data.username);
     }
   );
 
@@ -114,6 +121,7 @@ io.on("connection", (socket) => {
   // Handle user disconnection.
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    io.to(socket.data.roomId).emit("user-disconnect", socket.data.username);
   });
 });
 
