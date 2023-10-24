@@ -24,6 +24,7 @@ const ViewQuestion: React.FC = () => {
       <Allotment>
         <Allotment.Pane>
           <QuestionDetails
+            redirectOnInvalid
             questionId={parseInt(questionId, 10)}
             onQuestionTitleChange={(title: string) => {
               setQuestionTitle(title);
