@@ -7,15 +7,15 @@ import { startRabbitMQ } from "./consumer";
 import {
   checkAuthorisedUser,
   getFirstQuestion,
+  getPairIds,
   getSecondQuestion,
 } from "./controllers/pair";
 import cors from "cors";
 import { EditorLanguageEnum } from "../../frontend/src/types/code/languages";
-
-const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
-
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
+const app = express();
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+
 const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;
 
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
@@ -55,7 +55,7 @@ const httpServer = createServer(app);
 // Create a Socket.IO instance HTTP server.
 const io = new Server(httpServer, {
   cors: {
-    origin: FRONTEND_URL,
+    origin: FRONTEND_URL, 
   },
 });
 
@@ -68,6 +68,7 @@ httpServer.listen(SOCKET_IO_PORT, () => {
 app.get("/api/check-authorization", checkAuthorisedUser);
 app.get("/api/get-first-question", getFirstQuestion);
 app.get("/api/get-second-question", getSecondQuestion);
+app.get("/api/get-pair-ids", getPairIds);
 interface RoomLanguages {
   [roomId: string]: EditorLanguageEnum;
 }
@@ -116,10 +117,14 @@ io.on("connection", (socket) => {
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
     usersAgreedNext[roomId][userId] = true;
     if (Object.keys(usersAgreedNext[roomId]).length === 2) {
-      io.to(roomId).emit("both-users-agreed-next");
+      socket?.emit("both-users-agreed-next", roomId, userId);
       usersAgreedNext[roomId] = {};
     }
   });
+  
+  socket.on("change-question", (nextQuestionId) => {
+    io?.emit("set-question", nextQuestionId);
+  })
 
   socket.on("user-agreed-end", (roomId, userId) => {
     usersAgreedEnd[roomId] = usersAgreedEnd[roomId] || {};

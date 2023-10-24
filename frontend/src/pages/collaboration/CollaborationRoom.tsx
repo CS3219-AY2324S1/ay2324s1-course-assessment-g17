@@ -17,6 +17,17 @@ interface Question {
   categories: string[];
 }
 
+interface PairIdsResponse {
+  _id: string;
+  userOne: number;
+  userTwo: number;
+  room_id: string;
+  complexity: string[];
+  categories: string[];
+  question_ids: number[];
+  __v: number;
+}
+
 const CollaborationRoom: React.FC = () => {
   const REACT_APP_COLLAB_URL = 'http://localhost:8082';
   const REACT_APP_USER_URL = 'http://localhost:8000';
@@ -26,20 +37,44 @@ const CollaborationRoom: React.FC = () => {
   const user = useAppSelector(selectUser);
   const { socket } = useContext(SocketContext);
   const roomId = useParams<{ roomId: string }>().roomId;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [questionId, setQuestionId] = useState<number | undefined>(undefined);
 
   const navigate = useNavigate();
-  const addSavedQuestion = async (currIndex: number): Promise<void> => {
-    const currQuestionResponse = await axios.get<{ question: Question }>(
+  const addSavedQuestion = async (currIndex: number, roomId: number): Promise<void> => {
+    const currQuestionResponse = await axios.get(
       REACT_APP_COLLAB_URL + (currIndex === 1 ? '/api/get-first-question' : '/api/get-second-question'),
-    );
-    const currQuestion = currQuestionResponse.data.question;
-    await axios.post(REACT_APP_USER_URL + '/user/add-answered-question', {
-      params: {
-        userId: user?.id,
-        questionId: currQuestion.questionID,
-        complexity: currQuestion.complexity,
-        categories: currQuestion.categories,
+      {
+        params: {
+          roomId,
+        },
       },
+    );
+
+    const pairIdsResponse = await axios.get(REACT_APP_COLLAB_URL + '/api/get-pair-ids', {
+      params: {
+        roomId,
+      },
+    });
+    // save both users
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const pairIds = pairIdsResponse.data as PairIdsResponse;
+    const userOneId = pairIds.userOne;
+    const userTwoId = pairIds.userTwo;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const currQuestion = currQuestionResponse.data.data as Question;
+    await axios.post(REACT_APP_USER_URL + '/api/user/add-answered-question', {
+      userId: userOneId,
+      questionId: currQuestion.questionID,
+      complexity: currQuestion.complexity,
+      category: currQuestion.categories,
+    });
+    await axios.post(REACT_APP_USER_URL + '/api/user/add-answered-question', {
+      userId: userTwoId,
+      questionId: currQuestion.questionID,
+      complexity: currQuestion.complexity,
+      category: currQuestion.categories,
     });
   };
 
@@ -48,7 +83,6 @@ const CollaborationRoom: React.FC = () => {
     if (user === null) {
       return;
     }
-    console.log(socket);
     socket?.emit('user-agreed-next', roomId, user.id);
     toast({
       title: 'Both users have to agree to go to the next question',
@@ -79,7 +113,6 @@ const CollaborationRoom: React.FC = () => {
         navigate('/');
         return;
       }
-      console.log('checking');
       const response = await axios.get<{ authorised: boolean }>(REACT_APP_COLLAB_URL + '/api/check-authorization', {
         params: {
           userId: user.id,
@@ -105,23 +138,31 @@ const CollaborationRoom: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    socket?.on('both-users-agreed-next', async () => {
-      const nextQuestion = await axios.get<{ question: string }>(REACT_APP_COLLAB_URL + '/api/select-next-question', {
+    socket?.on('both-users-agreed-next', async (roomId: number) => {
+      const nextQuestionResponse = await axios.get(REACT_APP_COLLAB_URL + '/api/get-second-question', {
         params: {
           roomId,
         },
       });
-      addSavedQuestion(1).catch((error) => {
+      addSavedQuestion(1, roomId).catch((error) => {
         console.error('Error adding saved question:', error);
       });
-      socket?.emit('set-question', nextQuestion);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const nextQuestionData = nextQuestionResponse.data.data as Question;
+
+      const nextQuestionId = Number(nextQuestionData.questionID);
+      setQuestionId(nextQuestionId);
+      socket?.emit('change-question', nextQuestionId);
     });
 
-    socket?.on('both-users-agreed-end', () => {
-      addSavedQuestion(2).catch((error) => {
-        console.error('Error adding saved question:', error);
-      });
-      navigate('/');
+    // socket?.on('both-users-agreed-end', () => {
+    //   addSavedQuestion(2, null).catch((error) => {
+    //     console.error('Error adding saved question:', error);
+    //   });
+    //   navigate('/');
+    // });
+    socket?.on('broadcast-question', (questionId: number) => {
+      setQuestionId(questionId);
     });
 
     return () => {

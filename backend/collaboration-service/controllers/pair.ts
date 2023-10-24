@@ -26,30 +26,56 @@ export const checkAuthorisedUser = async (req: Request, res: Response) => {
   }
 };
 
-export async function getFirstQuestion(roomId: string) {
-  const pairInfo = await Pair.find({ room_id: roomId });
-  const currentQuestionId = pairInfo[0].question_ids[0];
-  const currQuestion = await axios.get(
-    `${questionsAPIUrl}/${currentQuestionId}`,
-    {
-      headers: {
-        Cookie: `serverToken=${process.env.SERVER_SECRET};`,
+export const getFirstQuestion = async (req: Request, res: Response) => {
+  const roomId = req.query.roomId;
+  try {
+    const pairs = await Pair.find({ room_id: roomId });
+    const pairInfo = pairs[0];
+    const currentQuestionId = pairInfo.question_ids[0];
+    const currQuestion = await axios.get(
+      `${questionsAPIUrl}/${currentQuestionId}`,
+      {
+        headers: {
+          Cookie: `serverToken=${process.env.SERVER_SECRET};`,
+        },
       },
-    },
-  );
-  return currQuestion;
+    );
+    res.json(currQuestion.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getSecondQuestion = async (req: Request, res: Response) => {
+  const roomId = req.query.roomId;
+  try {
+    const pairs = await Pair.find({ room_id: roomId });
+    const pairInfo = pairs[0];
+    const currentQuestionId = pairInfo.question_ids[1];
+    const currQuestion = await axios.get(
+      `${questionsAPIUrl}/${currentQuestionId}`,
+      {
+        headers: {
+          Cookie: `serverToken=${process.env.SERVER_SECRET};`,
+        },
+      },
+    );
+    res.json(currQuestion.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
-export async function getSecondQuestion(roomId: string) {
-  const pairInfo = await Pair.find({ room_id: roomId });
-  const currentQuestionId = pairInfo[0].question_ids[1];
-  const currQuestion = await axios.get(
-    `${questionsAPIUrl}/${currentQuestionId}`,
-    {
-      headers: {
-        Cookie: `serverToken=${process.env.SERVER_SECRET};`,
-      },
-    },
-  );
-  return currQuestion;
+export const getPairIds = async (req: Request, res: Response) => {
+  const roomId = req.query.roomId;
+  try {
+    const pairs = await Pair.find({ room_id: roomId });
+    const pairInfo = pairs[0];
+    res.json(pairInfo);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
