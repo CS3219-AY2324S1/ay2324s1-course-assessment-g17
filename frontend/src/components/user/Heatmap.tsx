@@ -19,6 +19,11 @@ interface AnsweredQuestion {
   answeredAt: string;
 }
 
+const getMonth = (monthNumber: number): string => {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return months[monthNumber - 1];
+};
+
 const HeatmapComponent: React.FC<HeatmapProps> = ({ user }) => {
   const [activityData, setActivityData] = useState<Array<{ date: string; count: number }>>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -74,7 +79,7 @@ const HeatmapComponent: React.FC<HeatmapProps> = ({ user }) => {
             return { 'data-tip': `No question recorded!` };
           }
           const dateParts = value.date.split('-');
-          const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+          const formattedDate = `${parseInt(dateParts[2], 10)} ${getMonth(parseInt(dateParts[1], 10))}`;
           const pluralized = value.count === 1 ? 'question' : 'questions';
           return { 'data-tip': `${value.count} ${pluralized} solved on ${formattedDate}!` };
         }}

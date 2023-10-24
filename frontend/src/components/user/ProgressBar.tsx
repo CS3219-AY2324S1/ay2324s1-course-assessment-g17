@@ -32,13 +32,16 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ user }) => {
       try {
         const response = await fetch(`http://localhost:8000/api/user/get-answered-questions/${user.id}`);
         const data = (await response.json()) as AnsweredQuestion[];
-        const easyQuestions = data.filter((question) => question.complexity === 'Easy').length;
-        const mediumQuestions = data.filter((question) => question.complexity === 'Medium').length;
-        const hardQuestions = data.filter((question) => question.complexity === 'Hard').length;
-        setEasyCount(easyQuestions);
-        setMediumCount(mediumQuestions);
-        setHardCount(hardQuestions);
-        setTotalSolved(easyQuestions + mediumQuestions + hardQuestions);
+        const easyQuestions = data.filter((question) => question.complexity === 'Easy');
+        const mediumQuestions = data.filter((question) => question.complexity === 'Medium');
+        const hardQuestions = data.filter((question) => question.complexity === 'Hard');
+        const uniqueEasyQuestions = new Set(easyQuestions.map((question) => question.questionId));
+        const uniqueMediumQuestions = new Set(mediumQuestions.map((question) => question.questionId));
+        const uniqueHardQuestions = new Set(hardQuestions.map((question) => question.questionId));
+        setEasyCount(uniqueEasyQuestions.size);
+        setMediumCount(uniqueMediumQuestions.size);
+        setHardCount(uniqueHardQuestions.size);
+        setTotalSolved(uniqueEasyQuestions.size + uniqueMediumQuestions.size + uniqueHardQuestions.size);
 
         const questionsAPI = new QuestionsAPI();
         const questions = await questionsAPI.getQuestions();
