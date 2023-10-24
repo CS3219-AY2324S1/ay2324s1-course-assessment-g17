@@ -117,7 +117,7 @@ io.on("connection", (socket) => {
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
     usersAgreedNext[roomId][userId] = true;
     if (Object.keys(usersAgreedNext[roomId]).length === 2) {
-      socket?.emit("both-users-agreed-next", roomId, userId);
+      socket?.emit("both-users-agreed-next", roomId);
       usersAgreedNext[roomId] = {};
     }
   });
@@ -131,7 +131,7 @@ io.on("connection", (socket) => {
     usersAgreedEnd[roomId][userId] = true;
 
     if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
-      io.to(roomId).emit("both-users-agreed-end");
+      io?.emit("both-users-agreed-end", roomId);
       usersAgreedEnd[roomId] = {};
     }
   });

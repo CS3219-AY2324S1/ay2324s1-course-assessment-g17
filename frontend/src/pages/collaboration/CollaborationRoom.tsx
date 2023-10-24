@@ -155,12 +155,13 @@ const CollaborationRoom: React.FC = () => {
       socket?.emit('change-question', nextQuestionId);
     });
 
-    // socket?.on('both-users-agreed-end', () => {
-    //   addSavedQuestion(2, null).catch((error) => {
-    //     console.error('Error adding saved question:', error);
-    //   });
-    //   navigate('/');
-    // });
+    socket?.on('both-users-agreed-end', (roomId: number) => {
+      addSavedQuestion(2, roomId).catch((error) => {
+        console.error('Error adding saved question:', error);
+      });
+      navigate('/');
+    });
+
     socket?.on('broadcast-question', (questionId: number) => {
       setQuestionId(questionId);
     });
