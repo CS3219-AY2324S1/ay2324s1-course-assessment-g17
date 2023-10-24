@@ -74,6 +74,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
   // Runs once when the component mounts to set the initial language.
   useEffect(() => {
+    if (!enableRealTimeEditing) return;
     if (roomId === undefined) {
       toast({
         title: 'Could not create room',
