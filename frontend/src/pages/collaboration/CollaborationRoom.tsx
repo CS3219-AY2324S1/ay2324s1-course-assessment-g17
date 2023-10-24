@@ -175,10 +175,12 @@ const CollaborationRoom: React.FC = () => {
     <>
       <Flex mt={4} mx={4} justifyContent="space-between">
         <RoomInfo />
-        <Button onClick={handleNextQuestion} mx={4}>
+        <Button size="sm" onClick={handleNextQuestion} mx={4}>
           Next Question
         </Button>
-        <Button onClick={handleEndSession}>End Session</Button>
+        <Button size="sm" onClick={handleEndSession}>
+          End Session
+        </Button>
         <Spacer />
         <CollaboratorUsers
           onUserTabToggle={() => {
