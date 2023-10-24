@@ -1,7 +1,7 @@
-import { Icon, Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue, Tooltip } from '@chakra-ui/react';
-import { MoonIcon, SunIcon, SettingsIcon } from '@chakra-ui/icons';
+import { Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue, Tooltip } from '@chakra-ui/react';
+import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import React from 'react';
-import { FaCode } from 'react-icons/fa';
+import { FaCode, FaUserCog } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../reducers/hooks';
 import { logOut, selectIsLoggedIn } from '../../reducers/authSlice';
@@ -36,7 +36,9 @@ const Navbar: React.FC = () => {
           {isLoggedIn && (
             <Link to="/profile">
               <Tooltip label="View Profile">
-                <Icon as={SettingsIcon} boxSize={6} color="gray.500" />
+                <Button>
+                  <FaUserCog size={20} />
+                </Button>
               </Tooltip>
             </Link>
           )}
