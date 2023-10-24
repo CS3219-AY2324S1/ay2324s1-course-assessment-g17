@@ -31,6 +31,7 @@ interface PairIdsResponse {
 const CollaborationRoom: React.FC = () => {
   const REACT_APP_COLLAB_URL = 'http://localhost:8082';
   const REACT_APP_USER_URL = 'http://localhost:8000';
+  const [attemptedFirst, setAttemptedFirst] = useState(false);
   const toast = useToast();
   const editorTheme = useColorModeValue('light', 'vs-dark');
   const [showUserTab, toggleShowUserTab] = useState(false);
@@ -90,11 +91,21 @@ const CollaborationRoom: React.FC = () => {
       duration: 5000,
       isClosable: true,
     });
+    setAttemptedFirst(true);
   };
 
   // a user click end session
   const handleEndSession = (): void => {
     if (user === null) {
+      return;
+    }
+    if (!attemptedFirst) {
+      toast({
+        title: 'You have to attempt at least one question before ending the session',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
       return;
     }
     socket?.emit('user-agreed-end', roomId, user.id);
@@ -139,6 +150,7 @@ const CollaborationRoom: React.FC = () => {
 
   useEffect(() => {
     socket?.on('both-users-agreed-next', async (roomId: number) => {
+      setAttemptedFirst(true);
       const nextQuestionResponse = await axios.get(REACT_APP_COLLAB_URL + '/api/get-second-question', {
         params: {
           roomId,
