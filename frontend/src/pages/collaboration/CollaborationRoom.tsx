@@ -37,7 +37,6 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
   const [attemptedFirst, setAttemptedFirst] = useState(false);
   const toast = useToast();
   const editorTheme = useColorModeValue('light', 'vs-dark');
-  const [showUserTab, toggleShowUserTab] = useState(false);
   const user = useAppSelector(selectUser);
   const { socket } = useContext(SocketContext);
   const roomId = useParams<{ roomId: string }>().roomId;
@@ -146,8 +145,10 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
         navigate('/');
       }
     };
-    checkAuthorization().catch((error) => {
-      console.error('Error checking authorization:', error);
+    socket?.on('set-question', (questionId: number) => {
+      checkAuthorization().catch((error) => {
+        console.error('Error checking authorization:', error);
+      });
     });
   }, []);
 
@@ -215,11 +216,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
           </>
         )}
         <Spacer />
-        <CollaboratorUsers
-          onUserTabToggle={() => {
-            toggleShowUserTab(!showUserTab);
-          }}
-        />
+        <CollaboratorUsers />
       </Flex>
       <Box width="100%" height="80vh" my={5}>
         <Allotment defaultSizes={[6, 10, 4]}>
@@ -231,7 +228,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
               <CodeEditor enableRealTimeEditing defaultTheme={editorTheme} defaultDownloadedFileName="PeerPrep" />
             </Box>
           </Allotment.Pane>
-          <Allotment.Pane visible={showUserTab}>
+          <Allotment.Pane>
             <Box as="div" style={{ overflowY: 'auto', height: '100%' }}>
               <UserTab />
             </Box>

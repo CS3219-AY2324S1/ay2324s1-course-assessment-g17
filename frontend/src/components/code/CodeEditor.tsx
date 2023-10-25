@@ -42,7 +42,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const [selectedTheme, setSelectedTheme] = useState(defaultTheme);
   const [selectedLanguage, setSelectedLanguage] = useState(EditorLanguageEnum.javascript);
   const [fontSize, setFontSize] = useState<number>(14);
-
   const { socket } = useContext(SocketContext);
 
   const handleLanguageChange = (newLanguage: EditorLanguageEnum): void => {

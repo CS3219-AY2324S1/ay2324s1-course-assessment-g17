@@ -17,23 +17,8 @@ const UserTab: React.FC = () => {
           </Box>
           <AccordionIcon />
         </AccordionButton>
-        <AccordionPanel pb={4}>
+        <AccordionPanel>
           {awareness?.map((awareness, index) => <UserProfileEntry key={index} userAwareness={awareness} />)}
-        </AccordionPanel>
-      </AccordionItem>
-
-      <AccordionItem>
-        <AccordionButton>
-          <Box as="span" flex="1" textAlign="left">
-            <Text fontWeight="bold">Chat</Text>
-          </Box>
-          <AccordionIcon />
-        </AccordionButton>
-        <AccordionPanel pb={4}>
-          {/* Not implemented yet */}
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-          magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-          consequat.
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
