@@ -18,6 +18,7 @@ interface AnsweredQuestion {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ user }) => {
+  const userServiceUrl = process.env.REACT_APP_USER_SERVICE_BACKEND_URL;
   const [easyCount, setEasyCount] = useState(0);
   const [mediumCount, setMediumCount] = useState(0);
   const [hardCount, setHardCount] = useState(0);
@@ -30,7 +31,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ user }) => {
   useEffect(() => {
     const fetchUserAnsweredQuestions = async (): Promise<void> => {
       try {
-        const response = await fetch(`http://localhost:8000/api/user/get-answered-questions/${user.id}`);
+        const response = await fetch(`${userServiceUrl}api/user/get-answered-questions/${user.id}`);
         const data = (await response.json()) as AnsweredQuestion[];
         const easyQuestions = data.filter((question) => question.complexity === 'Easy');
         const mediumQuestions = data.filter((question) => question.complexity === 'Medium');

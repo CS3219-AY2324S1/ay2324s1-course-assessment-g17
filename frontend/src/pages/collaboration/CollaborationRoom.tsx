@@ -29,8 +29,8 @@ interface PairIdsResponse {
 }
 
 const CollaborationRoom: React.FC = () => {
-  const REACT_APP_COLLAB_URL = 'http://localhost:8082';
-  const REACT_APP_USER_URL = 'http://localhost:8000';
+  const collabServiceUrl = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
+  const userServiceUrl = process.env.REACT_APP_BACKEND_URL;
   const [attemptedFirst, setAttemptedFirst] = useState(false);
   const toast = useToast();
   const editorTheme = useColorModeValue('light', 'vs-dark');
@@ -44,7 +44,7 @@ const CollaborationRoom: React.FC = () => {
   const navigate = useNavigate();
   const addSavedQuestion = async (currIndex: number, roomId: number): Promise<void> => {
     const currQuestionResponse = await axios.get(
-      REACT_APP_COLLAB_URL + (currIndex === 1 ? '/api/get-first-question' : '/api/get-second-question'),
+      collabServiceUrl + (currIndex === 1 ? 'api/get-first-question' : '/api/get-second-question'),
       {
         params: {
           roomId,
@@ -52,7 +52,7 @@ const CollaborationRoom: React.FC = () => {
       },
     );
 
-    const pairIdsResponse = await axios.get(REACT_APP_COLLAB_URL + '/api/get-pair-ids', {
+    const pairIdsResponse = await axios.get(collabServiceUrl + 'api/get-pair-ids', {
       params: {
         roomId,
       },
@@ -65,13 +65,13 @@ const CollaborationRoom: React.FC = () => {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const currQuestion = currQuestionResponse.data.data as Question;
-    await axios.post(REACT_APP_USER_URL + '/api/user/add-answered-question', {
+    await axios.post(userServiceUrl + '/user/add-answered-question', {
       userId: userOneId,
       questionId: currQuestion.questionID,
       complexity: currQuestion.complexity,
       category: currQuestion.categories,
     });
-    await axios.post(REACT_APP_USER_URL + '/api/user/add-answered-question', {
+    await axios.post(userServiceUrl + '/user/add-answered-question', {
       userId: userTwoId,
       questionId: currQuestion.questionID,
       complexity: currQuestion.complexity,
@@ -124,7 +124,7 @@ const CollaborationRoom: React.FC = () => {
         navigate('/');
         return;
       }
-      const response = await axios.get<{ authorised: boolean }>(REACT_APP_COLLAB_URL + '/api/check-authorization', {
+      const response = await axios.get<{ authorised: boolean }>(collabServiceUrl + 'api/check-authorization', {
         params: {
           userId: user.id,
           roomId,
@@ -151,7 +151,7 @@ const CollaborationRoom: React.FC = () => {
   useEffect(() => {
     socket?.on('both-users-agreed-next', async (roomId: number) => {
       setAttemptedFirst(true);
-      const nextQuestionResponse = await axios.get(REACT_APP_COLLAB_URL + '/api/get-second-question', {
+      const nextQuestionResponse = await axios.get(collabServiceUrl + 'api/get-second-question', {
         params: {
           roomId,
         },

@@ -25,11 +25,11 @@ const SolvedTable: React.FC<SolvedTableProps> = ({ user }) => {
   const [solvedList, setSolvedList] = useState<QuestionDataRowData[]>([]);
   const questionColumns: Array<ColumnDef<QuestionDataRowData>> = QuestionsTableColumns(columnHelper, setSolvedList);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     const fetchSolvedQuestions = async (): Promise<void> => {
       try {
-        const response = await fetch(`http://localhost:8000/api/user/get-answered-questions/${user.id}`);
+        const response = await fetch(`${backendUrl}/user/get-answered-questions/${user.id}`);
         const data = (await response.json()) as AnsweredQuestion[];
         const solvedQuestionIds = data.map((question) => question.questionId);
 
