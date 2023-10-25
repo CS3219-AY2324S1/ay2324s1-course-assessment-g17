@@ -1,13 +1,13 @@
 import { type ExecutorStatusData, type ExecutorSubmissionPostData } from '../../types/code/executor';
-import client from '../base';
+import { codeExecutionServiceClient } from '../base';
 
 export default class ExecutorAPI {
   protected getExecutorUrl(): string {
-    return `${process.env.REACT_APP_RAPID_API_HOST}/submission`;
+    return '/submissions';
   }
 
   public async submitCode(codeSubmission: ExecutorSubmissionPostData): Promise<string> {
-    const response = await client.post(this.getExecutorUrl(), codeSubmission, {
+    const response = await codeExecutionServiceClient.post(this.getExecutorUrl(), codeSubmission, {
       params: { base64_encoded: 'true', fields: '*' },
       headers: {
         'content-type': 'application/json',
@@ -21,7 +21,7 @@ export default class ExecutorAPI {
   }
 
   public async getExecutorSubmissionData(token: string): Promise<ExecutorStatusData> {
-    const response = await client.get(`${this.getExecutorUrl()}/${token}`, {
+    const response = await codeExecutionServiceClient.get(`${this.getExecutorUrl()}/${token}`, {
       params: { base64_encoded: 'true', fields: '*' },
       headers: {
         'X-RapidAPI-Host': process.env.REACT_APP_RAPID_API_HOST,

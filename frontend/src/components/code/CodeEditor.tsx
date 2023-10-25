@@ -1,4 +1,13 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  forwardRef,
+  type ForwardedRef,
+  type ForwardRefRenderFunction,
+  type MutableRefObject,
+} from 'react';
 import Editor from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';
 import { Box, Button, Flex, HStack, Input, Select, useClipboard, useToast } from '@chakra-ui/react';
@@ -22,17 +31,17 @@ interface CodeEditorProps {
   defaultTheme: string;
   defaultDownloadedFileName: string;
   enableRealTimeEditing?: boolean;
+  editorHeight: string | number;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({
-  defaultTheme,
-  defaultDownloadedFileName,
-  enableRealTimeEditing = false,
-}: CodeEditorProps) => {
+const CodeEditor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeEditorProps> = (
+  { defaultTheme, defaultDownloadedFileName, editorHeight, enableRealTimeEditing = false }: CodeEditorProps,
+  editorForwardedRef: ForwardedRef<editor.IStandaloneCodeEditor>,
+) => {
   const dispatch = useAppDispatch();
   const toast = useToast();
   const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
-  const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const codeEditor = editorForwardedRef as MutableRefObject<editor.IStandaloneCodeEditor>;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { roomId } = useParams();
   const user = useAppSelector(selectUser);
@@ -271,7 +280,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
       <Box>
         <Editor
-          height="80vh"
+          height={editorHeight}
           width="100%"
           theme={selectedTheme}
           language={selectedLanguage}
@@ -365,4 +374,4 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   );
 };
 
-export default CodeEditor;
+export default forwardRef(CodeEditor);

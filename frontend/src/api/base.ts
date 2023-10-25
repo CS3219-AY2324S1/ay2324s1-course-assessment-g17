@@ -10,4 +10,8 @@ export const userServiceClient = axios.create({
   withCredentials: true,
 });
 
+export const codeExecutionServiceClient = axios.create({
+  baseURL: `https://${process.env.REACT_APP_RAPID_API_HOST}`,
+});
+
 export default client;

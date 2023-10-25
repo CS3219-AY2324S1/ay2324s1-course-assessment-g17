@@ -5,12 +5,14 @@ import ChatBox from '../../components/chat/ChatBox';
 import CollaboratorUsers from './CollaboratorUsers';
 import RoomInfo from './RoomInfo';
 import UserTab from './UserTab';
-import React from 'react';
+import React, { useRef } from 'react';
 import { SocketProvider } from '../../context/socket';
 import CollaborationQuestion from './CollaborationQuestion';
+import { type editor } from 'monaco-editor';
 
 const CollaborationRoom: React.FC = () => {
   const editorTheme = useColorModeValue('light', 'vs-dark');
+  const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   return (
     <SocketProvider>
@@ -24,12 +26,18 @@ const CollaborationRoom: React.FC = () => {
             <CollaborationQuestion />
           </Allotment.Pane>
           <Allotment.Pane>
-            <Box as="div" style={{ maxHeight: '85vh' }}>
-              <CodeEditor enableRealTimeEditing defaultTheme={editorTheme} defaultDownloadedFileName="PeerPrep" />
+            <Box as="div" style={{ maxHeight: '80vh' }}>
+              <CodeEditor
+                enableRealTimeEditing
+                defaultTheme={editorTheme}
+                defaultDownloadedFileName="PeerPrep"
+                editorHeight="70vh"
+                ref={codeEditor}
+              />
             </Box>
           </Allotment.Pane>
           <Allotment.Pane>
-            <VStack as="div" style={{ height: '100%', width: '100%', paddingLeft: '16px', paddingRight: '16px' }}>
+            <VStack as="div" style={{ height: '95%', width: '100%', paddingLeft: '16px', paddingRight: '16px' }}>
               <Box
                 width="100%"
                 alignSelf="flex-start"
