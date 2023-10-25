@@ -149,6 +149,8 @@ const CollaborationRoom: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    socket?.emit('join-room', roomId, user?.username);
+
     socket?.on('both-users-agreed-next', async (roomId: number) => {
       setAttemptedFirst(true);
       const nextQuestionResponse = await axios.get(REACT_APP_COLLAB_URL + '/api/get-second-question', {

@@ -1,9 +1,6 @@
 import { useToast } from '@chakra-ui/react';
 import React, { createContext, useState, useEffect, type ReactNode } from 'react';
-import { useParams } from 'react-router-dom';
 import io, { type Socket } from 'socket.io-client';
-import { selectUser } from '../reducers/authSlice';
-import { useAppSelector } from '../reducers/hooks';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -18,8 +15,6 @@ interface SocketProviderProps {
 const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const toast = useToast();
-  const user = useAppSelector(selectUser);
-  const { roomId } = useParams();
 
   // Create a Socket.IO client instance when the component is initialized
   const socketIoURL = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
@@ -37,7 +32,6 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     } else {
       // Initialize the socket variable
       const socket = io(socketIoURL);
-      socket?.emit('join-room', roomId, user?.username);
       setSocket(socket);
     }
 
