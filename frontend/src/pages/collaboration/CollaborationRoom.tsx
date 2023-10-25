@@ -145,10 +145,8 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
         navigate('/');
       }
     };
-    socket?.on('set-question', (questionId: number) => {
-      checkAuthorization().catch((error) => {
-        console.error('Error checking authorization:', error);
-      });
+    checkAuthorization().catch((error) => {
+      console.error('Error checking authorization:', error);
     });
   }, []);
 
