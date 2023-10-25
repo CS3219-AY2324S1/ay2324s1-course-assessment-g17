@@ -40,7 +40,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 
   return (
     <>
-      <Button onClick={onOpen} {...mainButtonProps}>
+      <Button mt={2} size={'sm'} onClick={onOpen} {...mainButtonProps}>
         {mainButtonLabel}
       </Button>
       <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
