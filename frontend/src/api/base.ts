@@ -10,4 +10,9 @@ export const userServiceClient = axios.create({
   withCredentials: true,
 });
 
+export const forumServiceClient = axios.create({
+  baseURL: 'http://localhost:9001',
+  withCredentials: true,
+});
+
 export default client;

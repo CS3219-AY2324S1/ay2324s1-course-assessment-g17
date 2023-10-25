@@ -17,11 +17,13 @@ import ConfirmationDialog from '../../components/content/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
 import IconWithText from '../../components/content/IconWithText';
 import { MdForum } from 'react-icons/md';
+import { ForumPostData } from '../../types/forum/forum';
 
 interface PostFormProps {
   formTitle: string;
   dialogHeader: string;
   dialogBody: string;
+  handleData: (forumData: ForumPostData) => Promise<void>;
   isLoading?: boolean;
   submitButtonLabel: string;
 }
@@ -30,6 +32,7 @@ const PostForm: React.FC<PostFormProps> = ({
   formTitle,
   dialogHeader,
   dialogBody,
+  handleData,
   isLoading = false,
   submitButtonLabel,
 }) => {
@@ -41,15 +44,28 @@ const PostForm: React.FC<PostFormProps> = ({
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
-    toast({
-      title: 'Posted!',
-      description: 'Your forum post has been created successfully!',
-      status: 'success',
-      duration: 4000,
-      isClosable: true,
-    });
+    const forumData: ForumPostData = {
+      title,
+      postDescription,
+      username: 'username_value', // Retrieve actual username.
+    };
 
-    navigate('/forum');
+    try {
+      handleData(forumData);
+
+      toast({
+        title: 'Posted!',
+        description: 'Your forum post has been created successfully!',
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+      });
+
+      navigate('/forum');
+    } catch (error) {
+      // Handle errors, e.g., display an error message
+      console.error('Error:', error);
+    }
   };
 
   // Disable submit...

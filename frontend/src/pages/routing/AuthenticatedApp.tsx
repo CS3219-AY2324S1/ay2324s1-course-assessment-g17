@@ -9,8 +9,8 @@ import Home from '../home/Home';
 import CollaborationRoom from '../collaboration/CollaborationRoom';
 import Matching from '../matching/Matching';
 import ProtectedRoute from './ProtectedRoute';
-import Forum from '../community/Forum';
-import { CreatePost } from '../community/CreatePost';
+import Forum from '../forum/Forum';
+import CreatePost from '../forum/CreatePost';
 
 const AuthenticatedApp: React.FC = () => {
   return (
