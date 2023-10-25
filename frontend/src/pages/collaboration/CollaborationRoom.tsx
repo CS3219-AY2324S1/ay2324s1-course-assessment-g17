@@ -1,29 +1,25 @@
-import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, useColorModeValue, VStack } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
 import CodeEditor from '../../components/code/CodeEditor';
+import ChatBox from '../../components/chat/ChatBox';
 import CollaboratorUsers from './CollaboratorUsers';
 import RoomInfo from './RoomInfo';
 import UserTab from './UserTab';
-import React, { useState } from 'react';
+import React from 'react';
 import { SocketProvider } from '../../context/socket';
 import CollaborationQuestion from './CollaborationQuestion';
 
 const CollaborationRoom: React.FC = () => {
   const editorTheme = useColorModeValue('light', 'vs-dark');
-  const [showUserTab, toggleShowUserTab] = useState(false);
 
   return (
     <SocketProvider>
       <Flex mt={4} mx={4} justifyContent="space-between">
         <RoomInfo />
-        <CollaboratorUsers
-          onUserTabToggle={() => {
-            toggleShowUserTab(!showUserTab);
-          }}
-        />
+        <CollaboratorUsers />
       </Flex>
       <Box width="100%" height="80vh" my={5}>
-        <Allotment defaultSizes={[6, 10, 4]}>
+        <Allotment defaultSizes={[6, 10, 5]}>
           <Allotment.Pane>
             <CollaborationQuestion />
           </Allotment.Pane>
@@ -32,10 +28,19 @@ const CollaborationRoom: React.FC = () => {
               <CodeEditor enableRealTimeEditing defaultTheme={editorTheme} defaultDownloadedFileName="PeerPrep" />
             </Box>
           </Allotment.Pane>
-          <Allotment.Pane visible={showUserTab}>
-            <Box as="div" style={{ overflowY: 'auto', height: '100%' }}>
-              <UserTab />
-            </Box>
+          <Allotment.Pane>
+            <VStack as="div" style={{ height: '100%', width: '100%', paddingLeft: '16px', paddingRight: '16px' }}>
+              <Box
+                width="100%"
+                alignSelf="flex-start"
+                _light={{ backgroundColor: 'gray.200' }}
+                _dark={{ backgroundColor: 'gray.700' }}
+                borderRadius={8}
+              >
+                <UserTab />
+              </Box>
+              <ChatBox />
+            </VStack>
           </Allotment.Pane>
         </Allotment>
       </Box>
