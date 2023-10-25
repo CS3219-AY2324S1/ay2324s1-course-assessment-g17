@@ -19,7 +19,7 @@ interface JwtPayload {
 export async function verifyAccessToken(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   if (req.cookies["serverToken"] == process.env.SERVER_SECRET) {
     next();
@@ -46,7 +46,7 @@ export async function verifyAccessToken(
 export async function protectAdmin(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
   const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;

@@ -53,7 +53,10 @@ export const getQuestions: RequestHandler[] = [
         const count = await questionQuery.clone().count().exec();
         questionQuery = questionQuery
           .skip(
-            Math.max(0, Math.floor(Math.random() * (count - requestData.limit)))
+            Math.max(
+              0,
+              Math.floor(Math.random() * (count - requestData.limit)),
+            ),
           )
           .limit(requestData.limit);
       }
@@ -229,7 +232,7 @@ export const updateQuestion: RequestHandler[] = [
     const finalQuestion = await QuestionModel.findByIdAndUpdate(
       existingQuestion._id,
       formData,
-      { new: true }
+      { new: true },
     );
 
     res.status(200).json({ data: finalQuestion, status: "success" });
