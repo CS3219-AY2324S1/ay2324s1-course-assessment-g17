@@ -29,7 +29,15 @@ const AuthenticatedApp: React.FC = () => {
         path="/collaborate/:roomId"
         element={
           <SocketProvider>
-            <CollaborationRoom />
+            <CollaborationRoom isMatchingRoom={true} />
+          </SocketProvider>
+        }
+      />
+      <Route
+        path="/practice/:roomId"
+        element={
+          <SocketProvider>
+            <CollaborationRoom isMatchingRoom={false} />
           </SocketProvider>
         }
       />

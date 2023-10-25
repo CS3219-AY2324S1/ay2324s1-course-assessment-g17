@@ -28,7 +28,10 @@ interface PairIdsResponse {
   __v: number;
 }
 
-const CollaborationRoom: React.FC = () => {
+interface CollaborationRoomProps {
+  isMatchingRoom: boolean;
+}
+const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }: CollaborationRoomProps) => {
   const collabServiceUrl = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
   const userServiceUrl = process.env.REACT_APP_BACKEND_URL;
   const [attemptedFirst, setAttemptedFirst] = useState(false);
@@ -188,12 +191,29 @@ const CollaborationRoom: React.FC = () => {
     <>
       <Flex mt={4} mx={4} justifyContent="space-between">
         <RoomInfo />
-        <Button size="sm" onClick={handleNextQuestion} mx={4}>
-          Next Question
-        </Button>
-        <Button size="sm" onClick={handleEndSession}>
-          End Session
-        </Button>
+        {isMatchingRoom && (
+          <>
+            <Button size="sm" onClick={handleNextQuestion} mx={4}>
+              Next Question
+            </Button>
+            <Button size="sm" onClick={handleEndSession}>
+              End Session
+            </Button>
+          </>
+        )}
+        {!isMatchingRoom && (
+          <>
+            <Button
+              size="sm"
+              mx={4}
+              onClick={() => {
+                navigate('/');
+              }}
+            >
+              Exit
+            </Button>
+          </>
+        )}
         <Spacer />
         <CollaboratorUsers
           onUserTabToggle={() => {
