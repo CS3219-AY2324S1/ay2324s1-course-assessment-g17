@@ -17,7 +17,10 @@ import ConfirmationDialog from '../../components/content/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
 import IconWithText from '../../components/content/IconWithText';
 import { MdForum } from 'react-icons/md';
-import { ForumPostData } from '../../types/forum/forum';
+import type { ForumPostData } from '../../types/forum/forum';
+import { type AxiosError } from 'axios';
+import { useAppSelector } from '../../reducers/hooks';
+import { selectUser } from '../../reducers/authSlice';
 
 interface PostFormProps {
   formTitle: string;
@@ -25,6 +28,7 @@ interface PostFormProps {
   dialogBody: string;
   handleData: (forumData: ForumPostData) => Promise<void>;
   isLoading?: boolean;
+  errorTitle: string;
   submitButtonLabel: string;
 }
 
@@ -34,38 +38,54 @@ const PostForm: React.FC<PostFormProps> = ({
   dialogBody,
   handleData,
   isLoading = false,
+  errorTitle,
   submitButtonLabel,
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
   const [title, setTitle] = useState('');
-  const [postDescription, setPostDescription] = useState('');
+  const [description, setPostDescription] = useState('');
+
+  const user = useAppSelector(selectUser);
+  const username = user?.username ?? '';
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
+    console.log('Title:', title);
+    console.log('Post Description:', description);
+
     const forumData: ForumPostData = {
       title,
-      postDescription,
-      username: 'username_value', // Retrieve actual username.
+      description,
+      username,
     };
 
-    try {
-      handleData(forumData);
-
-      toast({
-        title: 'Posted!',
-        description: 'Your forum post has been created successfully!',
-        status: 'success',
-        duration: 4000,
-        isClosable: true,
+    handleData(forumData)
+      .then(() => {
+        toast({
+          title: 'Posted!',
+          description: 'Your forum post has been created successfully!',
+          status: 'success',
+          duration: 4000,
+          isClosable: true,
+        });
+        navigate('/forum');
+      })
+      .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
+        const errors = err?.response?.data?.errors;
+        if (errors !== undefined) {
+          errors.map((error) =>
+            toast({
+              title: errorTitle,
+              description: error.msg,
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+            }),
+          );
+        }
       });
-
-      navigate('/forum');
-    } catch (error) {
-      // Handle errors, e.g., display an error message
-      console.error('Error:', error);
-    }
   };
 
   // Disable submit...
@@ -97,7 +117,7 @@ const PostForm: React.FC<PostFormProps> = ({
             <FormControl isRequired>
               <FormLabel>Description</FormLabel>
               <RichTextEditor
-                value={postDescription}
+                value={description}
                 onChange={handleDescriptionChange}
                 useColorModeValue={useColorModeValue}
               />

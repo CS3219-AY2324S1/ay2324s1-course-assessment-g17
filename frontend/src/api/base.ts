@@ -11,7 +11,7 @@ export const userServiceClient = axios.create({
 });
 
 export const forumServiceClient = axios.create({
-  baseURL: 'http://localhost:9001',
+  baseURL: process.env.REACT_APP_FORUM_SERVICE_BACKEND_URL,
   withCredentials: true,
 });
 

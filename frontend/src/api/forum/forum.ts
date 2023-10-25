@@ -4,7 +4,7 @@ import { forumServiceClient } from '../base';
 // I think adding this is wrong...
 export default class ForumAPI {
   protected getForumUrl(): string {
-    return '/forum';
+    return '/posts';
   }
 
   public async viewPosts(): Promise<ForumPostData[]> {
@@ -17,8 +17,8 @@ export default class ForumAPI {
   //   return forumServiceClient.get(`${this.getForumUrl()}/posts/${postId}/comments`);
   // }
 
-  public async addPost(data: ForumPostData): Promise<any> {
-    return await forumServiceClient.post(`/posts`, data);
+  public async addPost(post: ForumPostData): Promise<never> {
+    return await forumServiceClient.post(this.getForumUrl(), post);
   }
 
   // addComment(postId: number, data: any) {

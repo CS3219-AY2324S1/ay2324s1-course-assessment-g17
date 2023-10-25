@@ -1,5 +1,5 @@
 export interface ForumPostData {
   title: string;
-  postDescription: string;
+  description: string;
   username: string;
 }
