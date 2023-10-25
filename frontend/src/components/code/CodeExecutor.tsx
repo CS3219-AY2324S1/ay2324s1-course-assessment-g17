@@ -6,7 +6,7 @@ import {
   EditorLanguageToExecutorLanguagesMap,
 } from '../../types/code/executor';
 import ExecutorAPI from '../../api/code/executor';
-import { Box, Button, Flex, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, Skeleton, Text, useToast } from '@chakra-ui/react';
 import React, {
   useState,
   forwardRef,
@@ -60,6 +60,7 @@ const CodeExecutor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeE
           isClosable: true,
         });
       } else {
+        setIsCompiling(false);
         const stderr = atob(executorStatusData?.stderr ?? '');
         const compileError = atob(executorStatusData?.compile_output ?? '');
         const error = [stderr, compileError].join('\n');
@@ -116,25 +117,28 @@ const CodeExecutor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeE
                 </Text>
               </Flex>
             </Flex>
-            <Editor
-              height="35vh"
-              width="100%"
-              theme={defaultTheme}
-              language={EditorLanguageEnum.text}
-              onMount={(editor) => {
-                programOutput.current = editor;
-              }}
-              options={{
-                scrollBeyondLastLine: false,
-                fixedOverflowWidgets: true,
-                fontSize: 14,
-                readOnly: true,
-                domReadOnly: true,
-                lineNumbersMinChars: 3,
-                glyphMargin: false,
-                folding: false,
-              }}
-            />
+            <Skeleton isLoaded={!isCompiling} height={isCompiling ? '35vh' : '0'} width="100%"></Skeleton>
+            <Box hidden={isCompiling}>
+              <Editor
+                height="35vh"
+                width="100%"
+                theme={defaultTheme}
+                language={EditorLanguageEnum.text}
+                onMount={(editor) => {
+                  programOutput.current = editor;
+                }}
+                options={{
+                  scrollBeyondLastLine: false,
+                  fixedOverflowWidgets: true,
+                  fontSize: 14,
+                  readOnly: true,
+                  domReadOnly: true,
+                  lineNumbersMinChars: 3,
+                  glyphMargin: false,
+                  folding: false,
+                }}
+              />
+            </Box>
           </Box>
         </Allotment.Pane>
         <Allotment.Pane>
@@ -155,6 +159,7 @@ const CodeExecutor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeE
                   size="sm"
                   leftIcon={<TbPlayerPlayFilled />}
                   disabled={isCompiling}
+                  isLoading={isCompiling}
                   onClick={() => {
                     void onCompile();
                   }}
@@ -163,23 +168,26 @@ const CodeExecutor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeE
                 </Button>
               </Flex>
             </Flex>
-            <Editor
-              height="32vh"
-              width="100%"
-              theme={defaultTheme}
-              language={EditorLanguageEnum.text}
-              onMount={(editor) => {
-                programInput.current = editor;
-              }}
-              options={{
-                scrollBeyondLastLine: false,
-                fixedOverflowWidgets: true,
-                fontSize: 14,
-                lineNumbersMinChars: 3,
-                glyphMargin: false,
-                folding: false,
-              }}
-            />
+            <Skeleton isLoaded={!isCompiling} height={isCompiling ? '35vh' : '0'} width="100%"></Skeleton>
+            <Box hidden={isCompiling}>
+              <Editor
+                height="32vh"
+                width="100%"
+                theme={defaultTheme}
+                language={EditorLanguageEnum.text}
+                onMount={(editor) => {
+                  programInput.current = editor;
+                }}
+                options={{
+                  scrollBeyondLastLine: false,
+                  fixedOverflowWidgets: true,
+                  fontSize: 14,
+                  lineNumbersMinChars: 3,
+                  glyphMargin: false,
+                  folding: false,
+                }}
+              />
+            </Box>
           </Box>
         </Allotment.Pane>
       </Allotment>
