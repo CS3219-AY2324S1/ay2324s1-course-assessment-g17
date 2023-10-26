@@ -63,6 +63,21 @@ services:
     volumes:
       - ./backend/matching-service:/usr/src/app
 
+  collaboration-service:
+    build: ./backend/collaboration-service
+    ports:
+      - 8081:8081
+      - 8082:8082
+    volumes:
+      - ./backend/collaboration-service:/usr/src/app
+
+  chat-service:
+    build: ./backend/chat-service
+    ports:
+      - 8084:8084
+    volumes:
+      - ./backend/collaboration-service:/usr/src/app
+
   api-gateway:
     build: ./backend/api-gateway
     ports:
