@@ -24,7 +24,7 @@ const Matching: React.FC = () => {
   const [matchingState, setMatchingState] = useState<MatchingStateEnum>(MatchingStateEnum.NO_REQUEST);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:9000');
+    const newSocket = io(process.env.REACT_APP_MATCHING_SERVICE_BACKEND_URL as string);
 
     newSocket.on('connect', () => {
       console.log('Connected to server');

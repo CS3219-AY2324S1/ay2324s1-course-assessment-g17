@@ -87,6 +87,7 @@ io.on("connection", (socket) => {
     // Provide the client with the previously selected language for that room.
     const initialLanguage =
       roomLanguages[roomId] || EditorLanguageEnum.javascript;
+
     // Send the initial language to this user.
     socket.emit("initial-language", initialLanguage);
 
@@ -104,12 +105,6 @@ io.on("connection", (socket) => {
       io.to(roomId).emit("receive-language-change", newLanguage);
     },
   );
-
-  // Listen for chat messages.
-  socket.on("chat-message", (message) => {
-    // Broadcast the message to all connected clients.
-    io.emit("receive-chat-message", message);
-  });
 
   // Handle user disconnection.
   socket.on("disconnect", () => {
