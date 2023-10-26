@@ -27,10 +27,11 @@ const getMonth = (monthNumber: number): string => {
 const HeatmapComponent: React.FC<HeatmapProps> = ({ user }) => {
   const [activityData, setActivityData] = useState<Array<{ date: string; count: number }>>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const userServiceUrl = process.env.REACT_APP_USER_SERVICE_BACKEND_URL;
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
       try {
-        const response = await fetch(`http://localhost:8000/api/user/get-answered-questions/${user.id}`);
+        const response = await fetch(`${userServiceUrl}api/user/get-answered-questions/${user.id}`);
         const data = (await response.json()) as AnsweredQuestion[];
         const activityMap: Record<string, number> = {};
         let total = 0;

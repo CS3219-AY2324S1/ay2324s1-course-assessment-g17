@@ -6,11 +6,7 @@ import { HiUserGroup } from 'react-icons/hi';
 import React, { useContext, useEffect } from 'react';
 import { SocketContext } from '../../context/socket';
 
-interface CollaboratorUsersProps {
-  onUserTabToggle: () => void;
-}
-
-const CollaboratorUsers: React.FC<CollaboratorUsersProps> = ({ onUserTabToggle }: CollaboratorUsersProps) => {
+const CollaboratorUsers: React.FC = () => {
   const toast = useToast();
   const awareness = useAppSelector(selectAwareness);
   const currentUser = useAppSelector(selectUser);
@@ -52,7 +48,7 @@ const CollaboratorUsers: React.FC<CollaboratorUsersProps> = ({ onUserTabToggle }
           </Box>
         ))}
       </AvatarGroup>
-      <Button variant="outline" size="sm" leftIcon={<HiUserGroup size={20} />} onClick={onUserTabToggle}>
+      <Button variant="outline" size="sm" leftIcon={<HiUserGroup size={20} />}>
         {awareness?.length}
       </Button>
     </HStack>

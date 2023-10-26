@@ -11,12 +11,14 @@ import {
   getSecondQuestion,
 } from "./controllers/pair";
 import cors from "cors";
-import { EditorLanguageEnum } from "../../frontend/src/types/code/languages";
+import { EditorLanguageEnum } from "./types/languages";
+
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const app = express();
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 
-const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;
+const SOCKET_IO_PORT =
+  (process.env.SOCKET_IO_PORT as string) || (process.env.PORT as string);
 
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 
@@ -61,7 +63,7 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
   );
 });
 
@@ -106,6 +108,7 @@ io.on("connection", (socket) => {
     // Provide the client with the previously selected language for that room.
     const initialLanguage =
       roomLanguages[roomId] || EditorLanguageEnum.javascript;
+
     // Send the initial language to this user.
     socket.emit("initial-language", initialLanguage);
 
@@ -153,12 +156,6 @@ io.on("connection", (socket) => {
       io.to(roomId).emit("receive-language-change", newLanguage, socket.data.username);
     }
   );
-
-  // Listen for chat messages.
-  socket.on("chat-message", (message) => {
-    // Broadcast the message to all connected clients.
-    io.emit("receive-chat-message", message);
-  });
 
   // Handle user disconnection.
   socket.on("disconnect", () => {
