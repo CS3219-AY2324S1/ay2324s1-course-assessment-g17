@@ -101,7 +101,7 @@ const CodeExecutor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeE
   return (
     <Box width="100%" height="90vh">
       <Allotment vertical>
-        <Allotment.Pane minSize={100}>
+        <Allotment.Pane>
           <Box as="div" style={{ maxHeight: '45vh' }}>
             <Flex
               marginBottom={2}

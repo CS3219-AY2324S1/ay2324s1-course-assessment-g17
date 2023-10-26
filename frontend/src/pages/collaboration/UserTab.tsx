@@ -7,7 +7,7 @@ import UserProfileEntry from './UserProfileEntry';
 const UserTab: React.FC = () => {
   const awareness = useAppSelector(selectAwareness);
   return (
-    <Accordion defaultIndex={[0]} allowMultiple>
+    <Accordion allowMultiple>
       <AccordionItem>
         <AccordionButton>
           <Box as="span" flex="1" textAlign="left">
