@@ -9,6 +9,7 @@ import Home from '../home/Home';
 import CollaborationRoom from '../collaboration/CollaborationRoom';
 import Matching from '../matching/Matching';
 import ProtectedRoute from './ProtectedRoute';
+import { SocketProvider } from '../../context/socket';
 
 const AuthenticatedApp: React.FC = () => {
   return (
@@ -24,7 +25,22 @@ const AuthenticatedApp: React.FC = () => {
       {/* Matching routes */}
       <Route path="/matching" element={<Matching />} />
       {/* Collaboration routes */}
-      <Route path="/collaborate/:roomId" element={<CollaborationRoom />} />
+      <Route
+        path="/collaborate/:roomId"
+        element={
+          <SocketProvider>
+            <CollaborationRoom isMatchingRoom={true} />
+          </SocketProvider>
+        }
+      />
+      <Route
+        path="/practice/:roomId"
+        element={
+          <SocketProvider>
+            <CollaborationRoom isMatchingRoom={false} />
+          </SocketProvider>
+        }
+      />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

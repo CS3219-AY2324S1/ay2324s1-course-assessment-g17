@@ -33,7 +33,7 @@ const CreatePracticeRoom: React.FC = () => {
   const [roomIdInput, setRoomIdInput] = useState('');
   const handleRoomCreation = (): void => {
     const roomId = uuidv4();
-    navigate(`/collaborate/${roomId}`, { state: roomPassword });
+    navigate(`/practice/${roomId}`, { state: roomPassword });
   };
   const handleRoomJoin = (): void => {
     if (!validate(roomIdInput) || version(roomIdInput) !== 4) {
@@ -46,7 +46,7 @@ const CreatePracticeRoom: React.FC = () => {
       });
       return;
     }
-    navigate(`/collaborate/${roomIdInput}`);
+    navigate(`/practice/${roomIdInput}`);
   };
 
   return (
