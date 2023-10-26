@@ -55,7 +55,7 @@ const Forum: React.FC = () => {
               <p>{post.description}</p>
               <p>Posted by: {post.username}</p>
               <p>
-                Posted on:
+                Posted on:{' '}
                 {new Date(post.createdAt).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false })}
               </p>
               <p>Upvotes: {post.upvotes}</p>
