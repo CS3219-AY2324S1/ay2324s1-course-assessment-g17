@@ -38,6 +38,13 @@ const CodeExecutor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeE
   const onCompile = async (): Promise<void> => {
     try {
       setIsCompiling(true);
+      toast({
+        title: 'Submitted code for execution',
+        description: 'This might take some time...',
+        status: 'info',
+        duration: 4000,
+        isClosable: true,
+      });
       const editorLanguageEnum = codeEditor.current?.getModel()?.getLanguageId() as EditorLanguageEnum;
       const code = codeEditor.current?.getModel()?.getValue() ?? '';
       const stdin = programInput.current?.getModel()?.getValue() ?? '';
@@ -56,7 +63,7 @@ const CodeExecutor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeE
         toast({
           title: 'Successfully executed code',
           status: 'success',
-          duration: 2000,
+          duration: 5000,
           isClosable: true,
         });
       } else {
@@ -69,7 +76,7 @@ const CodeExecutor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeE
           title: 'Failed to run code',
           description: executorStatusData.status?.description ?? executorStatusData.error,
           status: 'error',
-          duration: 4000,
+          duration: 6000,
           isClosable: true,
         });
       }
@@ -77,7 +84,7 @@ const CodeExecutor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeE
       toast({
         title: 'Something went wrong',
         status: 'error',
-        duration: 4000,
+        duration: 6000,
         isClosable: true,
       });
       console.log('Error:', error);

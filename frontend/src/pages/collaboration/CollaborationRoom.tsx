@@ -47,7 +47,7 @@ const CollaborationRoom: React.FC = () => {
                     <IconWithText text="Chat" icon={<HiMiniChatBubbleLeftRight />} />
                   </Tab>
                   <Tab>
-                    <IconWithText text="Run Code" icon={<HiMiniCodeBracketSquare />} />
+                    <IconWithText text="Code Run" icon={<HiMiniCodeBracketSquare />} />
                   </Tab>
                 </TabList>
                 <TabPanels height="100%">
