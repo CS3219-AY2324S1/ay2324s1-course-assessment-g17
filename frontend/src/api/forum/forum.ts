@@ -1,4 +1,4 @@
-import { type ForumPostData } from '../../types/forum/forum';
+import { type ForumData, type ForumPostData } from '../../types/forum/forum';
 import { forumServiceClient } from '../base';
 
 export default class ForumAPI {
@@ -6,9 +6,9 @@ export default class ForumAPI {
     return '/posts';
   }
 
-  public async viewPosts(): Promise<ForumPostData[]> {
+  public async viewPosts(): Promise<ForumData[]> {
     const response = await forumServiceClient.get(this.getForumUrl());
-    const postList = response.data.data as ForumPostData[];
+    const postList = response.data as ForumData[];
     return postList;
   }
 

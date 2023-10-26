@@ -1,12 +1,32 @@
 import { Button, Flex, Input, Stack, Text } from '@chakra-ui/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import IconWithText from '../../components/content/IconWithText';
 import { AddIcon } from '@chakra-ui/icons';
 import { MdForum } from 'react-icons/md';
 import { BiArrowBack } from 'react-icons/bi';
+import { type ForumData } from '../../types/forum/forum';
+import ForumAPI from '../../api/forum/forum';
 
 const Forum: React.FC = () => {
+  const [posts, setPosts] = useState<ForumData[]>([]);
+
+  const fetchForumPosts = async (): Promise<void> => {
+    try {
+      const forumAPI = new ForumAPI();
+      const forumPosts = await forumAPI.viewPosts();
+      setPosts(forumPosts);
+    } catch (error) {
+      console.error('Error fetching forum posts:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchForumPosts().catch((error) => {
+      console.error('Error fetching forum posts:', error);
+    });
+  }, []);
+
   return (
     <Stack paddingX={16} paddingY={8}>
       <Flex direction="column" alignItems="center">
@@ -28,6 +48,15 @@ const Forum: React.FC = () => {
             </Button>
           </Link>
         </Flex>
+        <Stack>
+          {posts?.map((post) => (
+            <div key={post.id}>
+              <h3>{post.title}</h3>
+              <p>{post.description}</p>
+              <p>Posted by: {post.username}</p>
+            </div>
+          ))}
+        </Stack>
       </Flex>
     </Stack>
   );
