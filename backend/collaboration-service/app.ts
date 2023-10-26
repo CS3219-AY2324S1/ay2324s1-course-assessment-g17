@@ -11,7 +11,7 @@ import {
   getSecondQuestion,
 } from "./controllers/pair";
 import cors from "cors";
-import { EditorLanguageEnum } from "../../frontend/src/types/code/languages";
+import { EditorLanguageEnum } from "./types/code/languages";
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const app = express();
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
