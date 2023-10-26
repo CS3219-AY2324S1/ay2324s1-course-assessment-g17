@@ -31,7 +31,7 @@ const DeregisterButton: React.FC = () => {
       mainButtonLabel={'Delete Account'}
       rightButtonLabel={'Yes, delete my account permanently!'}
       onConfirm={handleClick}
-      mainButtonProps={{ colorScheme: 'red' }}
+      mainButtonProps={{ colorScheme: 'gray' }}
     />
   );
 };
