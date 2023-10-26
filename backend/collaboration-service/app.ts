@@ -17,7 +17,8 @@ const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const app = express();
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 
-const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;
+const SOCKET_IO_PORT =
+  (process.env.SOCKET_IO_PORT as string) || (process.env.PORT as string);
 
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 
