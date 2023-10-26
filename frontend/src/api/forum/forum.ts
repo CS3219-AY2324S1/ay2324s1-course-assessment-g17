@@ -21,9 +21,9 @@ export default class ForumAPI {
   //   return forumServiceClient.put(`${this.getForumUrl()}/${postId}`, data);
   // }
 
-  // public async deletePost(postId: number): Promise<void> {
-  //   await forumServiceClient.delete(`${this.getForumUrl()}/${postId}`);
-  // }
+  public async deletePost(postId: number): Promise<void> {
+    await forumServiceClient.delete(`${this.getForumUrl()}/${postId}`);
+  }
 
   // upvotePost(postId: number) {
   //   return forumServiceClient.put(`${this.getForumUrl()}/${postId}/upvote`);

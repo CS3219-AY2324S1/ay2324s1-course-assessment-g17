@@ -7,9 +7,14 @@ import { MdForum } from 'react-icons/md';
 import { BiArrowBack } from 'react-icons/bi';
 import { type ForumData } from '../../types/forum/forum';
 import ForumAPI from '../../api/forum/forum';
+import ForumDeleteIconButton from './ForumDeleteIconButton';
+import { useAppSelector } from '../../reducers/hooks';
+import { selectUser } from '../../reducers/authSlice';
 
 const Forum: React.FC = () => {
   const [posts, setPosts] = useState<ForumData[]>([]);
+
+  const currentUser = useAppSelector(selectUser);
 
   const fetchForumPosts = async (): Promise<void> => {
     try {
@@ -26,6 +31,11 @@ const Forum: React.FC = () => {
       console.error('Error fetching forum posts:', error);
     });
   }, []);
+
+  const handlePostDeletion = (postId: number): void => {
+    const updatedPosts = posts.filter((post) => post.id !== postId);
+    setPosts(updatedPosts);
+  };
 
   return (
     <Stack paddingX={16} paddingY={8}>
@@ -48,7 +58,7 @@ const Forum: React.FC = () => {
             </Button>
           </Link>
         </Flex>
-        <Stack>
+        <Stack spacing={8}>
           {posts?.map((post) => (
             <div key={post.id}>
               <h3>{post.title}</h3>
@@ -59,6 +69,9 @@ const Forum: React.FC = () => {
                 {new Date(post.createdAt).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false })}
               </p>
               <p>Upvotes: {post.upvotes}</p>
+              {currentUser?.username === post.username && (
+                <ForumDeleteIconButton postId={post.id} onDelete={handlePostDeletion} />
+              )}
             </div>
           ))}
         </Stack>
