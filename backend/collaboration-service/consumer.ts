@@ -28,7 +28,7 @@ export function startRabbitMQ(io: Server) {
           const pairInfo = {
             userOne: matchResult.userOne,
             userTwo: matchResult.userTwo,
-            room_id: matchResult.roomId,
+            room_id: matchResult.roomId, 
             complexity: matchResult.difficulty_level,
             categories: matchResult.categories,
             question_ids: [],
