@@ -74,10 +74,10 @@ export function startRabbitMQ(io: Server) {
 
           newPair
             .save()
-            .then((pair) => {
-              console.log(`Created pair: ${pair}`);
+            .then(() => { 
+              console.log(`Created pair: ${newPair}`); 
             })
-            .catch((error) => {
+            .catch((error: Error) => {
               console.error(error);
             });
 

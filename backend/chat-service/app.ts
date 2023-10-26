@@ -6,7 +6,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import { Message, MyFile } from "./types/chat/messages";
+import { Message, MyFile } from "./types/messages"; 
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;

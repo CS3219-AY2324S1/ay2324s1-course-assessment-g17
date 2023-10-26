@@ -4,6 +4,7 @@ import CodeEditor from '../../components/code/CodeEditor';
 import CollaboratorUsers from './CollaboratorUsers';
 import RoomInfo from './RoomInfo';
 import UserTab from './UserTab';
+import ChatBox from '../../components/chat/ChatBox';
 import React, { useContext, useEffect, useState } from 'react';
 import CollaborationQuestion from './CollaborationQuestion';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -28,7 +29,7 @@ interface PairIdsResponse {
   __v: number;
 }
 
-interface CollaborationRoomProps {
+interface CollaborationRoomProps { 
   isMatchingRoom: boolean;
 }
 const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }: CollaborationRoomProps) => {
@@ -229,6 +230,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
           <Allotment.Pane>
             <Box as="div" style={{ overflowY: 'auto', height: '100%' }}>
               <UserTab />
+              <ChatBox />
             </Box>
           </Allotment.Pane>
         </Allotment>

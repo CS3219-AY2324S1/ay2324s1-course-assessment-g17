@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  collaboration-service:
+    build: ./backend/collaboration-service
+    ports:
+      - 8081:8081
+      - 8082:8082
+    volumes:
+      - ./backend/collaboration-service:/usr/src/app
+    env_file: ./backend/collaboration-service/.env.docker
+
+# https://medium.com/@sumankpaul/run-db-migration-script-in-docker-compose-ce8e447a77ba
