@@ -1,14 +1,13 @@
 import { type ForumPostData } from '../../types/forum/forum';
 import { forumServiceClient } from '../base';
 
-// I think adding this is wrong...
 export default class ForumAPI {
   protected getForumUrl(): string {
     return '/posts';
   }
 
   public async viewPosts(): Promise<ForumPostData[]> {
-    const response = await forumServiceClient.get(`${this.getForumUrl()}/posts`);
+    const response = await forumServiceClient.get(this.getForumUrl());
     const postList = response.data.data as ForumPostData[];
     return postList;
   }
