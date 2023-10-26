@@ -11,7 +11,7 @@ import React, {
 import Editor from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';
 import { Box, Button, Flex, HStack, Input, Select, useClipboard, useToast } from '@chakra-ui/react';
-import { EditorLanguageEnum, EditorLanguageOptions } from '../../types/code/languages';
+import { EditorLanguageEnum, EditorLanguageEnumToLabelMap, EditorLanguageOptions } from '../../types/code/languages';
 import { MdCheck, MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-icons/md';
 import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
@@ -60,19 +60,7 @@ const CodeEditor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeEdi
     socket?.emit('language-change', roomId, newLanguage);
   };
 
-  // Runs whenever the selected language dependency changes.
-  useEffect(() => {
-    // Listen for receive-language-change event from the Socket.IO server.
-    socket?.on('receive-language-change', (newLanguage: EditorLanguageEnum) => {
-      // Update the selected language with the new language received from the Socket.IO server.
-      setSelectedLanguage(newLanguage);
-    });
-  }, [socket, selectedLanguage]);
-
-  const setInitialLanguage = (roomId: string): void => {
-    // Emit a request to get the initial language for the room.
-    socket?.emit('join-room', roomId);
-
+  const setInitialLanguage = (): void => {
     // Listen for the "initial-language" event from the Socket.IO server.
     socket?.on('initial-language', (initialLanguage: EditorLanguageEnum) => {
       // Set the initial language received from the server.
@@ -82,6 +70,7 @@ const CodeEditor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeEdi
 
   // Runs once when the component mounts to set the initial language.
   useEffect(() => {
+    if (!enableRealTimeEditing) return;
     if (roomId === undefined) {
       toast({
         title: 'Could not create room',
@@ -92,7 +81,22 @@ const CodeEditor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeEdi
       });
       console.error('Could not create room: Invalid room ID');
     } else {
-      setInitialLanguage(roomId);
+      setInitialLanguage();
+
+      // Listen for receive-language-change event from the Socket.IO server.
+      socket?.on('receive-language-change', (newLanguage: EditorLanguageEnum, username?: string) => {
+        // Update the selected language with the new language received from the Socket.IO server.
+        setSelectedLanguage(newLanguage);
+        toast({
+          title:
+            username === undefined
+              ? `Language changed to ${EditorLanguageEnumToLabelMap[newLanguage]}`
+              : `${username} changed language to ${EditorLanguageEnumToLabelMap[newLanguage]}`,
+          status: 'info',
+          duration: 2000,
+          isClosable: true,
+        });
+      });
     }
   }, [socket]);
 
@@ -214,6 +218,7 @@ const CodeEditor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeEdi
         <Select
           value={selectedLanguage}
           onChange={(e) => {
+            console.log('changing lang...');
             const newLanguage = e.target.value as EditorLanguageEnum;
             handleLanguageChange(newLanguage); // Set and emit the language change event to the server.
           }}

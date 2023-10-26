@@ -170,6 +170,8 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
   }, []);
 
   useEffect(() => {
+    socket?.emit('join-room', roomId, user?.username);
+
     socket?.on('both-users-agreed-next', async (roomId: number) => {
       setAttemptedFirst(true);
       const nextQuestionResponse = await axios.get(collabServiceUrl + 'api/get-second-question', {
@@ -236,7 +238,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
         <CollaboratorUsers />
       </Flex>
       <Box width="100%" height="80vh" my={5}>
-        <Allotment defaultSizes={[6, 10, 4]}>
+        <Allotment defaultSizes={[6, 9, 5]}>
           <Allotment.Pane>
             <CollaborationQuestion />
           </Allotment.Pane>

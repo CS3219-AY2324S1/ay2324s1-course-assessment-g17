@@ -1,16 +1,13 @@
 import { Box, HStack, VStack, Text, NumberInput, NumberInputField, Button } from '@chakra-ui/react';
-
 import React, { useContext, useEffect, useState } from 'react';
 import QuestionDetails from '../questions/QuestionDetails';
 import { SocketContext } from '../../context/socket';
-import { useParams } from 'react-router-dom';
 
 const CollaborationQuestion: React.FC = () => {
   const [questionIdInput, setQuestionIdInput] = useState<number | undefined>(undefined);
   const [questionId, setQuestionId] = useState<number | undefined>(undefined);
   const [disableSelection, setDisableSelection] = useState(false);
   const { socket } = useContext(SocketContext);
-  const { roomId } = useParams();
 
   useEffect(() => {
     socket?.on('set-question', (questionId: number) => {
@@ -19,7 +16,6 @@ const CollaborationQuestion: React.FC = () => {
       // disable manual question selection for normal matches (?)
       setDisableSelection(true);
     });
-    socket?.emit('join-room', roomId);
   }, [socket]);
 
   return (

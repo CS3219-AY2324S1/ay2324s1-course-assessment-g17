@@ -1,4 +1,15 @@
-import { Heading, Text, Link, VStack, Divider, useColorModeValue, Spinner, Center, Box } from '@chakra-ui/react';
+import {
+  Heading,
+  Text,
+  Link,
+  VStack,
+  Divider,
+  useColorModeValue,
+  Spinner,
+  Center,
+  Box,
+  useToast,
+} from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../../api/questions/questions';
 import { type QuestionData } from '../../types/questions/questions';
@@ -12,32 +23,50 @@ import DOMPurify from 'dompurify';
 interface QuestionDetailsProps {
   questionId: number;
   onQuestionTitleChange?: (title: string) => void;
+  redirectOnInvalid?: boolean;
   padding?: number | string;
 }
 
 const QuestionDetails: React.FC<QuestionDetailsProps> = ({
   questionId,
   onQuestionTitleChange,
+  redirectOnInvalid = false,
   padding = '16px',
 }: QuestionDetailsProps) => {
   const navigate = useNavigate();
   const isAdmin = useSelector(selectIsAdmin);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [question, setQuestion] = useState<QuestionData | null>(null);
   const colourScheme = useColorModeValue('gray.600', 'gray.400');
+  const toast = useToast();
 
   useEffect(() => {
     const fetchQuestion = async (): Promise<void> => {
       try {
         if (questionId !== null && questionId !== undefined) {
+          setIsLoading(true);
           const response = await new QuestionsAPI().getQuestionById(questionId);
           if (response == null) {
-            navigate('/404');
+            if (redirectOnInvalid) {
+              navigate('/404');
+            } else {
+              toast({
+                title: 'Question not found!',
+                description: "Uh oh, we couldn't find that question...",
+                status: 'error',
+                duration: 4000,
+                isClosable: true,
+              });
+            }
+          } else {
+            setQuestion(response);
+            onQuestionTitleChange !== undefined && onQuestionTitleChange(response?.title ?? '');
           }
-          setQuestion(response);
-          onQuestionTitleChange !== undefined && onQuestionTitleChange(response?.title ?? '');
         }
       } catch (error) {
         console.error('Error fetching question:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -48,7 +77,7 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
     }
   }, [questionId]);
 
-  if (question === null || question === undefined) {
+  if (isLoading) {
     return (
       <Center h="100vh">
         <Spinner size="xl" />
@@ -58,6 +87,10 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
 
   if (questionId === null || questionId === undefined) {
     return <div>No question ID provided.</div>;
+  }
+
+  if (question === null) {
+    return <div>Could not find question.</div>;
   }
 
   return (
