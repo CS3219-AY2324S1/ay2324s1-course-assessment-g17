@@ -63,7 +63,7 @@ services:
       - 9000:9000
     volumes:
       - ./backend/matching-service:/usr/src/app
-    env_file: ./backend/matching-service/.env.docker
+    env_file: ./backend/matching-service/.env
 
   rabbitmq:
     image: rabbitmq:management
@@ -74,10 +74,10 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "5672"]
-      interval: 30s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD", "nc", "-z", "localhost", "5672"]
+    #   interval: 30s
+    #   retries: 3
 
   chat-service:
     build: ./backend/chat-service
