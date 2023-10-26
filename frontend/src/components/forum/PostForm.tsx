@@ -11,11 +11,11 @@ import {
   Flex,
   Spinner,
 } from '@chakra-ui/react';
-import RichTextEditor from '../../components/content/RichTextEditor';
+import RichTextEditor from '../content/RichTextEditor';
 import { FaCheck } from 'react-icons/fa6';
-import ConfirmationDialog from '../../components/content/ConfirmationDialog';
+import ConfirmationDialog from '../content/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
-import IconWithText from '../../components/content/IconWithText';
+import IconWithText from '../content/IconWithText';
 import { MdForum } from 'react-icons/md';
 import type { ForumPostData } from '../../types/forum/forum';
 import { type AxiosError } from 'axios';

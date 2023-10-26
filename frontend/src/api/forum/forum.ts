@@ -25,9 +25,10 @@ export default class ForumAPI {
     await forumServiceClient.delete(`${this.getForumUrl()}/${postId}`);
   }
 
-  // upvotePost(postId: number) {
-  //   return forumServiceClient.put(`${this.getForumUrl()}/${postId}/upvote`);
-  // }
+  public async upvotePost(postId: number): Promise<ForumData> {
+    const response = await forumServiceClient.put(`${this.getForumUrl()}/${postId}/upvote`);
+    return response.data as ForumData;
+  }
 
   // downvotePost(postId: number) {
   //   return forumServiceClient.put(`${this.getForumUrl()}/${postId}/downvote`);

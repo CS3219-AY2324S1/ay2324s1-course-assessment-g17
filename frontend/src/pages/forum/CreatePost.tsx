@@ -1,6 +1,6 @@
 import React from 'react';
 import ForumAPI from '../../api/forum/forum';
-import PostForm from './PostForm';
+import PostForm from '../../components/forum/PostForm';
 import { type ForumPostData } from '../../types/forum/forum';
 
 const CreatePost: React.FC = () => {

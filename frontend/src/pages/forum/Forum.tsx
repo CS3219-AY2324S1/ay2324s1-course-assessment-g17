@@ -7,9 +7,10 @@ import { MdForum } from 'react-icons/md';
 import { BiArrowBack } from 'react-icons/bi';
 import { type ForumData } from '../../types/forum/forum';
 import ForumAPI from '../../api/forum/forum';
-import ForumDeleteIconButton from './ForumDeleteIconButton';
+import ForumDeleteIconButton from '../../components/forum/ForumDeleteIconButton';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
+import ForumUpvoteButton from '../../components/forum/ForumUpvoteIconButton';
 
 const Forum: React.FC = () => {
   const [posts, setPosts] = useState<ForumData[]>([]);
@@ -34,6 +35,11 @@ const Forum: React.FC = () => {
 
   const handlePostDeletion = (postId: number): void => {
     const updatedPosts = posts.filter((post) => post.id !== postId);
+    setPosts(updatedPosts);
+  };
+
+  const handlePostUpvote = (updatedPost: ForumData): void => {
+    const updatedPosts = posts.map((post) => (post.id === updatedPost.id ? updatedPost : post));
     setPosts(updatedPosts);
   };
 
@@ -72,6 +78,7 @@ const Forum: React.FC = () => {
               {currentUser?.username === post.username && (
                 <ForumDeleteIconButton postId={post.id} onDelete={handlePostDeletion} />
               )}
+              <ForumUpvoteButton postId={post.id} onUpvote={handlePostUpvote} />
             </div>
           ))}
         </Stack>
