@@ -11,17 +11,13 @@ export enum EditorLanguageEnum {
   elixir = 'elixir',
   fsharp = 'fsharp',
   go = 'go',
-  julia = 'julia',
   kotlin = 'kotlin',
   lua = 'lua',
-  mips = 'mips',
-  mysql = 'mysql',
   objectivec = 'objective-c',
   pascal = 'pascal',
   perl = 'perl',
   php = 'php',
   text = 'text',
-  pgsql = 'pgsql',
   r = 'r',
   ruby = 'ruby',
   rust = 'rust',
@@ -43,17 +39,13 @@ export const EditorLanguageEnumToLabelMap: Record<EditorLanguageEnum, string> = 
   [EditorLanguageEnum.elixir]: 'Elixir',
   [EditorLanguageEnum.fsharp]: 'F#',
   [EditorLanguageEnum.go]: 'Go',
-  [EditorLanguageEnum.julia]: 'Julia',
   [EditorLanguageEnum.kotlin]: 'Kotlin',
   [EditorLanguageEnum.lua]: 'Lua',
-  [EditorLanguageEnum.mips]: 'MIPS',
-  [EditorLanguageEnum.mysql]: 'MySQL',
   [EditorLanguageEnum.objectivec]: 'Objective-C',
   [EditorLanguageEnum.pascal]: 'Pascal',
   [EditorLanguageEnum.perl]: 'Perl',
   [EditorLanguageEnum.php]: 'PHP',
   [EditorLanguageEnum.text]: 'Plain Text',
-  [EditorLanguageEnum.pgsql]: 'PostgreSQL',
   [EditorLanguageEnum.r]: 'R',
   [EditorLanguageEnum.ruby]: 'Ruby',
   [EditorLanguageEnum.rust]: 'Rust',
@@ -112,11 +104,7 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
     value: EditorLanguageEnum.go,
   },
   {
-    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.julia],
-    value: EditorLanguageEnum.julia,
-  },
-  {
-    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.kotlin],
+    label: 'Kotlin',
     value: EditorLanguageEnum.kotlin,
   },
   {
@@ -124,15 +112,7 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
     value: EditorLanguageEnum.lua,
   },
   {
-    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.mips],
-    value: EditorLanguageEnum.mips,
-  },
-  {
-    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.mysql],
-    value: EditorLanguageEnum.mysql,
-  },
-  {
-    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.objectivec],
+    label: 'Objective-C',
     value: EditorLanguageEnum.objectivec,
   },
   {
@@ -152,11 +132,7 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
     value: EditorLanguageEnum.text,
   },
   {
-    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.pgsql],
-    value: EditorLanguageEnum.pgsql,
-  },
-  {
-    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.r],
+    label: 'R',
     value: EditorLanguageEnum.r,
   },
   {

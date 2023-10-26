@@ -1,15 +1,33 @@
-import { Box, Flex, useColorModeValue, Button, useToast, Spacer } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Spacer,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useColorModeValue,
+  useToast,
+  VStack,
+} from '@chakra-ui/react';
 import { Allotment } from 'allotment';
 import CodeEditor from '../../components/code/CodeEditor';
 import CollaboratorUsers from './CollaboratorUsers';
 import RoomInfo from './RoomInfo';
 import UserTab from './UserTab';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import CollaborationQuestion from './CollaborationQuestion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import { SocketContext } from '../../context/socket';
+import { HiMiniCodeBracketSquare, HiMiniChatBubbleLeftRight } from 'react-icons/hi2';
+import { type editor } from 'monaco-editor';
+import CodeExecutor from '../../components/code/CodeExecutor';
+import ChatBox from '../../components/chat/ChatBox';
+import IconWithText from '../../components/content/IconWithText';
 import axios from 'axios';
 interface Question {
   questionID: string;
@@ -37,6 +55,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
   const [attemptedFirst, setAttemptedFirst] = useState(false);
   const toast = useToast();
   const editorTheme = useColorModeValue('light', 'vs-dark');
+  const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
   const user = useAppSelector(selectUser);
   const { socket } = useContext(SocketContext);
   const roomId = useParams<{ roomId: string }>().roomId;
@@ -224,14 +243,50 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
             <CollaborationQuestion />
           </Allotment.Pane>
           <Allotment.Pane>
-            <Box as="div" style={{ maxHeight: '85vh' }}>
-              <CodeEditor enableRealTimeEditing defaultTheme={editorTheme} defaultDownloadedFileName="PeerPrep" />
+            <Box as="div" style={{ maxHeight: '80vh' }}>
+              <CodeEditor
+                enableRealTimeEditing
+                defaultTheme={editorTheme}
+                defaultDownloadedFileName="PeerPrep"
+                editorHeight="70vh"
+                ref={codeEditor}
+              />
             </Box>
           </Allotment.Pane>
           <Allotment.Pane>
-            <Box as="div" style={{ overflowY: 'auto', height: '100%' }}>
-              <UserTab />
-            </Box>
+            <VStack as="div" style={{ height: '95%', width: '100%' }} paddingX={4}>
+              <Tabs isFitted width="100%" height="95%" variant="soft-rounded">
+                <TabList>
+                  <Tab>
+                    <IconWithText text="Chat" icon={<HiMiniChatBubbleLeftRight />} />
+                  </Tab>
+                  <Tab>
+                    <IconWithText text="Code Run" icon={<HiMiniCodeBracketSquare />} />
+                  </Tab>
+                </TabList>
+                <TabPanels height="100%">
+                  <TabPanel px={0} height="100%">
+                    <VStack as="div" height="100%">
+                      <Box
+                        width="100%"
+                        alignSelf="flex-start"
+                        _light={{ backgroundColor: 'gray.200' }}
+                        _dark={{ backgroundColor: 'gray.700' }}
+                        borderRadius={8}
+                      >
+                        <UserTab />
+                      </Box>
+                      <ChatBox />
+                    </VStack>
+                  </TabPanel>
+                  <TabPanel px={0} height="100%">
+                    <VStack as="div" height="100%">
+                      <CodeExecutor defaultTheme={editorTheme} ref={codeEditor} />
+                    </VStack>
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+            </VStack>
           </Allotment.Pane>
         </Allotment>
       </Box>

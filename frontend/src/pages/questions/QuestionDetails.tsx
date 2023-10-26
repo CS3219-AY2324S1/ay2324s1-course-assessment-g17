@@ -24,12 +24,14 @@ interface QuestionDetailsProps {
   questionId: number;
   onQuestionTitleChange?: (title: string) => void;
   redirectOnInvalid?: boolean;
+  padding?: number | string;
 }
 
 const QuestionDetails: React.FC<QuestionDetailsProps> = ({
   questionId,
   onQuestionTitleChange,
   redirectOnInvalid = false,
+  padding = '16px',
 }: QuestionDetailsProps) => {
   const navigate = useNavigate();
   const isAdmin = useSelector(selectIsAdmin);
@@ -92,7 +94,7 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
   }
 
   return (
-    <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
+    <VStack as="div" style={{ overflowY: 'auto', height: '100%' }} padding={padding}>
       <Heading as="h1" size="xl" textAlign="center">
         {question.title}
         {isAdmin && <QuestionEditIconButton questionId={question.questionID} title={question.title} />}
