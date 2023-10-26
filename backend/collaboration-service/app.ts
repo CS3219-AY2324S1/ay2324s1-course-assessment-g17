@@ -11,7 +11,8 @@ import {
   getSecondQuestion,
 } from "./controllers/pair";
 import cors from "cors";
-import { EditorLanguageEnum } from "../../frontend/src/types/code/languages";
+import { EditorLanguageEnum } from "./types/languages";
+
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const app = express();
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
@@ -61,7 +62,7 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
   );
 });
 
@@ -145,7 +146,7 @@ io.on("connection", (socket) => {
       roomLanguages[roomId] = newLanguage;
       // Broadcast this change to all connected users in this room.
       io.to(roomId).emit("receive-language-change", newLanguage);
-    },
+    }
   );
 
   // Handle user disconnection.
