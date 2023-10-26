@@ -11,17 +11,13 @@ export enum EditorLanguageEnum {
   elixir = 'elixir',
   fsharp = 'fsharp',
   go = 'go',
-  julia = 'julia',
   kotlin = 'kotlin',
   lua = 'lua',
-  mips = 'mips',
-  mysql = 'mysql',
   objectivec = 'objective-c',
   pascal = 'pascal',
   perl = 'perl',
   php = 'php',
   text = 'text',
-  pgsql = 'pgsql',
   r = 'r',
   ruby = 'ruby',
   rust = 'rust',
@@ -80,24 +76,12 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
     value: EditorLanguageEnum.go,
   },
   {
-    label: 'Julia',
-    value: EditorLanguageEnum.julia,
-  },
-  {
     label: 'Kotlin',
     value: EditorLanguageEnum.kotlin,
   },
   {
     label: 'Lua',
     value: EditorLanguageEnum.lua,
-  },
-  {
-    label: 'MIPS',
-    value: EditorLanguageEnum.mips,
-  },
-  {
-    label: 'MySQL',
-    value: EditorLanguageEnum.mysql,
   },
   {
     label: 'Objective-C',
@@ -118,10 +102,6 @@ export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: Editor
   {
     label: 'Plain Text',
     value: EditorLanguageEnum.text,
-  },
-  {
-    label: 'PostgreSQL',
-    value: EditorLanguageEnum.pgsql,
   },
   {
     label: 'R',
