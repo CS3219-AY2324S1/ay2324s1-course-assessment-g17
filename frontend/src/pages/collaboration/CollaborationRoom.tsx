@@ -33,7 +33,7 @@ interface CollaborationRoomProps {
 }
 const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }: CollaborationRoomProps) => {
   const collabServiceUrl = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
-  const userServiceUrl = process.env.REACT_APP_BACKEND_URL;
+  const userServiceUrl = process.env.REACT_APP_USER_SERVICE_BACKEND_URL;
   const [attemptedFirst, setAttemptedFirst] = useState(false);
   const toast = useToast();
   const editorTheme = useColorModeValue('light', 'vs-dark');
@@ -46,7 +46,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
   const navigate = useNavigate();
   const addSavedQuestion = async (currIndex: number, roomId: number): Promise<void> => {
     const currQuestionResponse = await axios.get(
-      collabServiceUrl + (currIndex === 1 ? 'api/get-first-question' : '/api/get-second-question'),
+      collabServiceUrl + (currIndex === 1 ? 'api/get-first-question' : 'api/get-second-question'),
       {
         params: {
           roomId,
@@ -67,13 +67,13 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const currQuestion = currQuestionResponse.data.data as Question;
-    await axios.post(userServiceUrl + '/user/add-answered-question', {
+    await axios.post(userServiceUrl + 'api/user/add-answered-question', {
       userId: userOneId,
       questionId: currQuestion.questionID,
       complexity: currQuestion.complexity,
       category: currQuestion.categories,
     });
-    await axios.post(userServiceUrl + '/user/add-answered-question', {
+    await axios.post(userServiceUrl + 'api/user/add-answered-question', {
       userId: userTwoId,
       questionId: currQuestion.questionID,
       complexity: currQuestion.complexity,
