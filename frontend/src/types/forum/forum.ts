@@ -3,6 +3,8 @@ export interface ForumData {
   title: string;
   description: string;
   username: string;
+  createdAt: string;
+  upvotes: number;
 }
 
 export interface ForumPostData {

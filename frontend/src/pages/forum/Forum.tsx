@@ -54,6 +54,8 @@ const Forum: React.FC = () => {
               <h3>{post.title}</h3>
               <p>{post.description}</p>
               <p>Posted by: {post.username}</p>
+              <p>Posted on: {post.createdAt}</p>
+              <p>Upvotes: {post.upvotes}</p>
             </div>
           ))}
         </Stack>
