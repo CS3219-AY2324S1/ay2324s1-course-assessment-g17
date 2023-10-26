@@ -4,11 +4,21 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
 import { startRabbitMQ } from "./consumer";
+import {
+  checkAuthorisedUser,
+  getFirstQuestion,
+  getPairIds,
+  getSecondQuestion,
+} from "./controllers/pair";
 import cors from "cors";
-import { EditorLanguageEnum } from "../../frontend/src/types/code/languages";
+import { EditorLanguageEnum } from "./types/languages";
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
-const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;
+const app = express();
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+
+const SOCKET_IO_PORT =
+  (process.env.SOCKET_IO_PORT as string) || (process.env.PORT as string);
 
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 
@@ -42,11 +52,6 @@ wss.on("connection", (ws, req) => {
   console.log("connection");
 });
 
-// Create a separate server for Socket.IO.
-const app = express();
-app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
-);
 const httpServer = createServer(app);
 
 // Create a Socket.IO instance HTTP server.
@@ -58,10 +63,14 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
   );
 });
 
+app.get("/api/check-authorization", checkAuthorisedUser);
+app.get("/api/get-first-question", getFirstQuestion);
+app.get("/api/get-second-question", getSecondQuestion);
+app.get("/api/get-pair-ids", getPairIds);
 interface RoomLanguages {
   [roomId: string]: EditorLanguageEnum;
 }
@@ -74,6 +83,18 @@ interface RoomCurrentQuestion {
 }
 
 export const roomCurrentQuestion: RoomCurrentQuestion = {};
+
+interface UsersAgreedNext {
+  [roomId: string]: Record<string, boolean>;
+}
+
+const usersAgreedNext: UsersAgreedNext = {};
+
+interface UsersAgreedEnd {
+  [roomId: string]: Record<string, boolean>;
+}
+
+const usersAgreedEnd: UsersAgreedEnd = {};
 
 // Handle other collaboration features.
 io.on("connection", (socket) => {
@@ -95,6 +116,29 @@ io.on("connection", (socket) => {
     if (initialQuestionId) socket.emit("set-question", initialQuestionId);
   });
 
+  socket.on("user-agreed-next", (roomId, userId) => {
+    usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
+    usersAgreedNext[roomId][userId] = true;
+    if (Object.keys(usersAgreedNext[roomId]).length === 2) {
+      socket?.emit("both-users-agreed-next", roomId);
+      usersAgreedNext[roomId] = {};
+    }
+  });
+
+  socket.on("change-question", (nextQuestionId) => {
+    io?.emit("set-question", nextQuestionId);
+  });
+
+  socket.on("user-agreed-end", (roomId, userId) => {
+    usersAgreedEnd[roomId] = usersAgreedEnd[roomId] || {};
+    usersAgreedEnd[roomId][userId] = true;
+
+    if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
+      io?.emit("both-users-agreed-end", roomId);
+      usersAgreedEnd[roomId] = {};
+    }
+  });
+
   // Listen for language changes.
   socket.on(
     "language-change",
@@ -103,7 +147,7 @@ io.on("connection", (socket) => {
       roomLanguages[roomId] = newLanguage;
       // Broadcast this change to all connected users in this room.
       io.to(roomId).emit("receive-language-change", newLanguage);
-    },
+    }
   );
 
   // Handle user disconnection.
