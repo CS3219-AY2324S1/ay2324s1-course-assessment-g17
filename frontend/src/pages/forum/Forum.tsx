@@ -54,7 +54,10 @@ const Forum: React.FC = () => {
               <h3>{post.title}</h3>
               <p>{post.description}</p>
               <p>Posted by: {post.username}</p>
-              <p>Posted on: {post.createdAt}</p>
+              <p>
+                Posted on:
+                {new Date(post.createdAt).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false })}
+              </p>
               <p>Upvotes: {post.upvotes}</p>
             </div>
           ))}

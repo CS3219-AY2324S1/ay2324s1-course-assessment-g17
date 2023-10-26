@@ -3,7 +3,7 @@ export interface ForumData {
   title: string;
   description: string;
   username: string;
-  createdAt: string;
+  createdAt: Date;
   upvotes: number;
 }
 
