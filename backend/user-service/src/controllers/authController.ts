@@ -59,12 +59,12 @@ export const signUp: RequestHandler[] = [
   body("email")
     .notEmpty()
     .isEmail()
-    .withMessage("email should be a valid email."),
+    .withMessage("Email should be a valid email."),
   body("confirmPassword")
     .notEmpty()
-    .withMessage("confirmPassword cannot be empty.")
+    .withMessage("Confirmation password cannot be empty.")
     .custom((value, { req }) => value === req.body.password)
-    .withMessage("password does not match confirmPassword"),
+    .withMessage("Password does not match confirmation password."),
   async (req, res) => {
     if (!validationResult(req).isEmpty()) {
       res.status(400).json({ errors: validationResult(req).array() });

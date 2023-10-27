@@ -1,8 +1,17 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  forwardRef,
+  type ForwardedRef,
+  type ForwardRefRenderFunction,
+  type MutableRefObject,
+} from 'react';
 import Editor from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';
 import { Box, Button, Flex, HStack, Input, Select, useClipboard, useToast } from '@chakra-ui/react';
-import { EditorLanguageEnum, EditorLanguageOptions } from '../../types/code/languages';
+import { EditorLanguageEnum, EditorLanguageEnumToLabelMap, EditorLanguageOptions } from '../../types/code/languages';
 import { MdCheck, MdContentCopy, MdTextIncrease, MdTextDecrease } from 'react-icons/md';
 import IconButtonWithTooltip from '../content/IconButtonWithTooltip';
 import CodeEditorSettings from './CodeEditorSettings';
@@ -22,17 +31,17 @@ interface CodeEditorProps {
   defaultTheme: string;
   defaultDownloadedFileName: string;
   enableRealTimeEditing?: boolean;
+  editorHeight: string | number;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({
-  defaultTheme,
-  defaultDownloadedFileName,
-  enableRealTimeEditing = false,
-}: CodeEditorProps) => {
+const CodeEditor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeEditorProps> = (
+  { defaultTheme, defaultDownloadedFileName, editorHeight, enableRealTimeEditing = false }: CodeEditorProps,
+  editorForwardedRef: ForwardedRef<editor.IStandaloneCodeEditor>,
+) => {
   const dispatch = useAppDispatch();
   const toast = useToast();
   const { onCopy, value: clipboardValue, setValue: setClipboardValue, hasCopied } = useClipboard('');
-  const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const codeEditor = editorForwardedRef as MutableRefObject<editor.IStandaloneCodeEditor>;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { roomId } = useParams();
   const user = useAppSelector(selectUser);
@@ -51,19 +60,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     socket?.emit('language-change', roomId, newLanguage);
   };
 
-  // Runs whenever the selected language dependency changes.
-  useEffect(() => {
-    // Listen for receive-language-change event from the Socket.IO server.
-    socket?.on('receive-language-change', (newLanguage: EditorLanguageEnum) => {
-      // Update the selected language with the new language received from the Socket.IO server.
-      setSelectedLanguage(newLanguage);
-    });
-  }, [socket, selectedLanguage]);
-
-  const setInitialLanguage = (roomId: string): void => {
-    // Emit a request to get the initial language for the room.
-    socket?.emit('join-room', roomId);
-
+  const setInitialLanguage = (): void => {
     // Listen for the "initial-language" event from the Socket.IO server.
     socket?.on('initial-language', (initialLanguage: EditorLanguageEnum) => {
       // Set the initial language received from the server.
@@ -73,6 +70,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
   // Runs once when the component mounts to set the initial language.
   useEffect(() => {
+    if (!enableRealTimeEditing) return;
     if (roomId === undefined) {
       toast({
         title: 'Could not create room',
@@ -83,7 +81,22 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       });
       console.error('Could not create room: Invalid room ID');
     } else {
-      setInitialLanguage(roomId);
+      setInitialLanguage();
+
+      // Listen for receive-language-change event from the Socket.IO server.
+      socket?.on('receive-language-change', (newLanguage: EditorLanguageEnum, username?: string) => {
+        // Update the selected language with the new language received from the Socket.IO server.
+        setSelectedLanguage(newLanguage);
+        toast({
+          title:
+            username === undefined
+              ? `Language changed to ${EditorLanguageEnumToLabelMap[newLanguage]}`
+              : `${username} changed language to ${EditorLanguageEnumToLabelMap[newLanguage]}`,
+          status: 'info',
+          duration: 2000,
+          isClosable: true,
+        });
+      });
     }
   }, [socket]);
 
@@ -205,6 +218,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         <Select
           value={selectedLanguage}
           onChange={(e) => {
+            console.log('changing lang...');
             const newLanguage = e.target.value as EditorLanguageEnum;
             handleLanguageChange(newLanguage); // Set and emit the language change event to the server.
           }}
@@ -271,7 +285,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
       <Box>
         <Editor
-          height="80vh"
+          height={editorHeight}
           width="100%"
           theme={selectedTheme}
           language={selectedLanguage}
@@ -365,4 +379,4 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   );
 };
 
-export default CodeEditor;
+export default forwardRef(CodeEditor);
