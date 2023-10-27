@@ -109,10 +109,21 @@ const forumController = {
   async deletePost(req: Request, res: Response) {
     try {
       const postId = req.params.postId;
-      await prisma.post.delete({
+      const username = req.params.username;
+      // only delete post if user is the author
+      const post = await prisma.post.findUnique({
         where: { id: parseInt(postId) },
       });
-      res.json({ message: "Post deleted successfully" });
+      if (post?.username !== username) {
+        return res
+          .status(400)
+          .json({ error: "User is not the author of the post" });
+      } else {
+        await prisma.post.delete({
+          where: { id: parseInt(postId) },
+        });
+        res.json({ message: "Post deleted successfully" });
+      }
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
@@ -120,10 +131,21 @@ const forumController = {
   async deleteComment(req: Request, res: Response) {
     try {
       const commentId = req.params.commentId;
-      await prisma.comment.delete({
+      const username = req.params.username;
+      // only delete comment if user is the author
+      const comment = await prisma.comment.findUnique({
         where: { id: parseInt(commentId) },
       });
-      res.json({ message: "Comment deleted successfully" });
+      if (comment?.username !== username) {
+        return res
+          .status(400)
+          .json({ error: "User is not the author of the comment" });
+      } else {
+        await prisma.comment.delete({
+          where: { id: parseInt(commentId) },
+        });
+        res.json({ message: "Comment deleted successfully" });
+      }
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
