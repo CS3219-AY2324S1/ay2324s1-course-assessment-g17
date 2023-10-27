@@ -76,7 +76,11 @@ const Forum: React.FC = () => {
               </p>
               <p>Upvotes: {post.upvotes}</p>
               {currentUser?.username === post.username && (
-                <ForumDeleteIconButton postId={post.id} onDelete={handlePostDeletion} />
+                <ForumDeleteIconButton
+                  postId={post.id}
+                  username={currentUser?.username}
+                  onDelete={handlePostDeletion}
+                />
               )}
               <ForumUpvoteButton postId={post.id} onUpvote={handlePostUpvote} />
             </div>

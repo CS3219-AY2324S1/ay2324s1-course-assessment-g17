@@ -5,17 +5,19 @@ import ForumAPI from '../../api/forum/forum';
 
 interface ForumDeleteIconButtonProps {
   postId: number;
+  username: string;
   onDelete: (postId: number) => void;
 }
 
 const ForumDeleteIconButton: React.FC<ForumDeleteIconButtonProps> = ({
   postId,
+  username,
   onDelete,
 }: ForumDeleteIconButtonProps) => {
   const toast = useToast();
   const handleDelete = (): void => {
     new ForumAPI()
-      .deletePost(postId)
+      .deletePost(postId, username)
       .then(() => {
         // Call the onDelete callback when the delete is successful
         onDelete(postId);
