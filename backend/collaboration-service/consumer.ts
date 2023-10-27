@@ -28,7 +28,7 @@ export function startRabbitMQ(io: Server) {
           const pairInfo = {
             userOne: matchResult.userOne,
             userTwo: matchResult.userTwo,
-            room_id: matchResult.roomId, 
+            room_id: matchResult.roomId,
             complexity: matchResult.difficulty_level,
             categories: matchResult.categories,
             question_ids: [],
@@ -74,10 +74,10 @@ export function startRabbitMQ(io: Server) {
 
           newPair
             .save()
-            .then(() => { 
-              console.log(`Created pair: ${newPair}`); 
+            .then((pair) => {
+              console.log(`Created pair: ${pair}`);
             })
-            .catch((error: Error) => {
+            .catch((error) => {
               console.error(error);
             });
 

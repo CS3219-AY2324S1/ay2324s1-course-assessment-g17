@@ -63,7 +63,7 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
   );
 });
 
@@ -139,7 +139,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Listen for language changes. 
+  // Listen for language changes.
   socket.on(
     "language-change",
     (roomId: string, newLanguage: EditorLanguageEnum) => {
@@ -147,12 +147,12 @@ io.on("connection", (socket) => {
       roomLanguages[roomId] = newLanguage;
       // Broadcast this change to all connected users in this room.
       io.to(roomId).emit("receive-language-change", newLanguage);
-    }
+    },
   );
 
   // Handle user disconnection.
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id); 
+    console.log("User disconnected:", socket.id);
   });
 });
 
