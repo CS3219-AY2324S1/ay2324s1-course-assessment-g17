@@ -181,11 +181,12 @@ const forumController = {
     if (!post?.upvotes.includes(username)) {
       return res.status(400).json({ error: "User has not upvoted before" });
     } else {
-      const post = await prisma.post.update({
+      const upvotes = post.upvotes.filter((upvote) => upvote !== username);
+      const updatedPost = await prisma.post.update({
         where: { id: parseInt(postId) },
-        data: { upvotes: { delete: username } },
+        data: { upvotes },
       });
-      res.json(post);
+      res.json(updatedPost);
     }
   },
   async upvoteComment(req: Request, res: Response) {
@@ -219,11 +220,11 @@ const forumController = {
     if (!comment?.upvotes.includes(username)) {
       return res.status(400).json({ error: "User has not upvoted before" });
     } else {
-      const comment = await prisma.comment.update({
+      const updatedComment = await prisma.comment.update({
         where: { id: parseInt(commentId) },
-        data: { upvotes: { delete: username } },
+        data: { upvotes: { set: comment.upvotes.filter((upvote) => upvote !== username) } },
       });
-      res.json(comment);
+      res.json(updatedComment);
     } 
   },
   async searchPost(req: Request, res: Response) {
