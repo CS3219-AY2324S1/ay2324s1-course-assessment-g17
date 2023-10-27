@@ -153,7 +153,7 @@ const forumController = {
   async upvotePost(req: Request, res: Response) {
     try {
       const postId = req.params.postId;
-      const username = req.params.username;
+      const username = req.body.username;
       // only allow upvote if user has not upvoted before
       const post = await prisma.post.findUnique({
         where: { id: parseInt(postId) },
@@ -173,7 +173,7 @@ const forumController = {
   },
   async downvotePost(req: Request, res: Response) {
     const postId = req.params.postId;
-    const username = req.params.username;
+    const username = req.body.username;
     // only allow downvote if user has upvoted before
     const post = await prisma.post.findUnique({
       where: { id: parseInt(postId) },
@@ -192,7 +192,7 @@ const forumController = {
   async upvoteComment(req: Request, res: Response) {
     try {
       const commentId = req.params.commentId;
-      const username = req.params.username;
+      const username = req.body.username;
       // only allow upvote if user has not upvoted before
       const comment = await prisma.comment.findUnique({
         where: { id: parseInt(commentId) },
@@ -212,7 +212,7 @@ const forumController = {
   },
   async downvoteComment(req: Request, res: Response) {
     const commentId = req.params.commentId;
-    const username = req.params.username;
+    const username = req.body.username;
     // only allow downvote if user has upvoted before
     const comment = await prisma.comment.findUnique({
       where: { id: parseInt(commentId) },
