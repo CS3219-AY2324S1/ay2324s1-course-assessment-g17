@@ -11,17 +11,13 @@ export enum EditorLanguageEnum {
   elixir = 'elixir',
   fsharp = 'fsharp',
   go = 'go',
-  julia = 'julia',
   kotlin = 'kotlin',
   lua = 'lua',
-  mips = 'mips',
-  mysql = 'mysql',
   objectivec = 'objective-c',
   pascal = 'pascal',
   perl = 'perl',
   php = 'php',
   text = 'text',
-  pgsql = 'pgsql',
   r = 'r',
   ruby = 'ruby',
   rust = 'rust',
@@ -30,121 +26,133 @@ export enum EditorLanguageEnum {
   swift = 'swift',
 }
 
+export const EditorLanguageEnumToLabelMap: Record<EditorLanguageEnum, string> = Object.freeze({
+  [EditorLanguageEnum.javascript]: 'Javascript',
+  [EditorLanguageEnum.typescript]: 'Typescript',
+  [EditorLanguageEnum.python]: 'Python',
+  [EditorLanguageEnum.java]: 'Java',
+  [EditorLanguageEnum.c]: 'C',
+  [EditorLanguageEnum.cpp]: 'C++',
+  [EditorLanguageEnum.clojure]: 'Clojure',
+  [EditorLanguageEnum.csharp]: 'C#',
+  [EditorLanguageEnum.dart]: 'Dart',
+  [EditorLanguageEnum.elixir]: 'Elixir',
+  [EditorLanguageEnum.fsharp]: 'F#',
+  [EditorLanguageEnum.go]: 'Go',
+  [EditorLanguageEnum.kotlin]: 'Kotlin',
+  [EditorLanguageEnum.lua]: 'Lua',
+  [EditorLanguageEnum.objectivec]: 'Objective-C',
+  [EditorLanguageEnum.pascal]: 'Pascal',
+  [EditorLanguageEnum.perl]: 'Perl',
+  [EditorLanguageEnum.php]: 'PHP',
+  [EditorLanguageEnum.text]: 'Plain Text',
+  [EditorLanguageEnum.r]: 'R',
+  [EditorLanguageEnum.ruby]: 'Ruby',
+  [EditorLanguageEnum.rust]: 'Rust',
+  [EditorLanguageEnum.scala]: 'Scala',
+  [EditorLanguageEnum.sql]: 'SQL',
+  [EditorLanguageEnum.swift]: 'Swift',
+});
+
 export const EditorLanguageOptions: ReadonlyArray<{ label: string; value: EditorLanguageEnum }> = Object.freeze([
   {
-    label: 'JavaScript',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.javascript],
     value: EditorLanguageEnum.javascript,
   },
   {
-    label: 'TypeScript',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.typescript],
     value: EditorLanguageEnum.typescript,
   },
   {
-    label: 'Python',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.python],
     value: EditorLanguageEnum.python,
   },
   {
-    label: 'Java',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.java],
     value: EditorLanguageEnum.java,
   },
   {
-    label: 'C',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.c],
     value: EditorLanguageEnum.c,
   },
   {
-    label: 'C++',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.cpp],
     value: EditorLanguageEnum.cpp,
   },
   {
-    label: 'Clojure',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.clojure],
     value: EditorLanguageEnum.clojure,
   },
   {
-    label: 'C#',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.csharp],
     value: EditorLanguageEnum.csharp,
   },
   {
-    label: 'Dart',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.dart],
     value: EditorLanguageEnum.dart,
   },
   {
-    label: 'Elixir',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.elixir],
     value: EditorLanguageEnum.elixir,
   },
   {
-    label: 'F#',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.fsharp],
     value: EditorLanguageEnum.fsharp,
   },
   {
-    label: 'Go',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.go],
     value: EditorLanguageEnum.go,
-  },
-  {
-    label: 'Julia',
-    value: EditorLanguageEnum.julia,
   },
   {
     label: 'Kotlin',
     value: EditorLanguageEnum.kotlin,
   },
   {
-    label: 'Lua',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.lua],
     value: EditorLanguageEnum.lua,
-  },
-  {
-    label: 'MIPS',
-    value: EditorLanguageEnum.mips,
-  },
-  {
-    label: 'MySQL',
-    value: EditorLanguageEnum.mysql,
   },
   {
     label: 'Objective-C',
     value: EditorLanguageEnum.objectivec,
   },
   {
-    label: 'Pascal',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.pascal],
     value: EditorLanguageEnum.pascal,
   },
   {
-    label: 'Perl',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.perl],
     value: EditorLanguageEnum.perl,
   },
   {
-    label: 'PHP',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.php],
     value: EditorLanguageEnum.php,
   },
   {
-    label: 'Plain Text',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.text],
     value: EditorLanguageEnum.text,
-  },
-  {
-    label: 'PostgreSQL',
-    value: EditorLanguageEnum.pgsql,
   },
   {
     label: 'R',
     value: EditorLanguageEnum.r,
   },
   {
-    label: 'Ruby',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.ruby],
     value: EditorLanguageEnum.ruby,
   },
   {
-    label: 'Rust',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.rust],
     value: EditorLanguageEnum.rust,
   },
   {
-    label: 'Scala',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.scala],
     value: EditorLanguageEnum.scala,
   },
   {
-    label: 'SQL',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.sql],
     value: EditorLanguageEnum.sql,
   },
   {
-    label: 'Swift',
+    label: EditorLanguageEnumToLabelMap[EditorLanguageEnum.swift],
     value: EditorLanguageEnum.swift,
   },
 ]);

@@ -4,11 +4,21 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
 import { startRabbitMQ } from "./consumer";
+import {
+  checkAuthorisedUser,
+  getFirstQuestion,
+  getPairIds,
+  getSecondQuestion,
+} from "./controllers/pair";
 import cors from "cors";
-import { EditorLanguageEnum } from "../../frontend/src/types/code/languages";
+import { EditorLanguageEnum } from "./types/languages";
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
-const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;
+const app = express();
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+
+const SOCKET_IO_PORT =
+  (process.env.SOCKET_IO_PORT as string) || (process.env.PORT as string);
 
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 
@@ -42,11 +52,6 @@ wss.on("connection", (ws, req) => {
   console.log("connection");
 });
 
-// Create a separate server for Socket.IO.
-const app = express();
-app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
-);
 const httpServer = createServer(app);
 
 // Create a Socket.IO instance HTTP server.
@@ -58,10 +63,14 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
   );
 });
 
+app.get("/api/check-authorization", checkAuthorisedUser);
+app.get("/api/get-first-question", getFirstQuestion);
+app.get("/api/get-second-question", getSecondQuestion);
+app.get("/api/get-pair-ids", getPairIds);
 interface RoomLanguages {
   [roomId: string]: EditorLanguageEnum;
 }
@@ -75,12 +84,24 @@ interface RoomCurrentQuestion {
 
 export const roomCurrentQuestion: RoomCurrentQuestion = {};
 
+interface UsersAgreedNext {
+  [roomId: string]: Record<string, boolean>;
+}
+
+const usersAgreedNext: UsersAgreedNext = {};
+
+interface UsersAgreedEnd {
+  [roomId: string]: Record<string, boolean>;
+}
+
+const usersAgreedEnd: UsersAgreedEnd = {};
+
 // Handle other collaboration features.
 io.on("connection", (socket) => {
   console.log("New connection:", socket.id);
 
   // Listen for room joining.
-  socket.on("join-room", (roomId) => {
+  socket.on("join-room", (roomId: string, username?: string) => {
     // Join the user to the specified room.
     socket.join(roomId);
 
@@ -93,6 +114,40 @@ io.on("connection", (socket) => {
 
     const initialQuestionId = roomCurrentQuestion[roomId];
     if (initialQuestionId) socket.emit("set-question", initialQuestionId);
+
+    // Attach user's username and roomId to this connection
+    socket.data.username = username;
+    socket.data.roomId = roomId;
+  
+    // Broadcast to all connected users that this user has joined the room
+    io.to(roomId).emit("user-join", username);
+  });
+
+  socket.on("user-agreed-next", (roomId, userId) => {
+    usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
+    usersAgreedNext[roomId][userId] = true;
+    if (Object.keys(usersAgreedNext[roomId]).length === 2) {
+      io?.emit("both-users-agreed-next", roomId);
+      usersAgreedNext[roomId] = {};
+    } else {
+      io?.emit("waiting-for-other-user", roomId);
+    }
+  });
+
+  socket.on("change-question", (nextQuestionId) => {
+    io?.emit("set-question", nextQuestionId);
+  });
+
+  socket.on("user-agreed-end", (roomId, userId) => {
+    usersAgreedEnd[roomId] = usersAgreedEnd[roomId] || {};
+    usersAgreedEnd[roomId][userId] = true;
+
+    if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
+      io?.emit("both-users-agreed-end", roomId);
+      usersAgreedEnd[roomId] = {};
+    } else {
+      io?.emit("waiting-for-other-user-end", roomId);
+    }
   });
 
   // Listen for language changes.
@@ -102,13 +157,14 @@ io.on("connection", (socket) => {
       // Update the selected language for the room.
       roomLanguages[roomId] = newLanguage;
       // Broadcast this change to all connected users in this room.
-      io.to(roomId).emit("receive-language-change", newLanguage);
-    },
+      io.to(roomId).emit("receive-language-change", newLanguage, socket.data.username);
+    }
   );
 
   // Handle user disconnection.
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    io.to(socket.data.roomId).emit("user-disconnect", socket.data.username);
   });
 });
 
