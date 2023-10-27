@@ -8,6 +8,18 @@ const forumController = {
     res.json(posts);
   },
 
+  async viewPost(req: Request, res: Response) {
+    try {
+      const postId = req.params.postId;
+      const post = await prisma.post.findUnique({
+        where: { id: parseInt(postId) },
+      });
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+
   async viewComments(req: Request, res: Response) {
     try {
       const postId = req.params.postId;
@@ -49,12 +61,23 @@ const forumController = {
   async editPost(req: Request, res: Response) {
     try {
       const postId = req.params.postId;
+      const editUsername = req.params.username;
       const { title, description, username } = req.body;
-      const post = await prisma.post.update({
+      // only update post if user is the author
+      const post = await prisma.post.findUnique({
         where: { id: parseInt(postId) },
-        data: { title, description, username },
       });
-      res.json(post);
+      if (post?.username !== editUsername) {
+        return res
+          .status(400)
+          .json({ error: "User is not the author of the post" });
+      } else {
+        const post = await prisma.post.update({
+          where: { id: parseInt(postId) },
+          data: { title, description, username },
+        });
+        res.json(post);
+      }
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
@@ -62,12 +85,23 @@ const forumController = {
   async editComment(req: Request, res: Response) {
     try {
       const commentId = req.params.commentId;
+      const username = req.params.username;
       const { content } = req.body;
-      const comment = await prisma.comment.update({
+      // only update comment if user is the author
+      const comment = await prisma.comment.findUnique({
         where: { id: parseInt(commentId) },
-        data: { content },
       });
-      res.json(comment);
+      if (comment?.username !== username) {
+        return res
+          .status(400)
+          .json({ error: "User is not the author of the comment" });
+      } else {
+        const comment = await prisma.comment.update({
+          where: { id: parseInt(commentId) },
+          data: { content },
+        });
+        res.json(comment);
+      }
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
@@ -97,50 +131,78 @@ const forumController = {
   async upvotePost(req: Request, res: Response) {
     try {
       const postId = req.params.postId;
-      const post = await prisma.post.update({
+      const username = req.params.username;
+      // only allow upvote if user has not upvoted before
+      const post = await prisma.post.findUnique({
         where: { id: parseInt(postId) },
-        data: { upvotes: { increment: 1 } },
       });
-      res.json(post);
+      if (post?.upvotes.includes(username)) {
+        return res.status(400).json({ error: "User has upvoted before" });
+      } else {
+        const post = await prisma.post.update({
+          where: { id: parseInt(postId) },
+          data: { upvotes: { push: username } },
+        });
+        res.json(post);
+      }
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
   async downvotePost(req: Request, res: Response) {
-    try {
-      const postId = req.params.postId;
+    const postId = req.params.postId;
+    const username = req.params.username;
+    // only allow downvote if user has upvoted before
+    const post = await prisma.post.findUnique({
+      where: { id: parseInt(postId) },
+    });
+    if (!post?.upvotes.includes(username)) {
+      return res.status(400).json({ error: "User has not upvoted before" });
+    } else {
       const post = await prisma.post.update({
         where: { id: parseInt(postId) },
-        data: { upvotes: { decrement: 1 } },
+        data: { upvotes: { delete: username } },
       });
       res.json(post);
-    } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" });
     }
   },
   async upvoteComment(req: Request, res: Response) {
     try {
       const commentId = req.params.commentId;
-      const comment = await prisma.comment.update({
+      const username = req.params.username;
+      // only allow upvote if user has not upvoted before
+      const comment = await prisma.comment.findUnique({
         where: { id: parseInt(commentId) },
-        data: { upvotes: { increment: 1 } },
       });
-      res.json(comment);
+      if (comment?.upvotes.includes(username)) {
+        return res.status(400).json({ error: "User has upvoted before" });
+      } else {
+        const comment = await prisma.comment.update({
+          where: { id: parseInt(commentId) },
+          data: { upvotes: { push: username } },
+        });
+        res.json(comment);
+      }
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
   async downvoteComment(req: Request, res: Response) {
-    try {
-      const commentId = req.params.commentId;
-      const comment = await prisma.post.update({
+    const commentId = req.params.commentId;
+    const username = req.params.username;
+    // only allow downvote if user has upvoted before
+    const comment = await prisma.comment.findUnique({
+      where: { id: parseInt(commentId) },
+    });
+    if (!comment?.upvotes.includes(username)) {
+      return res.status(400).json({ error: "User has not upvoted before" });
+    } else {
+      const comment = await prisma.comment.update({
         where: { id: parseInt(commentId) },
-        data: { upvotes: { decrement: 1 } },
+        data: { upvotes: { delete: username } },
       });
       res.json(comment);
-    } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" });
-    }
+    } 
   },
   async searchPost(req: Request, res: Response) {
     try {

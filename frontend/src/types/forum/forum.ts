@@ -4,7 +4,7 @@ export interface ForumData {
   description: string;
   username: string;
   createdAt: Date;
-  upvotes: number;
+  upvotes: string[];
 }
 
 export interface ForumPostData {
