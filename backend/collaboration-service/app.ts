@@ -129,6 +129,8 @@ io.on("connection", (socket) => {
     if (Object.keys(usersAgreedNext[roomId]).length === 2) {
       socket?.emit("both-users-agreed-next", roomId);
       usersAgreedNext[roomId] = {};
+    } else {
+      io?.emit("waiting-for-other-user", roomId);
     }
   });
 
@@ -143,6 +145,8 @@ io.on("connection", (socket) => {
     if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
       io?.emit("both-users-agreed-end", roomId);
       usersAgreedEnd[roomId] = {};
+    } else {
+      io?.emit("waiting-for-other-user-end", roomId);
     }
   });
 

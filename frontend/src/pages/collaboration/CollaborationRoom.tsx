@@ -106,12 +106,6 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       return;
     }
     socket?.emit('user-agreed-next', roomId, user.id);
-    toast({
-      title: 'Both users have to agree to go to the next question',
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
     setAttemptedFirst(true);
   };
 
@@ -130,12 +124,6 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       return;
     }
     socket?.emit('user-agreed-end', roomId, user.id);
-    toast({
-      title: 'Both users have to agree to end the session',
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
   };
 
   useEffect(() => {
@@ -171,7 +159,22 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
 
   useEffect(() => {
     socket?.emit('join-room', roomId, user?.username);
-
+    socket?.on('waiting-for-other-user', () => {
+      toast({
+        title: 'Both users have to agree to go to the next question',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+    });
+    socket?.on('waiting-for-other-user-end', () => {
+      toast({
+        title: 'Both users have to agree to end the session',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+    });
     socket?.on('both-users-agreed-next', async (roomId: number) => {
       setAttemptedFirst(true);
       const nextQuestionResponse = await axios.get(collabServiceUrl + 'api/get-second-question', {
