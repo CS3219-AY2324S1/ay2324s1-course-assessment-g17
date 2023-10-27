@@ -46,7 +46,7 @@ interface PairIdsResponse {
   __v: number;
 }
 
-interface CollaborationRoomProps { 
+interface CollaborationRoomProps {
   isMatchingRoom: boolean;
 }
 const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }: CollaborationRoomProps) => {
