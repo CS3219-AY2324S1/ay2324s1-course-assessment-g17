@@ -86,18 +86,21 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const currQuestion = currQuestionResponse.data.data as Question;
-    await axios.post(userServiceUrl + 'api/user/add-answered-question', {
-      userId: userOneId,
-      questionId: currQuestion.questionID,
-      complexity: currQuestion.complexity,
-      category: currQuestion.categories,
-    });
-    await axios.post(userServiceUrl + 'api/user/add-answered-question', {
-      userId: userTwoId,
-      questionId: currQuestion.questionID,
-      complexity: currQuestion.complexity,
-      category: currQuestion.categories,
-    });
+    if (user?.id === userOneId) {
+      await axios.post(userServiceUrl + 'api/user/add-answered-question', {
+        userId: userOneId,
+        questionId: currQuestion.questionID,
+        complexity: currQuestion.complexity,
+        category: currQuestion.categories,
+      });
+    } else if (user?.id === userTwoId) {
+      await axios.post(userServiceUrl + 'api/user/add-answered-question', {
+        userId: userTwoId,
+        questionId: currQuestion.questionID,
+        complexity: currQuestion.complexity,
+        category: currQuestion.categories,
+      });
+    }
   };
 
   // a user click next
@@ -182,9 +185,11 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
           roomId,
         },
       });
+      console.log('Next question response:', nextQuestionResponse.data);
       addSavedQuestion(1, roomId).catch((error) => {
         console.error('Error adding saved question:', error);
       });
+      socket?.off('both-users-agreed-next');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const nextQuestionData = nextQuestionResponse.data.data as Question;
 
@@ -197,6 +202,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       addSavedQuestion(2, roomId).catch((error) => {
         console.error('Error adding saved question:', error);
       });
+      socket?.off('both-users-agreed-end');
       navigate('/');
     });
 

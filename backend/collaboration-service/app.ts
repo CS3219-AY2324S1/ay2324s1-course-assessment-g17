@@ -127,7 +127,7 @@ io.on("connection", (socket) => {
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
     usersAgreedNext[roomId][userId] = true;
     if (Object.keys(usersAgreedNext[roomId]).length === 2) {
-      socket?.emit("both-users-agreed-next", roomId);
+      io?.emit("both-users-agreed-next", roomId);
       usersAgreedNext[roomId] = {};
     } else {
       io?.emit("waiting-for-other-user", roomId);
