@@ -6,15 +6,16 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import { Message, MyFile } from "../../frontend/src/types/chat/messages";
+import { Message, MyFile } from "./types/messages";
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
-const SOCKET_IO_PORT = process.env.SOCKET_IO_PORT as string;
+const SOCKET_IO_PORT =
+  (process.env.SOCKET_IO_PORT as string) || (process.env.PORT as string);
 
 // Create a separate server for Socket.IO.
 const app = express();
 app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
+  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })
 );
 const httpServer = createServer(app);
 
@@ -28,7 +29,7 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
   );
 });
 
