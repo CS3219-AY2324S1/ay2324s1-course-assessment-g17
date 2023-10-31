@@ -48,11 +48,6 @@ const EditProfile: React.FC<EditProfileProps> = ({
 
   // Prefill form with initial data whenever form is opened.
   useEffect(() => {
-    // Check if data is being fetched correctly.
-    console.log('initialUsername:', initialUsername);
-    console.log('initialEmail:', initialEmail);
-    console.log('initialLanguages:', initialLanguages);
-
     if (isOpen) {
       setUsername(initialUsername);
       setEmail(initialEmail);
