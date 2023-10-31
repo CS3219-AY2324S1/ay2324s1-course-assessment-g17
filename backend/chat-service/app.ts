@@ -15,7 +15,7 @@ const SOCKET_IO_PORT =
 // Create a separate server for Socket.IO.
 const app = express();
 app.use(
-  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true })
+  cors({ origin: FRONTEND_URL, optionsSuccessStatus: 200, credentials: true }),
 );
 const httpServer = createServer(app);
 
@@ -29,7 +29,7 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
   );
 });
 
