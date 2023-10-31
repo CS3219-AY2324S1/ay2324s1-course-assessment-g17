@@ -7,11 +7,12 @@ const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
+  const userServiceUrl = process.env.REACT_APP_USER_SERVICE_BACKEND_URL;
 
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     axios
-      .post('http://localhost:8000/send-reset-email', {
+      .post(`${userServiceUrl}send-reset-email`, {
         email,
       })
       .then(() => {

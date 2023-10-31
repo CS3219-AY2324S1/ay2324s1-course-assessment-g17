@@ -10,14 +10,12 @@ const ResetPassword: React.FC = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const token = searchParams.get('token');
+  const userServiceUrl = process.env.REACT_APP_USER_SERVICE_BACKEND_URL;
 
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    console.log('HURT');
-    console.log(token);
-
     axios
-      .post(`http://localhost:8000/reset-password?token=${token}`, {
+      .post(`${userServiceUrl}reset-password?token=${token}`, {
         password,
       })
       .then(() => {
