@@ -124,18 +124,22 @@ io.on("connection", (socket) => {
   });
 
   socket.on("user-agreed-next", (roomId, userId) => {
+    console.log(`User ${userId} agreed next question`);
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
     usersAgreedNext[roomId][userId] = true;
     if (Object.keys(usersAgreedNext[roomId]).length === 2) {
-      io?.emit("both-users-agreed-next", roomId);
+      io.to(roomId).emit("both-users-agreed-next", roomId);
       usersAgreedNext[roomId] = {};
+      console.log("Both users agreed next question");
     } else {
-      io?.emit("waiting-for-other-user", roomId);
+      io.to(roomId).emit("waiting-for-other-user", roomId);
+      console.log("Waiting for other user");
     }
   });
 
-  socket.on("change-question", (nextQuestionId) => {
-    io?.emit("set-question", nextQuestionId);
+  socket.on("change-question", (nextQuestionId, roomId) => {
+    io.to(roomId).emit("set-question", nextQuestionId);
+    console.log(`User ${socket.data.username} changed question to ${nextQuestionId}`);
   });
 
   socket.on("user-agreed-end", (roomId, userId) => {
@@ -143,10 +147,10 @@ io.on("connection", (socket) => {
     usersAgreedEnd[roomId][userId] = true;
 
     if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
-      io?.emit("both-users-agreed-end", roomId);
+      io.to(roomId).emit("both-users-agreed-end", roomId);
       usersAgreedEnd[roomId] = {};
     } else {
-      io?.emit("waiting-for-other-user-end", roomId);
+      io.to(roomId).emit("waiting-for-other-user-end", roomId);
     }
   });
 

@@ -179,6 +179,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       });
     });
     socket?.on('both-users-agreed-next', async (roomId: number) => {
+      console.log('Both users agreed to go to the next question');
       setAttemptedFirst(true);
       const nextQuestionResponse = await axios.get(collabServiceUrl + 'api/get-second-question', {
         params: {
@@ -195,7 +196,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
 
       const nextQuestionId = Number(nextQuestionData.questionID);
       setQuestionId(nextQuestionId);
-      socket?.emit('change-question', nextQuestionId);
+      socket?.emit('change-question', nextQuestionId, roomId);
     });
 
     socket?.on('both-users-agreed-end', (roomId: number) => {
@@ -222,10 +223,12 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
         <RoomInfo />
         {isMatchingRoom && (
           <>
-            <Button size="sm" onClick={handleNextQuestion} mx={4}>
-              Next Question
-            </Button>
-            <Button size="sm" onClick={handleEndSession}>
+            {!attemptedFirst && (
+              <Button size="sm" onClick={handleNextQuestion} mx={4}>
+                Next Question {attemptedFirst}
+              </Button>
+            )}
+            <Button size="sm" mx={4} onClick={handleEndSession}>
               End Session
             </Button>
           </>
