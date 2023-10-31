@@ -161,8 +161,16 @@ export async function logOut(req: Request, res: Response) {
   const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
   storedRefreshTokens.splice(index, 1);
 
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
   res.end();
 }
 
