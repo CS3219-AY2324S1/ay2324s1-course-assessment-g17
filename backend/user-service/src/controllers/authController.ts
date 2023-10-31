@@ -133,10 +133,15 @@ export const logIn: RequestHandler[] = [
       const refreshToken = await generateRefreshToken(userWithoutPassword);
       storedRefreshTokens.push(refreshToken);
 
-      res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: false,
+        secure: true,
+        sameSite: "none",
       });
 
       return res.status(200).json({
@@ -245,11 +250,13 @@ export async function updateBothTokens(req: Request, res: Response) {
 
           res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: false,
+            secure: true,
+            sameSite: "none",
           });
           res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false,
+            secure: true,
+            sameSite: "none",
           });
 
           return res.status(200).json({
@@ -385,7 +392,8 @@ export async function updateAccessToken(req: Request, res: Response) {
 
         res.cookie("accessToken", accessToken, {
           httpOnly: true,
-          secure: false,
+          secure: true,
+          sameSite: "none",
         });
 
         return res.status(200).json({
