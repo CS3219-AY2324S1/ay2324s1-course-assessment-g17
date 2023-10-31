@@ -133,10 +133,10 @@ export const logIn: RequestHandler[] = [
       const refreshToken = await generateRefreshToken(userWithoutPassword);
       storedRefreshTokens.push(refreshToken);
 
-      res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+      res.cookie("accessToken", accessToken, { httpOnly: true, secure: true });
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: false,
+        secure: true,
       });
 
       return res.status(200).json({
