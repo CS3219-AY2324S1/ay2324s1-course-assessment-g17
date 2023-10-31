@@ -175,8 +175,16 @@ export const deregister = async (req: Request, res: Response) => {
     },
   });
   await prisma.user.delete({ where: { id: user.id } });
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
   res.end();
 };
 
