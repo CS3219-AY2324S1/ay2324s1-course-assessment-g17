@@ -4,6 +4,7 @@ import forumController from "../controllers/forumControllers";
 const router = express.Router();
 
 router.get("/posts", forumController.viewPosts);
+router.get("/posts/:postId", forumController.viewPost);
 router.get("/posts/:postId/comments", forumController.viewComments);
 router.post("/posts", forumController.addPost);
 router.post("/posts/:postId/comments", forumController.addComment);

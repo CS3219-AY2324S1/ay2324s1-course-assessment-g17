@@ -11,6 +11,7 @@ import Matching from '../matching/Matching';
 import ProtectedRoute from './ProtectedRoute';
 import Forum from '../forum/Forum';
 import CreatePost from '../forum/CreatePost';
+import PostDetail from '../forum/PostDetail';
 import { SocketProvider } from '../../context/socket';
 
 const AuthenticatedApp: React.FC = () => {
@@ -46,6 +47,7 @@ const AuthenticatedApp: React.FC = () => {
       {/* Forum routes */}
       <Route path="/forum" element={<Forum />} />
       <Route path="/forum/new-post" element={<CreatePost />} />
+      <Route path="/forum/:postId" element={<PostDetail />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

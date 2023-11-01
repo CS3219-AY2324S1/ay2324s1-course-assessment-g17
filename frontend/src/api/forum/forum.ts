@@ -13,6 +13,11 @@ export default class ForumAPI {
     return postList;
   }
 
+  public async viewPost(postId: number): Promise<ForumData> {
+    const response = await forumServiceClient.get(`${this.getForumUrl()}/${postId}`);
+    return response.data as ForumData;
+  }
+
   public async addPost(post: ForumPostData): Promise<never> {
     return await forumServiceClient.post(this.getForumUrl(), post);
   }

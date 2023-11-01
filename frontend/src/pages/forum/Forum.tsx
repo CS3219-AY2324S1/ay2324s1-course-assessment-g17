@@ -1,4 +1,4 @@
-import { Button, Flex, Input, Stack, Text } from '@chakra-ui/react';
+import { Button, Flex, Input, Stack, Text, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import IconWithText from '../../components/content/IconWithText';
@@ -16,6 +16,8 @@ import ForumDownvoteButton from '../../components/forum/ForumDownvoteIconButton'
 const Forum: React.FC = () => {
   const [posts, setPosts] = useState<ForumData[]>([]);
 
+  const toast = useToast();
+
   const currentUser = useAppSelector(selectUser);
 
   const fetchForumPosts = async (): Promise<void> => {
@@ -25,6 +27,13 @@ const Forum: React.FC = () => {
       setPosts(forumPosts);
     } catch (error) {
       console.error('Error fetching forum posts:', error);
+      toast({
+        title: 'Error fetching forum posts.',
+        description: 'Please try again later.',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
     }
   };
 
@@ -74,7 +83,20 @@ const Forum: React.FC = () => {
         <Stack spacing={8}>
           {posts?.map((post) => (
             <div key={post.id}>
-              <h3>{post.title}</h3>
+              <Link
+                to={`/forum/${post.id}`}
+                style={{ color: 'black', textDecoration: 'none', fontWeight: 'bold' }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.color = '#4077CC';
+                  e.currentTarget.style.textDecoration = 'none';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.color = 'black';
+                  e.currentTarget.style.textDecoration = 'none';
+                }}
+              >
+                {post.title}
+              </Link>
               <p>{post.description}</p>
               <p>Posted by: {post.username}</p>
               <p>
