@@ -58,14 +58,14 @@ const ForumUpvoteIconButton: React.FC<ForumUpvoteIconButtonProps> = ({
       });
   };
 
-  const buttonBgColor = hasUpvoted ? '#a3d6f0' : 'transparent';
+  const buttonBgColor = hasUpvoted ? '#8cb9db' : 'transparent';
 
   return (
     <Tooltip label={`Upvote: This question is useful and clear.`}>
       <IconButton
         aria-label="Upvote Post"
         onClick={handleUpvote}
-        _hover={{ bg: '#8cb9db' }}
+        _hover={{ bg: '#619cc9' }}
         bg={buttonBgColor}
         borderRadius="50%"
         border="1px solid #b4b6b8"

@@ -46,6 +46,18 @@ const Forum: React.FC = () => {
     setPosts(updatedPosts);
   };
 
+  const cardStyle = {
+    border: '1px solid #ccc',
+    padding: '16px',
+    marginBottom: '16px',
+    borderRadius: '8px',
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    width: '80%',
+    maxWidth: '600px',
+    minWidth: '200px',
+    margin: '0 auto',
+  };
+
   return (
     <Stack paddingX={16} paddingY={8}>
       <Flex direction="column" alignItems="center">
@@ -67,9 +79,9 @@ const Forum: React.FC = () => {
             </Button>
           </Link>
         </Flex>
-        <Stack spacing={8}>
+        <Stack spacing={8} w="100%">
           {posts?.map((post) => (
-            <div key={post.id}>
+            <div key={post.id} style={cardStyle}>
               <Link
                 to={`/forum/${post.id}`}
                 style={{ fontWeight: 'bold' }}

@@ -61,7 +61,7 @@ const ForumDownvoteIconButton: React.FC<ForumDownvoteIconButtonProps> = ({
       <IconButton
         aria-label="Downvote Post"
         onClick={handleDownvote}
-        _hover={{ bg: '#8cb9db' }}
+        _hover={{ bg: '#619cc9' }}
         bg="transparent"
         borderRadius="50%"
         border="1px solid #b4b6b8"
