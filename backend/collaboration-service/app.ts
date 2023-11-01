@@ -63,7 +63,7 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
   );
 });
 
