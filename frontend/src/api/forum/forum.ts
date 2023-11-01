@@ -22,11 +22,13 @@ export default class ForumAPI {
   // }
 
   public async deletePost(postId: number, username: string): Promise<void> {
-    await forumServiceClient.delete(`${this.getForumUrl()}/${postId}/${username}`);
+    await forumServiceClient.delete(`${this.getForumUrl()}/${postId}`, {
+      data: { username },
+    });
   }
 
-  public async upvotePost(postId: number): Promise<ForumData> {
-    const response = await forumServiceClient.put(`${this.getForumUrl()}/${postId}/upvote`);
+  public async upvotePost(postId: number, username: string): Promise<ForumData> {
+    const response = await forumServiceClient.put(`${this.getForumUrl()}/${postId}/upvote`, { username });
     return response.data as ForumData;
   }
 

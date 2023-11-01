@@ -109,7 +109,7 @@ const forumController = {
   async deletePost(req: Request, res: Response) {
     try {
       const postId = req.params.postId;
-      const username = req.params.username;
+      const username = req.body.username;
       // only delete post if user is the author
       const post = await prisma.post.findUnique({
         where: { id: parseInt(postId) },
@@ -131,7 +131,7 @@ const forumController = {
   async deleteComment(req: Request, res: Response) {
     try {
       const commentId = req.params.commentId;
-      const username = req.params.username;
+      const username = req.body.username;
       // only delete comment if user is the author
       const comment = await prisma.comment.findUnique({
         where: { id: parseInt(commentId) },

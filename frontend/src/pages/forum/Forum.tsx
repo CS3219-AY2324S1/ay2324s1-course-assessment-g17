@@ -74,7 +74,7 @@ const Forum: React.FC = () => {
                 Posted on:{' '}
                 {new Date(post.createdAt).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false })}
               </p>
-              <p>Upvotes: {post.upvotes}</p>
+              <p>Upvotes: {post.upvotes.length}</p>
               {currentUser?.username === post.username && (
                 <ForumDeleteIconButton
                   postId={post.id}
@@ -82,7 +82,7 @@ const Forum: React.FC = () => {
                   onDelete={handlePostDeletion}
                 />
               )}
-              <ForumUpvoteButton postId={post.id} onUpvote={handlePostUpvote} />
+              <ForumUpvoteButton postId={post.id} username={currentUser?.username ?? ''} onUpvote={handlePostUpvote} />
             </div>
           ))}
         </Stack>
