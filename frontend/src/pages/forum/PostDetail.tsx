@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import ForumAPI from '../../api/forum/forum';
 import { type ForumData } from '../../types/forum/forum';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
-import { useToast } from '@chakra-ui/react';
+import { Button, Flex, Stack, useToast } from '@chakra-ui/react';
 import ForumDeleteIconButton from '../../components/forum/ForumDeleteIconButton';
 import ForumUpvoteButton from '../../components/forum/ForumUpvoteIconButton';
 import ForumDownvoteButton from '../../components/forum/ForumDownvoteIconButton';
+import { BiArrowBack } from 'react-icons/bi';
 
 const PostDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -70,8 +71,13 @@ const PostDetail: React.FC = () => {
   };
 
   return (
-    <div>
-      <div>
+    <Stack paddingX={16} paddingY={8}>
+      <Flex direction="column" alignItems="center">
+        <Flex justifyContent="flex-start" w="100%">
+          <Link to="/forum">
+            <Button leftIcon={<BiArrowBack />}>Back to Forum</Button>
+          </Link>
+        </Flex>
         <h1>{post?.title}</h1>
         <p>{post?.description}</p>
         <p>Posted by: {post?.username}</p>
@@ -95,8 +101,8 @@ const PostDetail: React.FC = () => {
           username={currentUser?.username ?? ''}
           onDownvote={handlePostUpvote}
         />
-      </div>
-    </div>
+      </Flex>
+    </Stack>
   );
 };
 

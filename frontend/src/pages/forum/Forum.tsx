@@ -51,7 +51,7 @@ const Forum: React.FC = () => {
       <Flex direction="column" alignItems="center">
         <Flex justifyContent="flex-start" w="100%">
           <Link to="/">
-            <Button leftIcon={<BiArrowBack />}>Back</Button>
+            <Button leftIcon={<BiArrowBack />}>Back to Home</Button>
           </Link>
         </Flex>
         <IconWithText text="Forum" icon={<MdForum size={40} />} fontSize="4xl" fontWeight="bold" />
@@ -72,19 +72,16 @@ const Forum: React.FC = () => {
             <div key={post.id}>
               <Link
                 to={`/forum/${post.id}`}
-                style={{ color: 'black', textDecoration: 'none', fontWeight: 'bold' }}
+                style={{ fontWeight: 'bold' }}
                 onMouseOver={(e) => {
                   e.currentTarget.style.color = '#4077CC';
-                  e.currentTarget.style.textDecoration = 'none';
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.color = 'black';
-                  e.currentTarget.style.textDecoration = 'none';
+                  e.currentTarget.style.color = 'inherit';
                 }}
               >
                 {post.title}
               </Link>
-              <p>{post.description}</p>
               <p>Posted by: {post.username}</p>
               <p>
                 Posted on:{' '}
