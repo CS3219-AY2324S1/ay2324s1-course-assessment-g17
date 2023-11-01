@@ -8,12 +8,14 @@ import { type AxiosError } from 'axios';
 interface ForumUpvoteIconButtonProps {
   postId: number;
   username: string;
+  hasUpvoted: boolean;
   onUpvote: (updatedPost: ForumData) => void;
 }
 
 const ForumUpvoteIconButton: React.FC<ForumUpvoteIconButtonProps> = ({
   postId,
   username,
+  hasUpvoted,
   onUpvote,
 }: ForumUpvoteIconButtonProps) => {
   const toast = useToast();
@@ -56,15 +58,17 @@ const ForumUpvoteIconButton: React.FC<ForumUpvoteIconButtonProps> = ({
       });
   };
 
+  const buttonBgColor = hasUpvoted ? '#a3d6f0' : 'transparent';
+
   return (
     <Tooltip label={`This question is useful and clear`}>
       <IconButton
         aria-label="Upvote Post"
         onClick={handleUpvote}
-        _hover={{ bg: '#9ABBE1' }}
-        bg="transparent"
+        _hover={{ bg: '#8cb9db' }}
+        bg={buttonBgColor}
         borderRadius="50%"
-        border="1px solid #979CA2"
+        border="1px solid #b4b6b8"
       >
         <TriangleUpIcon boxSize="4" />
       </IconButton>

@@ -38,6 +38,12 @@ const Forum: React.FC = () => {
     setPosts(updatedPosts);
   };
 
+  // Calculate upvote status for each post.
+  const calculateUpvoteStatus = (post: ForumData): boolean => {
+    // Check if the user's username is in the upvotes array.
+    return post.upvotes.includes(currentUser?.username ?? '');
+  };
+
   const handlePostUpvote = (updatedPost: ForumData): void => {
     const updatedPosts = posts.map((post) => (post.id === updatedPost.id ? updatedPost : post));
     setPosts(updatedPosts);
@@ -82,7 +88,12 @@ const Forum: React.FC = () => {
                   onDelete={handlePostDeletion}
                 />
               )}
-              <ForumUpvoteButton postId={post.id} username={currentUser?.username ?? ''} onUpvote={handlePostUpvote} />
+              <ForumUpvoteButton
+                postId={post.id}
+                username={currentUser?.username ?? ''}
+                hasUpvoted={calculateUpvoteStatus(post)}
+                onUpvote={handlePostUpvote}
+              />
             </div>
           ))}
         </Stack>
