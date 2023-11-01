@@ -79,7 +79,7 @@ const Forum: React.FC = () => {
             </Button>
           </Link>
         </Flex>
-        <Stack spacing={8} w="100%">
+        <Stack padding={8} spacing={8} w="100%">
           {posts?.map((post) => (
             <div key={post.id} style={cardStyle}>
               <Link
