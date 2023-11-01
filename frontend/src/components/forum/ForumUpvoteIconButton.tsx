@@ -57,9 +57,16 @@ const ForumUpvoteIconButton: React.FC<ForumUpvoteIconButtonProps> = ({
   };
 
   return (
-    <Tooltip label={`Upvote Post ${postId}`}>
-      <IconButton aria-label="Upvote Post" onClick={handleUpvote} _hover={{ bg: 'transparent' }} bg="transparent">
-        <TriangleUpIcon boxSize="3" />
+    <Tooltip label={`This question is useful and clear`}>
+      <IconButton
+        aria-label="Upvote Post"
+        onClick={handleUpvote}
+        _hover={{ bg: '#9ABBE1' }}
+        bg="transparent"
+        borderRadius="50%"
+        border="1px solid #979CA2"
+      >
+        <TriangleUpIcon boxSize="4" />
       </IconButton>
     </Tooltip>
   );

@@ -37,7 +37,7 @@ const ForumDeleteIconButton: React.FC<ForumDeleteIconButtonProps> = ({
   return (
     <Tooltip label={`Delete Post ${postId}`}>
       <IconButton aria-label="Delete Post" onClick={handleDelete} _hover={{ bg: 'transparent' }} bg="transparent">
-        <DeleteIcon boxSize="3" />
+        <DeleteIcon boxSize="4" />
       </IconButton>
     </Tooltip>
   );
