@@ -10,13 +10,11 @@ import ForumAPI from '../../api/forum/forum';
 import ForumDeleteIconButton from '../../components/forum/ForumDeleteIconButton';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
-import ForumUpvoteButton from '../../components/forum/ForumUpvoteIconButton';
-import ForumDownvoteButton from '../../components/forum/ForumDownvoteIconButton';
 
 const Forum: React.FC = () => {
-  const [posts, setPosts] = useState<ForumData[]>([]);
-
   const toast = useToast();
+
+  const [posts, setPosts] = useState<ForumData[]>([]);
 
   const currentUser = useAppSelector(selectUser);
 
@@ -45,17 +43,6 @@ const Forum: React.FC = () => {
 
   const handlePostDeletion = (postId: number): void => {
     const updatedPosts = posts.filter((post) => post.id !== postId);
-    setPosts(updatedPosts);
-  };
-
-  // Calculate upvote status for each post.
-  const calculateUpvoteStatus = (post: ForumData): boolean => {
-    // Check if the user's username is in the upvotes array.
-    return post.upvotes.includes(currentUser?.username ?? '');
-  };
-
-  const handlePostUpvote = (updatedPost: ForumData): void => {
-    const updatedPosts = posts.map((post) => (post.id === updatedPost.id ? updatedPost : post));
     setPosts(updatedPosts);
   };
 
@@ -111,17 +98,6 @@ const Forum: React.FC = () => {
                   onDelete={handlePostDeletion}
                 />
               )}
-              <ForumUpvoteButton
-                postId={post.id}
-                username={currentUser?.username ?? ''}
-                hasUpvoted={calculateUpvoteStatus(post)}
-                onUpvote={handlePostUpvote}
-              />
-              <ForumDownvoteButton
-                postId={post.id}
-                username={currentUser?.username ?? ''}
-                onDownvote={handlePostUpvote}
-              />
             </div>
           ))}
         </Stack>
