@@ -14,4 +14,4 @@ COPY . .
 
 EXPOSE 8084
 
-CMD ["ts-node", "./app.ts"]
+CMD ["sh", "-c", "HOST=$HOST PORT=$PORT nodemon --exec ts-node ./app.ts"]
