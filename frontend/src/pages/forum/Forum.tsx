@@ -11,6 +11,7 @@ import ForumDeleteIconButton from '../../components/forum/ForumDeleteIconButton'
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import ForumUpvoteButton from '../../components/forum/ForumUpvoteIconButton';
+import ForumDownvoteButton from '../../components/forum/ForumDownvoteIconButton';
 
 const Forum: React.FC = () => {
   const [posts, setPosts] = useState<ForumData[]>([]);
@@ -93,6 +94,11 @@ const Forum: React.FC = () => {
                 username={currentUser?.username ?? ''}
                 hasUpvoted={calculateUpvoteStatus(post)}
                 onUpvote={handlePostUpvote}
+              />
+              <ForumDownvoteButton
+                postId={post.id}
+                username={currentUser?.username ?? ''}
+                onDownvote={handlePostUpvote}
               />
             </div>
           ))}

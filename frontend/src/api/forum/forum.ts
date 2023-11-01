@@ -32,9 +32,10 @@ export default class ForumAPI {
     return response.data as ForumData;
   }
 
-  // downvotePost(postId: number) {
-  //   return forumServiceClient.put(`${this.getForumUrl()}/${postId}/downvote`);
-  // }
+  public async downvotePost(postId: number, username: string): Promise<ForumData> {
+    const response = await forumServiceClient.put(`${this.getForumUrl()}/${postId}/downvote`, { username });
+    return response.data as ForumData;
+  }
 
   // searchPost(searchTerm: any) {
   //   return forumServiceClient.get(`${this.getForumUrl()}/search`, { params: { q: searchTerm } });
