@@ -1,27 +1,23 @@
-import { Button, Flex, Input, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Input, Stack, Text, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import IconWithText from '../../components/content/IconWithText';
-import { AddIcon } from '@chakra-ui/icons';
+import { AddIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { MdForum } from 'react-icons/md';
-import { BiArrowBack } from 'react-icons/bi';
+import { BiArrowBack, BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
 import { type ForumData } from '../../types/forum/forum';
 import ForumAPI from '../../api/forum/forum';
-import ForumDeleteIconButton from '../../components/forum/ForumDeleteIconButton';
-import { useAppSelector } from '../../reducers/hooks';
-import { selectUser } from '../../reducers/authSlice';
 
 const Forum: React.FC = () => {
   const toast = useToast();
 
   const [posts, setPosts] = useState<ForumData[]>([]);
 
-  const currentUser = useAppSelector(selectUser);
-
   const fetchForumPosts = async (): Promise<void> => {
     try {
       const forumAPI = new ForumAPI();
       const forumPosts = await forumAPI.viewPosts();
+      console.log(forumPosts);
       setPosts(forumPosts);
     } catch (error) {
       console.error('Error fetching forum posts:', error);
@@ -41,21 +37,21 @@ const Forum: React.FC = () => {
     });
   }, []);
 
-  const handlePostDeletion = (postId: number): void => {
-    const updatedPosts = posts.filter((post) => post.id !== postId);
-    setPosts(updatedPosts);
-  };
-
   const cardStyle = {
     border: '1px solid #ccc',
-    padding: '16px',
+    padding: '20px 32px',
     marginBottom: '16px',
     borderRadius: '8px',
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     width: '80%',
-    maxWidth: '600px',
+    maxWidth: '800px',
     minWidth: '200px',
     margin: '0 auto',
+  };
+
+  const ellipsisStyle = {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   };
 
   return (
@@ -81,33 +77,40 @@ const Forum: React.FC = () => {
         </Flex>
         <Stack padding={8} spacing={8} w="100%">
           {posts?.map((post) => (
-            <div key={post.id} style={cardStyle}>
-              <Link
-                to={`/forum/${post.id}`}
-                style={{ fontWeight: 'bold' }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.color = '#4077CC';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.color = 'inherit';
-                }}
-              >
-                {post.title}
-              </Link>
-              <p>Posted by: {post.username}</p>
-              <p>
-                Posted on:{' '}
-                {new Date(post.createdAt).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false })}
-              </p>
-              <p>Upvotes: {post.upvotes.length}</p>
-              {currentUser?.username === post.username && (
-                <ForumDeleteIconButton
-                  postId={post.id}
-                  username={currentUser?.username}
-                  onDelete={handlePostDeletion}
-                />
-              )}
-            </div>
+            <Flex key={post.id} style={cardStyle}>
+              <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
+                <Link
+                  to={`/forum/${post.id}`}
+                  style={{ fontWeight: 'bold', whiteSpace: 'nowrap', ...ellipsisStyle }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.color = '#4077CC';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.color = 'inherit';
+                  }}
+                >
+                  {post.title}
+                </Link>
+                <HStack>
+                  <Box w="4" h="4">
+                    <BiSolidUserCircle />
+                  </Box>
+                  <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>{post.username}</Text>
+                </HStack>
+                <HStack>
+                  <Box w="4" h="4">
+                    <BiSolidCalendar />
+                  </Box>
+                  <Text style={{ fontStyle: 'italic' }}>
+                    {new Date(post.createdAt).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false })}
+                  </Text>
+                </HStack>
+              </Flex>
+              <HStack ml="4" mr="4">
+                <TriangleUpIcon boxSize="4" />
+                <Text>{post.upvotes.length}</Text>
+              </HStack>
+            </Flex>
           ))}
         </Stack>
       </Flex>

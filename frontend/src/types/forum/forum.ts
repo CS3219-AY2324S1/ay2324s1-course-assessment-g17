@@ -12,3 +12,12 @@ export interface ForumPostData {
   description: string;
   username: string;
 }
+
+export interface Comment {
+  id: number;
+  content: string;
+  post: ForumData;
+  username: string;
+  createdAt: Date;
+  upvotes: string[];
+}
