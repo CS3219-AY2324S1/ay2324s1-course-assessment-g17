@@ -79,18 +79,20 @@ const Forum: React.FC = () => {
           {posts?.map((post) => (
             <Flex key={post.id} style={cardStyle}>
               <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
-                <Link
-                  to={`/forum/${post.id}`}
-                  style={{ fontWeight: 'bold', whiteSpace: 'nowrap', ...ellipsisStyle }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.color = '#4077CC';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.color = 'inherit';
-                  }}
-                >
-                  {post.title}
-                </Link>
+                <HStack>
+                  <Link
+                    to={`/forum/${post.id}`}
+                    style={{ fontWeight: 'bold', whiteSpace: 'nowrap', ...ellipsisStyle }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.color = '#4077CC';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.color = 'inherit';
+                    }}
+                  >
+                    {post.title}
+                  </Link>
+                </HStack>
                 <HStack>
                   <Box w="4" h="4">
                     <BiSolidUserCircle />
