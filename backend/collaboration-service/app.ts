@@ -127,15 +127,15 @@ io.on("connection", (socket) => {
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
     usersAgreedNext[roomId][userId] = true;
     if (Object.keys(usersAgreedNext[roomId]).length === 2) {
-      io?.emit("both-users-agreed-next", roomId);
+      io.to(roomId).emit("both-users-agreed-next", roomId);
       usersAgreedNext[roomId] = {};
     } else {
-      io?.emit("waiting-for-other-user", roomId);
+      io.to(roomId).emit("waiting-for-other-user", roomId);
     }
   });
 
-  socket.on("change-question", (nextQuestionId) => {
-    io?.emit("set-question", nextQuestionId);
+  socket.on("change-question", (nextQuestionId, roomId) => {
+    io.to(roomId).emit("set-question", nextQuestionId);
   });
 
   socket.on("user-agreed-end", (roomId, userId) => {
@@ -143,10 +143,10 @@ io.on("connection", (socket) => {
     usersAgreedEnd[roomId][userId] = true;
 
     if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
-      io?.emit("both-users-agreed-end", roomId);
+      io.to(roomId).emit("both-users-agreed-end", roomId);
       usersAgreedEnd[roomId] = {};
     } else {
-      io?.emit("waiting-for-other-user-end", roomId);
+      io.to(roomId).emit("waiting-for-other-user-end", roomId);
     }
   });
 
