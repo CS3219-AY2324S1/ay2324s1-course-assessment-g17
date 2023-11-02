@@ -6,6 +6,7 @@ services:
       - 8080:8080
     volumes:
       - ./backend/question-service:/usr/src/app
+    env_file: ./backend/question-service/.env
 
   frontend:
     build: ./frontend
@@ -52,11 +53,7 @@ services:
       - 9000:9000
     volumes:
       - ./backend/matching-service:/usr/src/app
-
-  api-gateway:
-    build: ./backend/api-gateway
-    ports:
-      - 7777:8080
+    env_file: ./backend/matching-service/.env
 
   rabbitmq:
     image: rabbitmq:management
@@ -67,4 +64,22 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+    # healthcheck:
+    #   test: ["CMD", "nc", "-z", "localhost", "5672"]
+    #   interval: 30s
+    #   retries: 3
+
+  chat-service:
+    build: ./backend/chat-service
+    ports:
+      - 8084:8084
+    volumes:
+      - ./backend/chat-service:/usr/src/app
+    env_file: ./backend/chat-service/.env
+
+  api-gateway:
+    build: ./backend/api-gateway
+    ports:
+      - 7777:8080
 # https://medium.com/@sumankpaul/run-db-migration-script-in-docker-compose-ce8e447a77ba
