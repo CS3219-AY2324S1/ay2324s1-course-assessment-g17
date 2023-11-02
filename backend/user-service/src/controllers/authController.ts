@@ -315,7 +315,7 @@ export const sendResetEmail: RequestHandler[] = [
         from: "your_email@example.com",
         to: email,
         subject: "Password Reset",
-        text: `Click the link below to reset your password: http://localhost:8000/reset-password?token=${resetToken}`,
+        text: `Click the link below to reset your password: http://localhost:3000/reset-password?token=${resetToken}`,
       };
 
       transporter.sendMail(mailOptions, (error: Error | null, info: any) => {

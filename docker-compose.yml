@@ -64,6 +64,7 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
     # healthcheck:
     #   test: ["CMD", "nc", "-z", "localhost", "5672"]
     #   interval: 30s

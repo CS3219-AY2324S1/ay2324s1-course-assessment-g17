@@ -118,7 +118,7 @@ io.on("connection", (socket) => {
     // Attach user's username and roomId to this connection
     socket.data.username = username;
     socket.data.roomId = roomId;
-  
+
     // Broadcast to all connected users that this user has joined the room
     io.to(roomId).emit("user-join", username);
   });
@@ -157,8 +157,12 @@ io.on("connection", (socket) => {
       // Update the selected language for the room.
       roomLanguages[roomId] = newLanguage;
       // Broadcast this change to all connected users in this room.
-      io.to(roomId).emit("receive-language-change", newLanguage, socket.data.username);
-    }
+      io.to(roomId).emit(
+        "receive-language-change",
+        newLanguage,
+        socket.data.username,
+      );
+    },
   );
 
   // Handle user disconnection.
