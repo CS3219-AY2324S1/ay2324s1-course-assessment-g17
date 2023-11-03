@@ -42,8 +42,14 @@ export default class ForumAPI {
     return response.data as ForumData;
   }
 
-  // searchPost(searchTerm: any) {
-  //   return forumServiceClient.get(`${this.getForumUrl()}/search`, { params: { q: searchTerm } });
+  // // Currently not used as search is directly done on frontend.
+  // public async searchPost(searchTerm: string): Promise<ForumData[]> {
+  //   const response = await forumServiceClient.get('/search', {
+  //     params: {
+  //       q: searchTerm,
+  //     },
+  //   });
+  //   return response.data;
   // }
 
   /* Comments */

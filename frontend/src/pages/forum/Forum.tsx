@@ -1,8 +1,21 @@
-import { Box, Button, Flex, HStack, Input, Stack, Text, useToast } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Stack,
+  Text,
+  useToast,
+  useColorModeValue,
+} from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import IconWithText from '../../components/content/IconWithText';
-import { AddIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import { AddIcon, CloseIcon, SearchIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { MdForum } from 'react-icons/md';
 import { BiArrowBack, BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
 import { type ForumData } from '../../types/forum/forum';
@@ -14,6 +27,8 @@ const Forum: React.FC = () => {
 
   const [posts, setPosts] = useState<ForumData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredPosts, setFilteredPosts] = useState<ForumData[]>([]);
   const postsPerPage = 5;
 
   const fetchForumPosts = async (): Promise<void> => {
@@ -21,6 +36,7 @@ const Forum: React.FC = () => {
       const forumAPI = new ForumAPI();
       const forumPosts = await forumAPI.viewPosts();
       setPosts(forumPosts);
+      setFilteredPosts(forumPosts); // Initially, filtered posts are the same as all posts.
     } catch (error) {
       console.error('Error fetching forum posts:', error);
       toast({
@@ -33,13 +49,35 @@ const Forum: React.FC = () => {
     }
   };
 
-  // Calculate the range of posts to display based on the current page and posts per page
+  // Calculate the range of posts to display based on the current page and posts per page.
   const startIndex = (currentPage - 1) * postsPerPage;
   const endIndex = startIndex + postsPerPage;
-  const currentPosts = posts.slice(startIndex, endIndex);
+  const currentPosts = filteredPosts.slice(startIndex, endIndex); // Use filteredPosts for rendering.
 
   const handlePageChange = (newPage: number): void => {
     setCurrentPage(newPage);
+  };
+
+  // Handle live search as the user types.
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+
+    // Filter posts based on the search term.
+    const filtered = posts.filter(
+      (post) =>
+        post.title.toLowerCase().includes(newSearchTerm.toLowerCase()) ||
+        post.description.toLowerCase().includes(newSearchTerm.toLowerCase()),
+    );
+
+    setFilteredPosts(filtered);
+  };
+
+  const handleClearSearch = (): void => {
+    setSearchTerm('');
+    fetchForumPosts().catch((error) => {
+      console.error('Error fetching forum posts:', error);
+    });
   };
 
   useEffect(() => {
@@ -78,8 +116,28 @@ const Forum: React.FC = () => {
           Get code help and start discussions!
         </Text>
         <Flex justifyContent="space-between" alignItems="center" w="85%" style={{ marginTop: '30px' }}>
-          {/* Placeholder for search bar */}
-          <Input placeholder="Search post..." style={{ marginRight: '10px' }} />
+          {/* Input for live search */}
+          <InputGroup minWidth="fit-content" margin={4}>
+            <InputLeftElement paddingLeft={8} pointerEvents="none">
+              <SearchIcon color="gray.400" />
+            </InputLeftElement>
+            <Input
+              paddingLeft={16}
+              type="text"
+              placeholder="Search Post..."
+              _placeholder={{ color: useColorModeValue('gray.500', 'gray.400'), opacity: 1 }}
+              value={searchTerm ?? ''}
+              onChange={handleSearch}
+            />
+            <InputRightElement
+              _hover={{ cursor: 'pointer', color: 'gray.600' }} // Change color on hover
+              color="gray.400"
+              _active={{ transform: 'scale(0.9)' }} // Scale down on click
+              onClick={handleClearSearch}
+            >
+              <CloseIcon />
+            </InputRightElement>
+          </InputGroup>
           <Link to="/forum/new-post">
             <Button leftIcon={<AddIcon />} colorScheme="teal">
               New Post
@@ -87,7 +145,7 @@ const Forum: React.FC = () => {
           </Link>
         </Flex>
         <Stack padding={8} spacing={8} w="100%">
-          {currentPosts?.map((post) => (
+          {currentPosts.map((post) => (
             <Flex key={post.id} style={cardStyle}>
               <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
                 <HStack>
@@ -126,10 +184,10 @@ const Forum: React.FC = () => {
             </Flex>
           ))}
         </Stack>
-        {/* Pagination component */}
+        {/* Pagination component using the filteredPosts length */}
         <ForumPostsPagination
           currentPage={currentPage}
-          totalItems={posts.length}
+          totalItems={filteredPosts.length}
           itemsPerPage={postsPerPage}
           onPageChange={handlePageChange}
         />
