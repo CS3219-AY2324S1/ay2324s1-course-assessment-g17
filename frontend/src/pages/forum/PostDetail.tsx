@@ -96,13 +96,25 @@ const PostDetail: React.FC = () => {
             <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{formatPostDate(post?.createdAt)}</p>
           </Flex>
         </Flex>
-        <Divider mt={4} />
+        <Divider mt={4} mb={4} />
         <div
+          style={{ textAlign: 'left', width: '80%' }}
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(post?.description ?? ''),
           }}
         />
-        <p>Upvotes: {post?.upvotes.length}</p>
+        <ForumUpvoteButton
+          postId={postIdAsNumber}
+          username={currentUser?.username ?? ''}
+          hasUpvoted={post !== null ? calculateUpvoteStatus(post) : false}
+          onUpvote={handlePostUpvote}
+        />
+        <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{post?.upvotes.length}</p>
+        <ForumDownvoteButton
+          postId={postIdAsNumber}
+          username={currentUser?.username ?? ''}
+          onDownvote={handlePostUpvote}
+        />
         {currentUser?.username === post?.username && (
           <ForumDeleteIconButton
             postId={postIdAsNumber}
@@ -110,17 +122,6 @@ const PostDetail: React.FC = () => {
             onDelete={handlePostDeletion}
           />
         )}
-        <ForumUpvoteButton
-          postId={postIdAsNumber}
-          username={currentUser?.username ?? ''}
-          hasUpvoted={post !== null ? calculateUpvoteStatus(post) : false}
-          onUpvote={handlePostUpvote}
-        />
-        <ForumDownvoteButton
-          postId={postIdAsNumber}
-          username={currentUser?.username ?? ''}
-          onDownvote={handlePostUpvote}
-        />
       </Flex>
     </Stack>
   );
