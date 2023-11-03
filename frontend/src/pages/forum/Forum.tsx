@@ -29,12 +29,15 @@ const Forum: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredPosts, setFilteredPosts] = useState<ForumData[]>([]);
+  const [sortOption, setSortOption] = useState('newest'); // Default sorting is "Newest to Oldest"
   const postsPerPage = 5;
 
   const fetchForumPosts = async (): Promise<void> => {
     try {
       const forumAPI = new ForumAPI();
       const forumPosts = await forumAPI.viewPosts();
+      // Default: sort the posts by creation date, from newest to oldest.
+      forumPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setPosts(forumPosts);
       setFilteredPosts(forumPosts); // Initially, filtered posts are the same as all posts.
     } catch (error) {
@@ -78,6 +81,22 @@ const Forum: React.FC = () => {
     fetchForumPosts().catch((error) => {
       console.error('Error fetching forum posts:', error);
     });
+  };
+
+  // Handle sorting.
+  const handleSort = (option: 'newest' | 'mostVotes'): void => {
+    setSortOption(option);
+
+    // Sort the posts based on the selected option.
+    const sorted = [...filteredPosts];
+
+    if (option === 'newest') {
+      sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } else if (option === 'mostVotes') {
+      sorted.sort((a, b) => b.upvotes.length - a.upvotes.length);
+    }
+
+    setFilteredPosts(sorted);
   };
 
   useEffect(() => {
@@ -150,6 +169,25 @@ const Forum: React.FC = () => {
             </Button>
           </Link>
         </Flex>
+        {/* Sorting buttons */}
+        <HStack spacing={4}>
+          <Button
+            colorScheme={sortOption === 'newest' ? 'teal' : 'gray'}
+            onClick={() => {
+              handleSort('newest');
+            }}
+          >
+            Newest to Oldest
+          </Button>
+          <Button
+            colorScheme={sortOption === 'mostVotes' ? 'teal' : 'gray'}
+            onClick={() => {
+              handleSort('mostVotes');
+            }}
+          >
+            Most Votes
+          </Button>
+        </HStack>
         <Stack padding={8} spacing={8} w="100%">
           {currentPosts.map((post) => (
             <Flex key={post.id} style={cardStyle}>
