@@ -1,5 +1,5 @@
 import { TriangleDownIcon } from '@chakra-ui/icons';
-import { Tooltip, IconButton, useToast } from '@chakra-ui/react';
+import { Tooltip, IconButton, useToast, useColorModeValue } from '@chakra-ui/react';
 import React from 'react';
 import ForumAPI from '../../api/forum/forum';
 import { type ForumData } from '../../types/forum/forum';
@@ -38,7 +38,7 @@ const ForumDownvoteIconButton: React.FC<ForumDownvoteIconButtonProps> = ({
           console.error('No previous upvote', error);
           toast({
             title: 'Failed to remove upvote!',
-            description: 'You have not upvoted before',
+            description: 'You have not upvoted before.',
             status: 'error',
             duration: 9000,
             isClosable: true,
@@ -61,7 +61,7 @@ const ForumDownvoteIconButton: React.FC<ForumDownvoteIconButtonProps> = ({
       <IconButton
         aria-label="Downvote Post"
         onClick={handleDownvote}
-        _hover={{ bg: '#619cc9' }}
+        _hover={{ bg: useColorModeValue('#0a9dad', '#025361') }}
         bg="transparent"
         borderRadius="50%"
         border="1px solid #b4b6b8"

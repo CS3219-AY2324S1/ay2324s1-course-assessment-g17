@@ -112,7 +112,13 @@ const Forum: React.FC = () => {
           </Link>
         </Flex>
         <IconWithText text="Forum" icon={<MdForum size={40} />} fontSize="4xl" fontWeight="bold" />
-        <Text fontSize="xl" fontWeight="bold" textAlign="center" fontStyle="italic" color="gray.600">
+        <Text
+          fontSize="xl"
+          fontWeight="bold"
+          textAlign="center"
+          fontStyle="italic"
+          color={useColorModeValue('gray.600', 'gray.400')}
+        >
           Get code help and start discussions!
         </Text>
         <Flex justifyContent="space-between" alignItems="center" w="85%" style={{ marginTop: '30px' }}>
@@ -130,9 +136,9 @@ const Forum: React.FC = () => {
               onChange={handleSearch}
             />
             <InputRightElement
-              _hover={{ cursor: 'pointer', color: 'gray.600' }} // Change color on hover
+              _hover={{ cursor: 'pointer', color: 'gray.600' }}
               color="gray.400"
-              _active={{ transform: 'scale(0.9)' }} // Scale down on click
+              _active={{ transform: 'scale(0.9)' }}
               onClick={handleClearSearch}
             >
               <CloseIcon />
