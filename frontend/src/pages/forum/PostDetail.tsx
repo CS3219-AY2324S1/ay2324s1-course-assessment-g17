@@ -4,11 +4,12 @@ import ForumAPI from '../../api/forum/forum';
 import { type ForumData } from '../../types/forum/forum';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
-import { Button, Flex, Stack, useToast } from '@chakra-ui/react';
+import { Box, Button, Divider, Flex, Heading, Stack, useToast } from '@chakra-ui/react';
 import ForumDeleteIconButton from '../../components/forum/ForumDeleteIconButton';
 import ForumUpvoteButton from '../../components/forum/ForumUpvoteIconButton';
 import ForumDownvoteButton from '../../components/forum/ForumDownvoteIconButton';
-import { BiArrowBack } from 'react-icons/bi';
+import { BiArrowBack, BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
+import DOMPurify from 'dompurify';
 
 const PostDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -78,10 +79,29 @@ const PostDetail: React.FC = () => {
             <Button leftIcon={<BiArrowBack />}>Back to Forum</Button>
           </Link>
         </Flex>
-        <h1>{post?.title}</h1>
-        <p>{post?.description}</p>
-        <p>Posted by: {post?.username}</p>
-        <p>Posted on: {formatPostDate(post?.createdAt)}</p>
+        <Heading as="h1" size="xl" textAlign="center" style={{ maxWidth: '80%' }} mt={4}>
+          {post?.title}
+        </Heading>
+        <Flex justifyContent="space-between" alignItems="center" style={{ maxWidth: '80%' }} mt={4}>
+          <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={4} mr={12}>
+            <Box w="6" h="6" ml={2} mr={2}>
+              <BiSolidUserCircle style={{ fontSize: '24px' }} />
+            </Box>
+            <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{post?.username}</p>
+          </Flex>
+          <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={12} mr={4}>
+            <Box w="6" h="6" ml={2} mr={2}>
+              <BiSolidCalendar style={{ fontSize: '24px' }} />
+            </Box>
+            <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{formatPostDate(post?.createdAt)}</p>
+          </Flex>
+        </Flex>
+        <Divider mt={4} />
+        <div
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(post?.description ?? ''),
+          }}
+        />
         <p>Upvotes: {post?.upvotes.length}</p>
         {currentUser?.username === post?.username && (
           <ForumDeleteIconButton
