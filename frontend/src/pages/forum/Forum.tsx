@@ -7,17 +7,19 @@ import { MdForum } from 'react-icons/md';
 import { BiArrowBack, BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
 import { type ForumData } from '../../types/forum/forum';
 import ForumAPI from '../../api/forum/forum';
+import ForumPostsPagination from '../../components/forum/ForumPostsPagination';
 
 const Forum: React.FC = () => {
   const toast = useToast();
 
   const [posts, setPosts] = useState<ForumData[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 5;
 
   const fetchForumPosts = async (): Promise<void> => {
     try {
       const forumAPI = new ForumAPI();
       const forumPosts = await forumAPI.viewPosts();
-      console.log(forumPosts);
       setPosts(forumPosts);
     } catch (error) {
       console.error('Error fetching forum posts:', error);
@@ -29,6 +31,15 @@ const Forum: React.FC = () => {
         isClosable: true,
       });
     }
+  };
+
+  // Calculate the range of posts to display based on the current page and posts per page
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+  const currentPosts = posts.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage: number): void => {
+    setCurrentPage(newPage);
   };
 
   useEffect(() => {
@@ -76,7 +87,7 @@ const Forum: React.FC = () => {
           </Link>
         </Flex>
         <Stack padding={8} spacing={8} w="100%">
-          {posts?.map((post) => (
+          {currentPosts?.map((post) => (
             <Flex key={post.id} style={cardStyle}>
               <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
                 <HStack>
@@ -115,6 +126,13 @@ const Forum: React.FC = () => {
             </Flex>
           ))}
         </Stack>
+        {/* Pagination component */}
+        <ForumPostsPagination
+          currentPage={currentPage}
+          totalItems={posts.length}
+          itemsPerPage={postsPerPage}
+          onPageChange={handlePageChange}
+        />
       </Flex>
     </Stack>
   );
