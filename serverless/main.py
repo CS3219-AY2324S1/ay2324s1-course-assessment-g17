@@ -1,3 +1,5 @@
+import functions_framework
+
 from pymongo import MongoClient
 import requests
 import os
@@ -34,13 +36,23 @@ def getAllQuestions(limit):
     return processed
 
 
-questions = getAllQuestions(10000)
+@functions_framework.http
+def scrape_leetcode(request):
+    """HTTP Cloud Function."""
+    request_args = request.args
 
+    if request_args and 'limit' in request_args:
+        limit = request_args['limit']
+    else:
+        limit = 10000
 
-myclient = MongoClient(MONGO_CONNECTION_STRING)
+    questions = getAllQuestions(limit)
 
-db = myclient["peerprep_app"]
-collection = db["questions"]
+    myclient = MongoClient(MONGO_CONNECTION_STRING)
 
-collection.delete_many({})
-collection.insert_many(questions)
+    db = myclient["peerprep_app"]
+    collection = db["questions"]
+
+    collection.delete_many({})
+    collection.insert_many(questions)
+    return 'Questions database populated with {} questions!'.format(len(questions))
