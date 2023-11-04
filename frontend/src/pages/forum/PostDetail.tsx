@@ -4,7 +4,7 @@ import ForumAPI from '../../api/forum/forum';
 import { type ForumData } from '../../types/forum/forum';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
-import { Box, Button, Divider, Flex, Heading, Stack, useToast } from '@chakra-ui/react';
+import { Box, Button, Divider, Flex, HStack, Heading, Stack, VStack, useToast } from '@chakra-ui/react';
 import ForumDeleteIconButton from '../../components/forum/ForumDeleteIconButton';
 import ForumUpvoteButton from '../../components/forum/ForumUpvoteIconButton';
 import ForumDownvoteButton from '../../components/forum/ForumDownvoteIconButton';
@@ -89,39 +89,43 @@ const PostDetail: React.FC = () => {
             </Box>
             <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{post?.username}</p>
           </Flex>
-          <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={12} mr={4}>
+          <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={12} mr={12}>
             <Box w="6" h="6" ml={2} mr={2}>
               <BiSolidCalendar style={{ fontSize: '24px' }} />
             </Box>
             <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{formatPostDate(post?.createdAt)}</p>
           </Flex>
+          {currentUser?.username === post?.username && (
+            <ForumDeleteIconButton
+              postId={postIdAsNumber}
+              username={currentUser?.username ?? ''}
+              onDelete={handlePostDeletion}
+            />
+          )}
         </Flex>
         <Divider mt={4} mb={4} />
-        <div
-          style={{ textAlign: 'left', width: '80%' }}
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(post?.description ?? ''),
-          }}
-        />
-        <ForumUpvoteButton
-          postId={postIdAsNumber}
-          username={currentUser?.username ?? ''}
-          hasUpvoted={post !== null ? calculateUpvoteStatus(post) : false}
-          onUpvote={handlePostUpvote}
-        />
-        <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{post?.upvotes.length}</p>
-        <ForumDownvoteButton
-          postId={postIdAsNumber}
-          username={currentUser?.username ?? ''}
-          onDownvote={handlePostUpvote}
-        />
-        {currentUser?.username === post?.username && (
-          <ForumDeleteIconButton
-            postId={postIdAsNumber}
-            username={currentUser?.username ?? ''}
-            onDelete={handlePostDeletion}
+        <HStack style={{ width: '80%', alignItems: 'flex-start' }}>
+          <VStack style={{ width: '10%', justifyContent: 'flex-start' }}>
+            <ForumUpvoteButton
+              postId={postIdAsNumber}
+              username={currentUser?.username ?? ''}
+              hasUpvoted={post !== null ? calculateUpvoteStatus(post) : false}
+              onUpvote={handlePostUpvote}
+            />
+            <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{post?.upvotes.length}</p>
+            <ForumDownvoteButton
+              postId={postIdAsNumber}
+              username={currentUser?.username ?? ''}
+              onDownvote={handlePostUpvote}
+            />
+          </VStack>
+          <div
+            style={{ width: '80%' }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(post?.description ?? ''),
+            }}
           />
-        )}
+        </HStack>
       </Flex>
     </Stack>
   );

@@ -1,7 +1,7 @@
-import { DeleteIcon } from '@chakra-ui/icons';
-import { Tooltip, IconButton, useToast } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 import React from 'react';
 import ForumAPI from '../../api/forum/forum';
+import ConfirmationDialog from '../../components/content/ConfirmationDialog';
 
 interface ForumDeleteIconButtonProps {
   postId: number;
@@ -35,11 +35,14 @@ const ForumDeleteIconButton: React.FC<ForumDeleteIconButtonProps> = ({
   };
 
   return (
-    <Tooltip label={`Delete Post ${postId}`}>
-      <IconButton aria-label="Delete Post" onClick={handleDelete} _hover={{ bg: 'transparent' }} bg="transparent">
-        <DeleteIcon boxSize="4" />
-      </IconButton>
-    </Tooltip>
+    <ConfirmationDialog
+      dialogHeader={'Delete Post'}
+      dialogBody={'Are you sure you want to delete your post? This action is irreversible!'}
+      mainButtonLabel={'Delete my post'}
+      rightButtonLabel={'Yes, delete my post permanently!'}
+      onConfirm={handleDelete}
+      mainButtonProps={{ colorScheme: 'gray' }}
+    />
   );
 };
 
