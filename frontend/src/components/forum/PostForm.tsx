@@ -52,8 +52,21 @@ const PostForm: React.FC<PostFormProps> = ({
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
+    if (title.trim() === '') {
+      // Title only contains whitespace(s).
+      // Title is not filled is handled below using FormControl isRequired.
+      toast({
+        title: 'Post Creation Failed!',
+        description: 'Title cannot be empty.',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+      return; // Prevent form submission.
+    }
+
     if (description.replaceAll(/<[^>]*>/g, '').trim() === '') {
-      // Description is empty or only contains whitespace(s).
+      // Description is not filled, or only contains whitespace(s), or only contains line breaks.
       toast({
         title: 'Post Creation Failed!',
         description: 'Description cannot be empty.',
