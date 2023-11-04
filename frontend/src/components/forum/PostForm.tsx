@@ -52,8 +52,17 @@ const PostForm: React.FC<PostFormProps> = ({
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
-    console.log('Title:', title);
-    console.log('Post Description:', description);
+    if (description.replaceAll(/<[^>]*>/g, '').trim() === '') {
+      // Description is empty or only contains whitespace(s).
+      toast({
+        title: 'Post Creation Failed!',
+        description: 'Description cannot be empty.',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+      return; // Prevent form submission.
+    }
 
     const forumData: ForumPostData = {
       title,
@@ -87,8 +96,6 @@ const PostForm: React.FC<PostFormProps> = ({
         }
       });
   };
-
-  // Disable submit...
 
   const handleDescriptionChange = (newContent: React.SetStateAction<string>): void => {
     setPostDescription(newContent);
