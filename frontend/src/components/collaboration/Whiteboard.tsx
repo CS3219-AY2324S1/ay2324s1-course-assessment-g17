@@ -33,10 +33,10 @@ const Whiteboard: React.FC = () => {
 
       <Modal isCentered closeOnOverlayClick={false} size="6xl" isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent height="90vh">
+        <ModalContent width="83vw" maxWidth="87vw" height="90vh">
           <ModalCloseButton />
-          <ModalBody height="83vh" marginTop={8}>
-            <Box width="100%" height="83vh" padding={4}>
+          <ModalBody width="80vw" height="83vh" marginTop={8}>
+            <Box width="80vw" height="83vh" padding={4}>
               <Tldraw persistenceKey={roomId} />
             </Box>
           </ModalBody>
