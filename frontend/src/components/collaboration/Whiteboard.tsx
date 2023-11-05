@@ -8,14 +8,23 @@ import {
   ModalBody,
   Flex,
   Box,
+  useColorMode,
 } from '@chakra-ui/react';
 import { PiChalkboardFill } from 'react-icons/pi';
-import { Tldraw } from '@tldraw/tldraw';
+import { useParams } from 'react-router-dom';
+import { Tldraw, getUserPreferences, setUserPreferences } from '@tldraw/tldraw';
 import '@tldraw/tldraw/tldraw.css';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const Whiteboard: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { colorMode } = useColorMode();
+  const { roomId } = useParams();
+
+  useEffect(() => {
+    setUserPreferences({ ...getUserPreferences(), isDarkMode: colorMode === 'dark' });
+  }, [colorMode]);
+
   return (
     <Flex marginLeft={2} alignItems="center">
       <Button size="sm" variant="outline" onClick={onOpen} leftIcon={<PiChalkboardFill size={20} />}>
@@ -28,7 +37,7 @@ const Whiteboard: React.FC = () => {
           <ModalCloseButton />
           <ModalBody height="83vh" marginTop={8}>
             <Box width="100%" height="83vh" padding={4}>
-              <Tldraw />
+              <Tldraw persistenceKey={roomId} />
             </Box>
           </ModalBody>
         </ModalContent>
