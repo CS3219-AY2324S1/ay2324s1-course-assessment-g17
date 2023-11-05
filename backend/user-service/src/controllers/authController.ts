@@ -46,6 +46,8 @@ interface JwtPayload {
   iat: number;
 }
 
+const DEPLOYED_URL = "https://master.da377qx9p9syb.amplifyapp.com/";
+
 const storedRefreshTokens: string[] = [];
 // TODO: Make a MongoDB for refresh tokens
 // IF TIME PERMITS
@@ -315,7 +317,7 @@ export const sendResetEmail: RequestHandler[] = [
         from: "your_email@example.com",
         to: email,
         subject: "Password Reset",
-        text: `Click the link below to reset your password: http://localhost:3000/reset-password?token=${resetToken}`,
+        text: `Click the link below to reset your password: ${DEPLOYED_URL}reset-password?token=${resetToken}`,
       };
 
       transporter.sendMail(mailOptions, (error: Error | null, info: any) => {
