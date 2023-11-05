@@ -76,7 +76,7 @@ const ViewProfile: React.FC = () => {
             <HStack spacing={5} align="center" mt={4}>
               <FaCode style={{ flex: '0 0 24px', fontSize: '24px' }} />
               <Text>
-                <span style={{ fontWeight: 'bold', wordWrap: 'break-word', maxWidth: '200px' }}>Languages: </span>
+                <span style={{ fontWeight: 'bold', wordWrap: 'break-word', maxWidth: '400px' }}>Languages: </span>
                 {(user?.languages?.length ?? 0) > 0 ? user?.languages?.map((lang) => lang.language).join(', ') : 'None'}
               </Text>
             </HStack>
