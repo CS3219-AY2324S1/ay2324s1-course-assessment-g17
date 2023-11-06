@@ -30,11 +30,13 @@ interface YjsStore {
   awareness: WebsocketProvider['awareness'];
 }
 
-interface Awareness {
+export interface WhiteboardAwareness {
   id: string;
   color: string;
   name: string;
 }
+
+export type WhiteboardRoomState = Map<number, { presence: TLInstancePresence }>;
 
 type yStoreChanges = Map<
   string,
@@ -75,9 +77,15 @@ export const useYjsStore = ({
         store.listen(
           ({ changes }) => {
             yDoc.transact(() => {
-              Object.values(changes.added).forEach((record) => yStore.set(record.id, record));
-              Object.values(changes.updated).forEach(([_, record]) => yStore.set(record.id, record));
-              Object.values(changes.removed).forEach((record) => yStore.delete(record.id));
+              Object.values(changes.added).forEach((record) => {
+                yStore.set(record.id, record);
+              });
+              Object.values(changes.updated).forEach(([_, record]) => {
+                yStore.set(record.id, record);
+              });
+              Object.values(changes.removed).forEach((record) => {
+                yStore.delete(record.id);
+              });
             });
           },
           { source: 'user', scope: 'document' }, // Only sync user's document changes
@@ -115,11 +123,13 @@ export const useYjsStore = ({
       };
 
       yStore.on('change', handleChange);
-      unsubs.push(() => yStore.off('change', handleChange));
+      unsubs.push(() => {
+        yStore.off('change', handleChange);
+      });
 
       /* -------------------- Awareness ------------------- */
 
-      const userPreferences = computed<Awareness>('userPreferences', () => {
+      const userPreferences = computed<WhiteboardAwareness>('userPreferences', () => {
         const user = getUserPreferences();
         return {
           id: user.id,
@@ -148,7 +158,7 @@ export const useYjsStore = ({
 
       // Sync yjs awareness changes to the store
       const handleUpdate = (update: { added: number[]; updated: number[]; removed: number[] }): void => {
-        const states = room.awareness.getStates() as Map<number, { presence: TLInstancePresence }>;
+        const states = room.awareness.getStates() as WhiteboardRoomState;
         const toRemove: Array<TLInstancePresence['id']> = [];
         const toPut: TLInstancePresence[] = [];
 
