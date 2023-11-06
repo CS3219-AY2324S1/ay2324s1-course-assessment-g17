@@ -11,10 +11,10 @@ import {
   Text,
   Spinner,
 } from '@chakra-ui/react';
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaLightbulb } from 'react-icons/fa6';
+import Markdown from 'react-markdown';
 
 interface HintParams {
   questionId: number;
@@ -55,9 +55,9 @@ const Hint: React.FC<HintParams> = ({ questionId }) => {
         <ModalContent>
           <ModalCloseButton />
           <ModalBody>
-            <Box padding={4}>
+            <Box padding={4} id="markdown">
               <Text fontSize="2xl">Hint</Text>
-              {hint !== '' ? <Text>{hint}</Text> : <Spinner size="xl" />}
+              {hint !== '' ? <Markdown>{hint}</Markdown> : <Spinner size="xl" />}
             </Box>
           </ModalBody>
         </ModalContent>
