@@ -30,6 +30,7 @@ import ChatBox from '../../components/chat/ChatBox';
 import IconWithText from '../../components/content/IconWithText';
 import axios from 'axios';
 import Whiteboard from '../../components/collaboration/Whiteboard';
+import { selectAwareness } from '../../reducers/awarenessSlice';
 interface Question {
   questionID: string;
   complexity: string;
@@ -58,6 +59,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
   const editorTheme = useColorModeValue('light', 'vs-dark');
   const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
   const user = useAppSelector(selectUser);
+  const awareness = useAppSelector(selectAwareness);
   const { socket } = useContext(SocketContext);
   const roomId = useParams<{ roomId: string }>().roomId;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -248,7 +250,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
           </>
         )}
         <Spacer />
-        <CollaboratorUsers />
+        {awareness !== null && <CollaboratorUsers awareness={awareness} />}
         <Whiteboard />
       </Flex>
       <Box width="100%" height="80vh" my={5}>
@@ -288,7 +290,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
                         _dark={{ backgroundColor: 'gray.700' }}
                         borderRadius={8}
                       >
-                        <UserTab />
+                        {awareness !== null && <UserTab awareness={awareness} />}
                       </Box>
                       <ChatBox />
                     </VStack>
