@@ -16,40 +16,45 @@ import { useEffect, useMemo, useState } from 'react';
 import { YKeyValue } from 'y-utility/y-keyvalue';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
-import { DEFAULT_STORE } from './default_store';
+import { DEFAULT_STORE } from './defaultStore';
 
-export function useYjsStore({
-  roomId = 'example',
+interface YjsState {
+  roomId: string;
+  hostUrl?: string;
+  shapeUtils?: TLAnyShapeUtilConstructor[];
+  version?: number;
+}
+
+interface Awareness {
+  id: string;
+  color: string;
+  name: string;
+}
+
+type yStoreChanges = Map<
+  string,
+  | { action: 'delete'; oldValue: TLRecord }
+  | { action: 'update'; oldValue: TLRecord; newValue: TLRecord }
+  | { action: 'add'; newValue: TLRecord }
+>;
+
+export const useYjsStore = ({
+  roomId,
   hostUrl = process.env.REACT_APP_COLLABORATION_SERVICE_WEBSOCKET_BACKEND_URL as string,
   shapeUtils = [],
-}: Partial<{
-  hostUrl: string;
-  roomId: string;
-  version: number;
-  shapeUtils: TLAnyShapeUtilConstructor[];
-}>): TLStoreWithStatus {
+}: YjsState): TLStoreWithStatus => {
+  const [storeWithStatus, setStoreWithStatus] = useState<TLStoreWithStatus>({ status: 'loading' });
   const [store] = useState(() => {
-    const store = createTLStore({
-      shapeUtils: [...defaultShapeUtils, ...shapeUtils],
-    });
+    const store = createTLStore({ shapeUtils: [...defaultShapeUtils, ...shapeUtils] });
     store.loadSnapshot(DEFAULT_STORE);
     return store;
-  });
-
-  const [storeWithStatus, setStoreWithStatus] = useState<TLStoreWithStatus>({
-    status: 'loading',
   });
 
   const { yDoc, yStore, room } = useMemo(() => {
     const yDoc = new Y.Doc({ gc: true });
     const yArr = yDoc.getArray<{ key: string; val: TLRecord }>(`tl_${roomId}`);
     const yStore = new YKeyValue(yArr);
-
-    return {
-      yDoc,
-      yStore,
-      room: new WebsocketProvider(hostUrl, roomId, yDoc, { connect: true }),
-    };
+    return { yDoc, yStore, room: new WebsocketProvider(hostUrl, roomId, yDoc, { connect: true }) };
   }, [hostUrl, roomId]);
 
   useEffect(() => {
@@ -57,44 +62,25 @@ export function useYjsStore({
 
     const unsubs: Array<() => void> = [];
 
-    function handleSync(): void {
-      // 1.
-      // Connect store to yjs store and vis versa, for both the document and awareness
-
+    const handleSync = (): void => {
+      // 1. Connect store to yjs store and vice versa, for both the document and awareness
       /* -------------------- Document -------------------- */
-
-      // Sync store changes to the yjs doc
+      // Sync store changes to the yjs document
       unsubs.push(
         store.listen(
-          function syncStoreChangesToYjsDoc({ changes }) {
+          ({ changes }) => {
             yDoc.transact(() => {
-              Object.values(changes.added).forEach((record) => {
-                yStore.set(record.id, record);
-              });
-
-              Object.values(changes.updated).forEach(([_, record]) => {
-                yStore.set(record.id, record);
-              });
-
-              Object.values(changes.removed).forEach((record) => {
-                yStore.delete(record.id);
-              });
+              Object.values(changes.added).forEach((record) => yStore.set(record.id, record));
+              Object.values(changes.updated).forEach(([_, record]) => yStore.set(record.id, record));
+              Object.values(changes.removed).forEach((record) => yStore.delete(record.id));
             });
           },
-          { source: 'user', scope: 'document' }, // only sync user's document changes
+          { source: 'user', scope: 'document' }, // Only sync user's document changes
         ),
       );
 
       // Sync the yjs doc changes to the store
-      const handleChange = (
-        changes: Map<
-          string,
-          | { action: 'delete'; oldValue: TLRecord }
-          | { action: 'update'; oldValue: TLRecord; newValue: TLRecord }
-          | { action: 'add'; newValue: TLRecord }
-        >,
-        transaction: Y.Transaction,
-      ): void => {
+      const handleChange = (changes: yStoreChanges, transaction: Y.Transaction): void => {
         if (transaction.local) return;
 
         const toRemove: Array<TLRecord['id']> = [];
@@ -116,7 +102,7 @@ export function useYjsStore({
           }
         });
 
-        // put / remove the records in the store
+        // Put / remove the records in the store
         store.mergeRemoteChanges(() => {
           if (toRemove.length !== 0) store.remove(toRemove);
           if (toPut.length !== 0) store.put(toPut);
@@ -124,17 +110,11 @@ export function useYjsStore({
       };
 
       yStore.on('change', handleChange);
-      unsubs.push(() => {
-        yStore.off('change', handleChange);
-      });
+      unsubs.push(() => yStore.off('change', handleChange));
 
       /* -------------------- Awareness ------------------- */
 
-      const userPreferences = computed<{
-        id: string;
-        color: string;
-        name: string;
-      }>('userPreferences', () => {
+      const userPreferences = computed<Awareness>('userPreferences', () => {
         const user = getUserPreferences();
         return {
           id: user.id,
@@ -164,7 +144,6 @@ export function useYjsStore({
       // Sync yjs awareness changes to the store
       const handleUpdate = (update: { added: number[]; updated: number[]; removed: number[] }): void => {
         const states = room.awareness.getStates() as Map<number, { presence: TLInstancePresence }>;
-
         const toRemove: Array<TLInstancePresence['id']> = [];
         const toPut: TLInstancePresence[] = [];
 
@@ -187,7 +166,7 @@ export function useYjsStore({
           toRemove.push(InstancePresenceRecordType.createId(clientId.toString()));
         }
 
-        // put / remove the records in the store
+        // Put / remove the records in the store
         store.mergeRemoteChanges(() => {
           if (toRemove.length !== 0) store.remove(toRemove);
           if (toPut.length !== 0) store.put(toPut);
@@ -220,23 +199,15 @@ export function useYjsStore({
         });
       }
 
-      setStoreWithStatus({
-        store,
-        status: 'synced-remote',
-        connectionStatus: 'online',
-      });
-    }
+      setStoreWithStatus({ store, status: 'synced-remote', connectionStatus: 'online' });
+    };
 
     let hasConnectedBefore = false;
 
     function handleStatusChange({ status }: { status: 'disconnected' | 'connected' }): void {
       // If we're disconnected, set the store status to 'synced-remote' and the connection status to 'offline'
       if (status === 'disconnected') {
-        setStoreWithStatus({
-          store,
-          status: 'synced-remote',
-          connectionStatus: 'offline',
-        });
+        setStoreWithStatus({ store, status: 'synced-remote', connectionStatus: 'offline' });
         return;
       }
 
@@ -266,4 +237,4 @@ export function useYjsStore({
   }, [room, yDoc, store, yStore]);
 
   return storeWithStatus;
-}
+};
