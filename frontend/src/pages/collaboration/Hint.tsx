@@ -25,14 +25,14 @@ const Hint: React.FC<HintParams> = ({ questionId }) => {
   const [hint, setHint] = useState('');
   const helpServiceUrl = process.env.REACT_APP_HELP_SERVICE_BACKEND_URL;
 
-  const getHint = async () => {
+  const getHint = (): void => {
     if (hint === '') {
       axios
         .get(helpServiceUrl + questionId.toString(10))
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         .then((response) => response.data)
         .then((hint) => {
-          setHint(hint);
+          setHint(hint as string);
         })
         .catch((err) => {
           console.log(err);
@@ -59,7 +59,7 @@ const Hint: React.FC<HintParams> = ({ questionId }) => {
           <ModalBody>
             <Box padding={4}>
               <Text fontSize="2xl">Hint</Text>
-              {hint ? <Text>{hint}</Text> : <Spinner size="xl" />}
+              {hint !== '' ? <Text>{hint}</Text> : <Spinner size="xl" />}
             </Box>
           </ModalBody>
         </ModalContent>
