@@ -25,6 +25,11 @@ interface YjsState {
   version?: number;
 }
 
+interface YjsStore {
+  tlStore: TLStoreWithStatus;
+  awareness: WebsocketProvider['awareness'];
+}
+
 interface Awareness {
   id: string;
   color: string;
@@ -42,7 +47,7 @@ export const useYjsStore = ({
   roomId,
   hostUrl = process.env.REACT_APP_COLLABORATION_SERVICE_WEBSOCKET_BACKEND_URL as string,
   shapeUtils = [],
-}: YjsState): TLStoreWithStatus => {
+}: YjsState): YjsStore => {
   const [storeWithStatus, setStoreWithStatus] = useState<TLStoreWithStatus>({ status: 'loading' });
   const [store] = useState(() => {
     const store = createTLStore({ shapeUtils: [...defaultShapeUtils, ...shapeUtils] });
@@ -236,5 +241,5 @@ export const useYjsStore = ({
     };
   }, [room, yDoc, store, yStore]);
 
-  return storeWithStatus;
+  return { tlStore: storeWithStatus, awareness: room.awareness };
 };

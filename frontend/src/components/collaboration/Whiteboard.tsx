@@ -12,10 +12,11 @@ import {
 } from '@chakra-ui/react';
 import { PiChalkboardFill } from 'react-icons/pi';
 import { useParams } from 'react-router-dom';
-import { Tldraw, getUserPreferences, setUserPreferences } from '@tldraw/tldraw';
+import { Canvas, Tldraw, getUserPreferences, setUserPreferences } from '@tldraw/tldraw';
 import '@tldraw/tldraw/tldraw.css';
 import React, { useEffect } from 'react';
 import { useYjsStore } from './useYjsStore';
+import WhiteboardAwarenessDisplay from './WhiteboardAwareness';
 
 const Whiteboard: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -27,7 +28,7 @@ const Whiteboard: React.FC = () => {
   }, [colorMode]);
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const store = useYjsStore({
+  const { tlStore: store, awareness } = useYjsStore({
     roomId: 'whiteboard_' + (roomId as string),
     hostUrl: process.env.REACT_APP_COLLABORATION_SERVICE_WEBSOCKET_BACKEND_URL as string,
   });
@@ -44,7 +45,10 @@ const Whiteboard: React.FC = () => {
           <ModalCloseButton />
           <ModalBody width="80vw" height="83vh" marginTop={8}>
             <Box width="80vw" height="83vh" padding={4}>
-              <Tldraw store={store} />
+              <Tldraw store={store}>
+                <Canvas />
+                <WhiteboardAwarenessDisplay awareness={awareness} />
+              </Tldraw>
             </Box>
           </ModalBody>
         </ModalContent>
