@@ -1,12 +1,19 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
-import awarenessReducer from './awarenessSlice';
+import awarenessReducer, { counterSlice as awarenessSlice } from './awarenessSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     awareness: awarenessReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore these paths in the state
+        ignoredActions: [awarenessSlice.actions.setAwareness.type],
+      },
+    }),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
