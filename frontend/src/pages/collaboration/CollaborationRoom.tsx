@@ -29,6 +29,7 @@ import CodeExecutor from '../../components/code/CodeExecutor';
 import ChatBox from '../../components/chat/ChatBox';
 import IconWithText from '../../components/content/IconWithText';
 import axios from 'axios';
+import Whiteboard from '../../components/collaboration/Whiteboard';
 interface Question {
   questionID: string;
   complexity: string;
@@ -248,6 +249,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
         )}
         <Spacer />
         <CollaboratorUsers />
+        <Whiteboard />
       </Flex>
       <Box width="100%" height="80vh" my={5}>
         <Allotment defaultSizes={[6, 9, 5]}>
