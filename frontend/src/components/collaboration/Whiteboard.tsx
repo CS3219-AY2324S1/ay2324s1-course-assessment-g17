@@ -15,6 +15,7 @@ import { useParams } from 'react-router-dom';
 import { Tldraw, getUserPreferences, setUserPreferences } from '@tldraw/tldraw';
 import '@tldraw/tldraw/tldraw.css';
 import React, { useEffect } from 'react';
+import { useYjsStore } from './useYjsStore';
 
 const Whiteboard: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -24,6 +25,12 @@ const Whiteboard: React.FC = () => {
   useEffect(() => {
     setUserPreferences({ ...getUserPreferences(), isDarkMode: colorMode === 'dark' });
   }, [colorMode]);
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const store = useYjsStore({
+    roomId: 'whiteboard_' + (roomId as string),
+    hostUrl: process.env.REACT_APP_COLLABORATION_SERVICE_WEBSOCKET_BACKEND_URL as string,
+  });
 
   return (
     <Flex marginLeft={2} alignItems="center">
@@ -37,7 +44,7 @@ const Whiteboard: React.FC = () => {
           <ModalCloseButton />
           <ModalBody width="80vw" height="83vh" marginTop={8}>
             <Box width="80vw" height="83vh" padding={4}>
-              <Tldraw persistenceKey={roomId} />
+              <Tldraw store={store} />
             </Box>
           </ModalBody>
         </ModalContent>
