@@ -12,6 +12,7 @@ import {
 } from "./controllers/pair";
 import cors from "cors";
 import { EditorLanguageEnum } from "./types/languages";
+import pair from "./models/pair";
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const app = express();
@@ -63,7 +64,7 @@ const io = new Server(httpServer, {
 
 httpServer.listen(SOCKET_IO_PORT, () => {
   console.log(
-    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`,
+    `Socket.io server is listening on http://localhost:${SOCKET_IO_PORT}`
   );
 });
 
@@ -123,12 +124,18 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("user-join", username);
   });
 
-  socket.on("user-agreed-next", (roomId, userId) => {
+  socket.on("user-agreed-next", async (roomId, userId) => {
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
     usersAgreedNext[roomId][userId] = true;
     if (Object.keys(usersAgreedNext[roomId]).length === 2) {
       io.to(roomId).emit("both-users-agreed-next", roomId);
       usersAgreedNext[roomId] = {};
+
+      // set current question to second question
+      const pairs = await pair.find({ room_id: roomId });
+      const pairInfo = pairs[0];
+      const secondQuestionId = pairInfo.question_ids[1];
+      roomCurrentQuestion[roomId] = secondQuestionId;
     } else {
       io.to(roomId).emit("waiting-for-other-user", roomId);
     }
@@ -160,9 +167,9 @@ io.on("connection", (socket) => {
       io.to(roomId).emit(
         "receive-language-change",
         newLanguage,
-        socket.data.username,
+        socket.data.username
       );
-    },
+    }
   );
 
   // Handle user disconnection.
