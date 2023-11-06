@@ -25,7 +25,13 @@ const ViewProfile: React.FC = () => {
         <CardComponent>
           <Flex alignItems="center" ml={12} mt={2}>
             <Avatar bg="black" />
-            <Text ml={3} fontSize="xl" fontWeight="bold" textAlign="center">
+            <Text
+              ml={3}
+              fontSize="xl"
+              fontWeight="bold"
+              textAlign="center"
+              style={{ wordWrap: 'break-word', maxWidth: '400px' }}
+            >
               {user?.username}
             </Text>
           </Flex>
@@ -56,21 +62,21 @@ const ViewProfile: React.FC = () => {
             <HStack spacing={5} align="center" mt={4}>
               <EmailIcon style={{ flex: '0 0 24px', fontSize: '24px' }} />
               <Text>
-                <span style={{ fontWeight: 'bold' }}>Email: </span>
+                <span style={{ fontWeight: 'bold', wordWrap: 'break-word', maxWidth: '400px' }}>Email: </span>
                 {user?.email}
               </Text>
             </HStack>
             <HStack spacing={5} align="center" mt={4}>
               <FaUserGroup style={{ flex: '0 0 24px', fontSize: '24px' }} />
               <Text>
-                <span style={{ fontWeight: 'bold' }}>Role: </span>
+                <span style={{ fontWeight: 'bold', wordWrap: 'break-word', maxWidth: '400px' }}>Role: </span>
                 {user?.role}
               </Text>
             </HStack>
             <HStack spacing={5} align="center" mt={4}>
               <FaCode style={{ flex: '0 0 24px', fontSize: '24px' }} />
               <Text>
-                <span style={{ fontWeight: 'bold' }}>Languages: </span>
+                <span style={{ fontWeight: 'bold', wordWrap: 'break-word', maxWidth: '400px' }}>Languages: </span>
                 {(user?.languages?.length ?? 0) > 0 ? user?.languages?.map((lang) => lang.language).join(', ') : 'None'}
               </Text>
             </HStack>

@@ -46,6 +46,8 @@ interface JwtPayload {
   iat: number;
 }
 
+const DEPLOYED_URL = "https://master.da377qx9p9syb.amplifyapp.com/";
+
 const storedRefreshTokens: string[] = [];
 // TODO: Make a MongoDB for refresh tokens
 // IF TIME PERMITS
@@ -133,10 +135,15 @@ export const logIn: RequestHandler[] = [
       const refreshToken = await generateRefreshToken(userWithoutPassword);
       storedRefreshTokens.push(refreshToken);
 
-      res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: false,
+        secure: true,
+        sameSite: "none",
       });
 
       return res.status(200).json({
@@ -156,8 +163,16 @@ export async function logOut(req: Request, res: Response) {
   const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
   storedRefreshTokens.splice(index, 1);
 
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
   res.end();
 }
 
@@ -170,8 +185,16 @@ export const deregister = async (req: Request, res: Response) => {
     },
   });
   await prisma.user.delete({ where: { id: user.id } });
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
   res.end();
 };
 
@@ -245,11 +268,13 @@ export async function updateBothTokens(req: Request, res: Response) {
 
           res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: false,
+            secure: true,
+            sameSite: "none",
           });
           res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false,
+            secure: true,
+            sameSite: "none",
           });
 
           return res.status(200).json({
@@ -292,7 +317,7 @@ export const sendResetEmail: RequestHandler[] = [
         from: "your_email@example.com",
         to: email,
         subject: "Password Reset",
-        text: `Click the link below to reset your password: http://localhost:8000/reset-password?token=${resetToken}`,
+        text: `Click the link below to reset your password: ${DEPLOYED_URL}reset-password?token=${resetToken}`,
       };
 
       transporter.sendMail(mailOptions, (error: Error | null, info: any) => {
@@ -385,7 +410,8 @@ export async function updateAccessToken(req: Request, res: Response) {
 
         res.cookie("accessToken", accessToken, {
           httpOnly: true,
-          secure: false,
+          secure: true,
+          sameSite: "none",
         });
 
         return res.status(200).json({
