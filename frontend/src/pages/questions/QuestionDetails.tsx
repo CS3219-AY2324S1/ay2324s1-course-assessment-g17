@@ -112,7 +112,7 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
         <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
       </Text>
       <Divider mt={4} />
-      <Box ml="8px" minWidth="80%" maxWidth="100%" overflow={'scroll'}>
+      <Box ml="8px" minWidth="80%" maxWidth="100%" overflow="scroll">
         <VStack align="start" spacing={4} mt={4}>
           <Heading as="h2" size="md">
             Description
