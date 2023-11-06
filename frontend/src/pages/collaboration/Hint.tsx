@@ -26,18 +26,16 @@ const Hint: React.FC<HintParams> = ({ questionId }) => {
   const helpServiceUrl = process.env.REACT_APP_HELP_SERVICE_BACKEND_URL;
 
   const getHint = (): void => {
-    if (hint === '') {
-      axios
-        .get(helpServiceUrl + questionId.toString(10))
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        .then((response) => response.data)
-        .then((hint) => {
-          setHint(hint as string);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+    axios
+      .get(helpServiceUrl + questionId.toString(10))
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      .then((response) => response.data)
+      .then((hint) => {
+        setHint(hint as string);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
