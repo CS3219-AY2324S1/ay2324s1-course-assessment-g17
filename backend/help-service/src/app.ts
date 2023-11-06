@@ -24,11 +24,21 @@ app.get(
   async (req: Request, res: Response) => {
     const questionsAPIUrl = process.env.QUESTIONS_API_URL! + "/questions";
     const questionId = req.params.questionId;
-    const question = await axios.get(`${questionsAPIUrl}/${questionId}`, {
-      headers: {
-        Cookie: `serverToken=${process.env.SERVER_SECRET};`,
-      },
-    });
+    let question;
+
+    try {
+      question = await axios.get(`${questionsAPIUrl}/${questionId}`, {
+        headers: {
+          Cookie: `serverToken=${process.env.SERVER_SECRET};`,
+        },
+      });
+    } catch (error) {
+      res.json({
+        errors: [{ msg: "Something went wrong. Invalid question ID?" }],
+      });
+      return;
+    }
+
     const description = question.data.data.questionDescription;
     const promptPrefix =
       "You are a assistant in a coding interview. Give a helpful hint that helps solve this problem. Do not return code. Do not give the entire solution.";
