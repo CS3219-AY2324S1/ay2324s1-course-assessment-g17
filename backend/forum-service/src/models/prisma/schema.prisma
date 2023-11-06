@@ -25,4 +25,5 @@ model Comment {
   username String
   postId Int
   upvotes String[]  @default([])
+  createdAt DateTime @default(now())
 }
