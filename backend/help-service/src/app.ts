@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-
+import cors from "cors";
 import { TextServiceClient } from "@google-ai/generativelanguage";
 import { GoogleAuth } from "google-auth-library";
 import { param } from "express-validator";
@@ -9,6 +9,10 @@ import axios from "axios";
 dotenv.config();
 
 const app: Express = express();
+
+const FRONTEND_URL = process.env.FRONTEND_URL as string;
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+
 const port = process.env.PORT;
 const API_KEY = process.env.API_KEY;
 
