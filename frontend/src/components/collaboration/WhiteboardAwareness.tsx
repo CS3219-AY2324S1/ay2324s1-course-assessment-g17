@@ -26,7 +26,7 @@ const WhiteboardAwarenessDisplay: React.FC<WhiteboardAwarenessDisplayProps> = ({
         marginTop={16}
         marginLeft={2}
       >
-        <AvatarGroup size="sm" max={10} spacing={2} pointerEvents="all">
+        <AvatarGroup size="sm" max={5} spacing={2} pointerEvents="all">
           {Array.from(users.values()).map(
             (user, index) =>
               // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -37,7 +37,7 @@ const WhiteboardAwarenessDisplay: React.FC<WhiteboardAwarenessDisplayProps> = ({
                       size="sm"
                       name={user.presence?.userName}
                       backgroundColor={user.presence?.color}
-                      color="black"
+                      color="white"
                     />
                   </Tooltip>
                 </Box>
