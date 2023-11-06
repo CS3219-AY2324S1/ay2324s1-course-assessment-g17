@@ -19,6 +19,7 @@ import { selectIsAdmin } from '../../reducers/authSlice';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
+import '../../App.css';
 
 interface QuestionDetailsProps {
   questionId: number;
@@ -94,7 +95,7 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
   }
 
   return (
-    <VStack as="div" style={{ overflowY: 'auto', height: '100%' }} padding={padding}>
+    <VStack as="div" style={{ overflowY: 'auto', overflowX: 'auto', height: '100%' }} padding={padding}>
       <Heading as="h1" size="xl" textAlign="center">
         {question.title}
         {isAdmin && <QuestionEditIconButton questionId={question.questionID} title={question.title} />}
@@ -111,18 +112,21 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
         <Link href={question.linkToQuestion}>{question.linkToQuestion}</Link>
       </Text>
       <Divider mt={4} />
-      <Box ml="8px" minWidth={'80%'}>
+      <Box ml="8px" minWidth="80%" maxWidth="100%" overflow="scroll">
         <VStack align="start" spacing={4} mt={4}>
           <Heading as="h2" size="md">
             Description
           </Heading>
-          <Text
-            whiteSpace="pre-line"
-            dangerouslySetInnerHTML={{
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-              __html: DOMPurify.sanitize(question.questionDescription),
-            }}
-          />
+          <Box maxWidth="100%">
+            <Text
+              id="questionDescription"
+              whiteSpace="pre-line"
+              dangerouslySetInnerHTML={{
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+                __html: DOMPurify.sanitize(question.questionDescription),
+              }}
+            />
+          </Box>
         </VStack>
       </Box>
     </VStack>
