@@ -17,9 +17,11 @@ import { YKeyValue } from 'y-utility/y-keyvalue';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import { DEFAULT_STORE } from './defaultStore';
+import { type User } from '../../types/users/users';
 
 interface YjsState {
   roomId: string;
+  currentUser?: User | null;
   hostUrl?: string;
   shapeUtils?: TLAnyShapeUtilConstructor[];
   version?: number;
@@ -30,11 +32,13 @@ interface YjsStore {
   awareness: WebsocketProvider['awareness'];
 }
 
-export interface WhiteboardAwareness {
+interface Awareness {
   id: string;
   color: string;
   name: string;
 }
+
+export type WhiteboardAwareness = Partial<Omit<TLInstancePresence, 'id'>> & Awareness;
 
 export type WhiteboardRoomState = Map<number, { presence: TLInstancePresence }>;
 
@@ -47,6 +51,7 @@ type yStoreChanges = Map<
 
 export const useYjsStore = ({
   roomId,
+  currentUser,
   hostUrl = process.env.REACT_APP_COLLABORATION_SERVICE_WEBSOCKET_BACKEND_URL as string,
   shapeUtils = [],
 }: YjsState): YjsStore => {
@@ -134,7 +139,7 @@ export const useYjsStore = ({
         return {
           id: user.id,
           color: user.color ?? defaultUserPreferences.color,
-          name: user.name ?? defaultUserPreferences.name,
+          name: currentUser?.username ?? defaultUserPreferences.name,
         };
       });
 
