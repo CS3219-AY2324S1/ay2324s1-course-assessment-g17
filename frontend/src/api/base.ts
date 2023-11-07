@@ -10,6 +10,11 @@ export const userServiceClient = axios.create({
   withCredentials: true,
 });
 
+export const collabServiceClient = axios.create({
+  baseURL: process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL,
+  withCredentials: true,
+});
+
 export const codeExecutionServiceClient = axios.create({
   baseURL: `https://${process.env.REACT_APP_RAPID_API_HOST}`,
 });

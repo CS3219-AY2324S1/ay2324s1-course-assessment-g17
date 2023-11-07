@@ -28,100 +28,62 @@ import { type editor } from 'monaco-editor';
 import CodeExecutor from '../../components/code/CodeExecutor';
 import ChatBox from '../../components/chat/ChatBox';
 import IconWithText from '../../components/content/IconWithText';
-import axios from 'axios';
 import Whiteboard from '../../components/collaboration/Whiteboard';
 import { selectAwareness } from '../../reducers/awarenessSlice';
 import Hint from './Hint';
-
-interface Question {
-  questionID: string;
-  complexity: string;
-  categories: string[];
-}
-
-interface PairIdsResponse {
-  _id: string;
-  userOne: number;
-  userTwo: number;
-  room_id: string;
-  complexity: string[];
-  categories: string[];
-  question_ids: number[];
-  __v: number;
-}
+import UserAPI from '../../api/users/user';
+import CollaborationAPI from '../../api/collaboration/collaboration';
 
 interface CollaborationRoomProps {
   isMatchingRoom: boolean;
 }
 const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }: CollaborationRoomProps) => {
-  const collabServiceUrl = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
-  const userServiceUrl = process.env.REACT_APP_USER_SERVICE_BACKEND_URL;
-  const [attemptedFirst, setAttemptedFirst] = useState(false);
   const toast = useToast();
-  const editorTheme = useColorModeValue('light', 'vs-dark');
-  const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const navigate = useNavigate();
   const user = useAppSelector(selectUser);
   const awareness = useAppSelector(selectAwareness);
-  const { socket } = useContext(SocketContext);
   const roomId = useParams<{ roomId: string }>().roomId;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const editorTheme = useColorModeValue('light', 'vs-dark');
+  const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const { socket } = useContext(SocketContext);
+
+  const collaborationServiceApi = new CollaborationAPI();
+  const userServiceApi = new UserAPI();
+  const [attemptedFirst, setAttemptedFirst] = useState(false);
   const [questionId, setQuestionId] = useState<number | undefined>(undefined);
 
-  const navigate = useNavigate();
-  const addSavedQuestion = async (currIndex: number, roomId: number): Promise<void> => {
-    const currQuestionResponse = await axios.get(
-      collabServiceUrl + (currIndex === 1 ? 'api/get-first-question' : 'api/get-second-question'),
-      {
-        params: {
-          roomId,
-        },
-      },
-    );
+  const handleQuestionChange = (newQuestionId: number | undefined): void => {
+    setQuestionId(newQuestionId);
+  };
 
-    const pairIdsResponse = await axios.get(collabServiceUrl + 'api/get-pair-ids', {
-      params: {
-        roomId,
-      },
-    });
-    // save both users
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const pairIds = pairIdsResponse.data as PairIdsResponse;
+  const addSavedQuestion = async (currIndex: 1 | 2, roomId: string): Promise<void> => {
+    // Save both users
+    const currQuestion = await collaborationServiceApi.getMatchedQuestion(currIndex, roomId);
+    const pairIds = await collaborationServiceApi.getMatchedPairInfo(roomId);
     const userOneId = pairIds.userOne;
     const userTwoId = pairIds.userTwo;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const currQuestion = currQuestionResponse.data.data as Question;
-    if (user?.id === userOneId) {
-      await axios.post(userServiceUrl + 'api/user/add-answered-question', {
-        userId: userOneId,
-        questionId: currQuestion.questionID,
-        complexity: currQuestion.complexity,
-        category: currQuestion.categories,
-      });
-    } else if (user?.id === userTwoId) {
-      await axios.post(userServiceUrl + 'api/user/add-answered-question', {
-        userId: userTwoId,
-        questionId: currQuestion.questionID,
-        complexity: currQuestion.complexity,
-        category: currQuestion.categories,
-      });
+    try {
+      if (user?.id === userOneId) {
+        await userServiceApi.postSaveAnsweredQuestion(userOneId, currQuestion);
+      } else if (user?.id === userTwoId) {
+        await userServiceApi.postSaveAnsweredQuestion(userTwoId, currQuestion);
+      }
+    } catch (error) {
+      console.error('Error adding saved question:', error);
     }
   };
 
-  // a user click next
+  // A user clicks next
   const handleNextQuestion = (): void => {
-    if (user === null) {
-      return;
-    }
+    if (user === null) return;
     socket?.emit('user-agreed-next', roomId, user.id);
     setAttemptedFirst(true);
   };
 
-  // a user click end session
+  // A user clicks end session
   const handleEndSession = (): void => {
-    if (user === null) {
-      return;
-    }
+    if (user === null) return;
     if (!attemptedFirst) {
       toast({
         title: 'You have to attempt at least one question before ending the session',
@@ -134,32 +96,27 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
     socket?.emit('user-agreed-end', roomId, user.id);
   };
 
-  useEffect(() => {
-    const checkAuthorization = async (): Promise<void> => {
-      if (user === null) {
-        console.error('User ID is undefined');
-        navigate('/');
-        return;
-      }
-      const response = await axios.get<{ authorised: boolean }>(collabServiceUrl + 'api/check-authorization', {
-        params: {
-          userId: user.id,
-          roomId,
-        },
-      });
-      console.log('Response:', response.data);
+  const checkAuthorization = async (): Promise<void> => {
+    if (user === null || roomId == null) {
+      console.error('User/ Room ID is undefined');
+      navigate('/');
+      return;
+    }
 
-      if (!response.data.authorised) {
-        toast({
-          title: 'Invalid permission',
-          description: 'Room does not belong to you.',
-          status: 'warning',
-          duration: 5000,
-          isClosable: true,
-        });
-        navigate('/');
-      }
-    };
+    const isAuthorised = await collaborationServiceApi.checkAuthorisation(user.id, roomId);
+    if (!isAuthorised) {
+      toast({
+        title: 'Invalid permission',
+        description: 'Room does not belong to you.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/');
+    }
+  };
+
+  useEffect(() => {
     checkAuthorization().catch((error) => {
       console.error('Error checking authorization:', error);
     });
@@ -167,6 +124,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
 
   useEffect(() => {
     socket?.emit('join-room', roomId, user?.username);
+
     socket?.on('waiting-for-other-user', () => {
       toast({
         title: 'Both users have to agree to go to the next question',
@@ -175,6 +133,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
         isClosable: true,
       });
     });
+
     socket?.on('waiting-for-other-user-end', () => {
       toast({
         title: 'Both users have to agree to end the session',
@@ -183,31 +142,21 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
         isClosable: true,
       });
     });
-    socket?.on('both-users-agreed-next', async (roomId: number) => {
+
+    socket?.on('both-users-agreed-next', async (roomId: string) => {
       console.log('Both users agreed to go to the next question');
       setAttemptedFirst(true);
-      const nextQuestionResponse = await axios.get(collabServiceUrl + 'api/get-second-question', {
-        params: {
-          roomId,
-        },
-      });
-      console.log('Next question response:', nextQuestionResponse.data);
-      addSavedQuestion(1, roomId).catch((error) => {
-        console.error('Error adding saved question:', error);
-      });
+      await addSavedQuestion(1, roomId);
       socket?.off('both-users-agreed-next');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const nextQuestionData = nextQuestionResponse.data.data as Question;
 
+      const nextQuestionData = await collaborationServiceApi.getMatchedSecondQuestion(roomId);
       const nextQuestionId = Number(nextQuestionData.questionID);
       setQuestionId(nextQuestionId);
       socket?.emit('change-question', nextQuestionId, roomId);
     });
 
-    socket?.on('both-users-agreed-end', (roomId: number) => {
-      addSavedQuestion(2, roomId).catch((error) => {
-        console.error('Error adding saved question:', error);
-      });
+    socket?.on('both-users-agreed-end', async (roomId: string) => {
+      await addSavedQuestion(2, roomId);
       socket?.off('both-users-agreed-end');
       navigate('/');
     });
@@ -263,7 +212,11 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       <Box width="100%" height="80vh" my={5}>
         <Allotment defaultSizes={[6, 9, 5]}>
           <Allotment.Pane>
-            <CollaborationQuestion />
+            <CollaborationQuestion
+              questionId={questionId}
+              disableSelection={isMatchingRoom}
+              onQuestionIdChange={handleQuestionChange}
+            />
           </Allotment.Pane>
           <Allotment.Pane>
             <Box as="div" style={{ maxHeight: '80vh' }}>

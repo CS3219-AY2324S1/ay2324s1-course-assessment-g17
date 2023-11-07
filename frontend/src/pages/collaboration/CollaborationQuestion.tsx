@@ -1,22 +1,19 @@
 import { Box, HStack, VStack, Text, NumberInput, NumberInputField, Button } from '@chakra-ui/react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import QuestionDetails from '../questions/QuestionDetails';
-import { SocketContext } from '../../context/socket';
 
-const CollaborationQuestion: React.FC = () => {
+interface CollaborationQuestionProps {
+  disableSelection: boolean;
+  questionId?: number;
+  onQuestionIdChange: (newQuestionId?: number) => void;
+}
+
+const CollaborationQuestion: React.FC<CollaborationQuestionProps> = ({
+  questionId,
+  disableSelection,
+  onQuestionIdChange,
+}: CollaborationQuestionProps) => {
   const [questionIdInput, setQuestionIdInput] = useState<number | undefined>(undefined);
-  const [questionId, setQuestionId] = useState<number | undefined>(undefined);
-  const [disableSelection, setDisableSelection] = useState(false);
-  const { socket } = useContext(SocketContext);
-
-  useEffect(() => {
-    socket?.on('set-question', (questionId: number) => {
-      setQuestionId(questionId);
-      setQuestionIdInput(questionId);
-      // disable manual question selection for normal matches (?)
-      setDisableSelection(true);
-    });
-  }, [socket]);
 
   return (
     <VStack as="div" style={{ overflowY: 'auto', height: '100%', paddingLeft: '16px', paddingRight: '16px' }}>
@@ -44,7 +41,7 @@ const CollaborationQuestion: React.FC = () => {
           <Button
             size="sm"
             onClick={() => {
-              setQuestionId(questionIdInput);
+              onQuestionIdChange(questionIdInput);
             }}
             disabled={disableSelection}
           >
