@@ -1,15 +1,18 @@
 import {
-  useDisclosure,
   Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
-  ModalBody,
   Flex,
-  Box,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverBody,
+  ButtonGroup,
+  PopoverFooter,
   Text,
-  Spinner,
+  useDisclosure,
+  Skeleton,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -21,48 +24,74 @@ interface HintParams {
 }
 
 const Hint: React.FC<HintParams> = ({ questionId }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [hint, setHint] = useState('');
+  const { isOpen, onToggle, onClose } = useDisclosure();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hint, setHint] = useState<string | null>(null);
   const helpServiceUrl = process.env.REACT_APP_HELP_SERVICE_BACKEND_URL;
 
-  const getHint = (): void => {
-    axios
-      .get(helpServiceUrl + questionId.toString(10))
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      .then((response) => response.data)
-      .then((hint) => {
-        setHint(hint as string);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const getHint = async (): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await axios
+        .get(`${helpServiceUrl}${questionId.toString(10)}`)
+        .then((response) => response.data as string)
+        .then((hint) => {
+          setHint(hint);
+        });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (isOpen) {
-      getHint();
-    }
-  }, [isOpen]);
+    setHint(null);
+    setIsLoading(false);
+  }, [questionId]);
 
   return (
-    <Flex marginLeft={2} alignItems="center">
-      <Button size="sm" variant="outline" onClick={onOpen} leftIcon={<FaLightbulb size={20} />}>
-        Get Hint
-      </Button>
-
-      <Modal isCentered closeOnOverlayClick={false} size="sm" isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box padding={4} id="markdown">
-              <Text fontSize="2xl">Hint</Text>
-              {hint !== '' ? <Markdown>{hint}</Markdown> : <Spinner size="xl" />}
-            </Box>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </Flex>
+    <Popover isLazy placement="bottom" offset={[-100, 0]} isOpen={isOpen}>
+      <PopoverTrigger>
+        <Flex marginLeft={2} alignItems="center">
+          <Button size="sm" variant="outline" leftIcon={<FaLightbulb size={20} />} onClick={onToggle}>
+            Get Hint
+          </Button>
+        </Flex>
+      </PopoverTrigger>
+      <PopoverContent minW={{ base: '100%', lg: 'min-content' }}>
+        <PopoverArrow />
+        <PopoverHeader pt={4} fontWeight="bold" border="0">
+          Generate a hint with AI
+        </PopoverHeader>
+        <PopoverCloseButton onClick={onClose} />
+        <PopoverBody id="markdown" paddingBottom={hint === null ? 4 : 8}>
+          {hint === null ? (
+            <Skeleton isLoaded={!isLoading}>
+              <Text>
+                Stuck on the problem? Generate a hint with the help of AI! These hints might not be entirely accurate,
+                take them with a pinch of salt!
+              </Text>
+            </Skeleton>
+          ) : (
+            <Markdown>{hint}</Markdown>
+          )}
+        </PopoverBody>
+        {hint === null && (
+          <PopoverFooter border="0" display="flex" alignItems="center" justifyContent="end" paddingBottom={4}>
+            <ButtonGroup size="sm">
+              <Button colorScheme="gray" onClick={onClose} isLoading={isLoading}>
+                Cancel
+              </Button>
+              {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
+              <Button colorScheme="blue" onClick={getHint} isLoading={isLoading}>
+                Got it, give me a hint
+              </Button>
+            </ButtonGroup>
+          </PopoverFooter>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 };
 
