@@ -201,39 +201,36 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
   }, [socket, roomId]);
 
   return (
-    <>
+    <Box>
       <Flex mt={4} mx={4} justifyContent="space-between">
         <RoomInfo />
         {isMatchingRoom && (
-          <>
-            {!attemptedFirst && (
-              <Button
-                size="sm"
-                onClick={() => {
-                  handleQuestionChange();
-                }}
-                mx={4}
-              >
-                Next Question {attemptedFirst}
-              </Button>
-            )}
+          <Box>
+            <Button
+              size="sm"
+              onClick={() => {
+                handleQuestionChange();
+              }}
+              mx={4}
+              hidden={attemptedFirst}
+            >
+              Next Question {attemptedFirst}
+            </Button>
             <Button size="sm" mx={4} onClick={handleEndSession}>
               End Session
             </Button>
-          </>
+          </Box>
         )}
         {!isMatchingRoom && (
-          <>
-            <Button
-              size="sm"
-              mx={4}
-              onClick={() => {
-                navigate('/');
-              }}
-            >
-              Exit
-            </Button>
-          </>
+          <Button
+            size="sm"
+            mx={4}
+            onClick={() => {
+              navigate('/');
+            }}
+          >
+            Exit
+          </Button>
         )}
         <Spacer />
         {awareness !== null && <CollaboratorUsers awareness={awareness} />}
@@ -297,7 +294,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
           </Allotment.Pane>
         </Allotment>
       </Box>
-    </>
+    </Box>
   );
 };
 
