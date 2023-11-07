@@ -117,7 +117,6 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
     // Listen to set first question
     socket?.on('set-first-question', (questionId: number) => {
       setQuestionId(questionId);
-      socket?.off('set-first-question');
     });
 
     // Attach listener for when other user tries to go to next question
