@@ -9,7 +9,6 @@ import {
   TabPanels,
   Tabs,
   useColorModeValue,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
@@ -33,12 +32,13 @@ import { selectAwareness } from '../../reducers/awarenessSlice';
 import Hint from './Hint';
 import UserAPI from '../../api/users/user';
 import CollaborationAPI from '../../api/collaboration/collaboration';
+import ToastWrapper from '../../utils/toast';
 
 interface CollaborationRoomProps {
   isMatchingRoom: boolean;
 }
 const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }: CollaborationRoomProps) => {
-  const toast = useToast();
+  const toast = new ToastWrapper();
   const navigate = useNavigate();
   const user = useAppSelector(selectUser);
   const awareness = useAppSelector(selectAwareness);
@@ -85,12 +85,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
   const handleEndSession = (): void => {
     if (user === null) return;
     if (!attemptedFirst) {
-      toast({
-        title: 'You have to attempt at least one question before ending the session',
-        status: 'warning',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.showWarningToast({ title: 'You have to attempt at least one question before ending the session' });
       return;
     }
     socket?.emit('user-agreed-end', roomId, user.id);
@@ -105,13 +100,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
 
     const isAuthorised = await collaborationServiceApi.checkAuthorisation(user.id, roomId);
     if (!isAuthorised) {
-      toast({
-        title: 'Invalid permission',
-        description: 'Room does not belong to you.',
-        status: 'warning',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.showWarningToast({ title: 'Invalid permission', description: 'Room does not belong to you.' });
       navigate('/');
     }
   };
@@ -126,21 +115,11 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
     socket?.emit('join-room', roomId, user?.username);
 
     socket?.on('waiting-for-other-user', () => {
-      toast({
-        title: 'Both users have to agree to go to the next question',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.showSuccessToast({ title: 'Both users have to agree to go to the next question' });
     });
 
     socket?.on('waiting-for-other-user-end', () => {
-      toast({
-        title: 'Both users have to agree to end the session',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.showSuccessToast({ title: 'Both users have to agree to end the session' });
     });
 
     socket?.on('both-users-agreed-next', async (roomId: string) => {
