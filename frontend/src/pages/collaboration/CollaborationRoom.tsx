@@ -52,10 +52,6 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
   const [attemptedFirst, setAttemptedFirst] = useState(false);
   const [questionId, setQuestionId] = useState<number | undefined>(undefined);
 
-  const handleQuestionChange = (newQuestionId: number | undefined): void => {
-    setQuestionId(newQuestionId);
-  };
-
   const addSavedQuestion = async (currIndex: 1 | 2, roomId: string): Promise<void> => {
     // Save both users
     const currQuestion = await collaborationServiceApi.getMatchedQuestion(currIndex, roomId);
@@ -72,6 +68,12 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
     } catch (error) {
       console.error('Error adding saved question:', error);
     }
+  };
+
+  const handleQuestionChange = (newQuestionId: number | undefined): void => {
+    setQuestionId(newQuestionId);
+    // Emit change-question event to let other connected users know to change the question
+    socket?.emit('change-question', newQuestionId, roomId, user?.username);
   };
 
   // A user clicks next
@@ -98,59 +100,94 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       return;
     }
 
-    const isAuthorised = await collaborationServiceApi.checkAuthorisation(user.id, roomId);
-    if (!isAuthorised) {
-      toast.showWarningToast({ title: 'Invalid permission', description: 'Room does not belong to you.' });
-      navigate('/');
+    try {
+      const isAuthorised = await collaborationServiceApi.checkAuthorisation(user.id, roomId);
+      if (!isAuthorised) {
+        toast.showWarningToast({ title: 'Invalid permission', description: 'Room does not belong to you.' });
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Error checking authorization:', error);
     }
   };
 
-  useEffect(() => {
-    checkAuthorization().catch((error) => {
-      console.error('Error checking authorization:', error);
+  // Attach socket listeners relevant only for matching room
+  const attachMatchingListeners = (): void => {
+    // Listen to set first question
+    socket?.on('set-first-question', (questionId: number) => {
+      setQuestionId(questionId);
+      socket?.off('set-first-question');
     });
-  }, []);
 
-  useEffect(() => {
-    socket?.emit('join-room', roomId, user?.username);
-
+    // Attach listener for when other user tries to go to next question
     socket?.on('waiting-for-other-user', () => {
       toast.showSuccessToast({ title: 'Both users have to agree to go to the next question' });
     });
 
+    // Attach listener for when other user tries to end the session
     socket?.on('waiting-for-other-user-end', () => {
       toast.showSuccessToast({ title: 'Both users have to agree to end the session' });
     });
 
+    // Attach listener for when both users have agreed to proceed to the next question
     socket?.on('both-users-agreed-next', async (roomId: string) => {
       console.log('Both users agreed to go to the next question');
+
+      // Save the first question as attempted
       setAttemptedFirst(true);
       await addSavedQuestion(1, roomId);
+
+      // Remove listener (only 2 questions per session)
       socket?.off('both-users-agreed-next');
 
+      // Go to the next question, no need to emit change-question
+      // event as users are responsible for retrieving and updating their own question
       const nextQuestionData = await collaborationServiceApi.getMatchedSecondQuestion(roomId);
       const nextQuestionId = Number(nextQuestionData.questionID);
       setQuestionId(nextQuestionId);
-      socket?.emit('change-question', nextQuestionId, roomId);
     });
 
+    // Attach listener for when both users have agreed to end the session
     socket?.on('both-users-agreed-end', async (roomId: string) => {
+      // Save the question before leaving the room
       await addSavedQuestion(2, roomId);
       socket?.off('both-users-agreed-end');
       navigate('/');
     });
+  };
 
-    socket?.on('set-question', (questionId: number) => {
+  // Attach socket listeners relevant only for practice room
+  const attachPracticeRoomListeners = (): void => {
+    // Listen to set question events and show toast
+    socket?.on('set-question', (questionId: number, username: string) => {
       setQuestionId(questionId);
+      toast.showInfoToast({ title: `User ${username} changed the question` });
     });
+  };
 
-    socket?.on('broadcast-question', (questionId: number) => {
-      setQuestionId(questionId);
-    });
+  useEffect(() => {
+    if (isMatchingRoom) {
+      // Check that the user is authorised to enter the room
+      void checkAuthorization();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Emit join-room event to broadcast new user entering room
+    socket?.emit('join-room', roomId, user?.username);
+
+    // Attach matching listeners only for matching room
+    if (isMatchingRoom) {
+      attachMatchingListeners();
+    } else {
+      attachPracticeRoomListeners();
+    }
 
     return () => {
-      socket?.off('both-users-agreed-next');
-      socket?.off('both-users-agreed-end');
+      if (isMatchingRoom) {
+        socket?.off('both-users-agreed-next');
+        socket?.off('both-users-agreed-end');
+      }
     };
   }, [socket, roomId]);
 
