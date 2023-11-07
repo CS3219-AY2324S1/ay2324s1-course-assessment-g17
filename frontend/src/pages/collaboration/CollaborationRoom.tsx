@@ -30,9 +30,9 @@ import ChatBox from '../../components/chat/ChatBox';
 import IconWithText from '../../components/content/IconWithText';
 import axios from 'axios';
 import Whiteboard from '../../components/collaboration/Whiteboard';
-import Hint from './Hint';
 import { selectAwareness } from '../../reducers/awarenessSlice';
 import Hint from './Hint';
+
 interface Question {
   questionID: string;
   complexity: string;
