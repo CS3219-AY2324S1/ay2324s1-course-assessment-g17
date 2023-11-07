@@ -12,12 +12,12 @@ export default class CollaborationAPI {
 
   public async getMatchedQuestion(questionIndex: 1 | 2, roomId: string): Promise<QuestionMiniData> {
     const queryUrl = questionIndex === 1 ? this.MATCH_FIRST_QUESTION_URL : this.MATCH_SECOND_QUESTION_URL;
-    const response = await collabServiceClient.post(this.getCollabUrl() + queryUrl, { params: { roomId } });
+    const response = await collabServiceClient.get(this.getCollabUrl() + queryUrl, { params: { roomId } });
     return response.data.data;
   }
 
   public async getMatchedPairInfo(roomId: string): Promise<MatchedPairIdsResponse> {
-    const response = await collabServiceClient.post(this.getCollabUrl() + 'get-pair-ids', { params: { roomId } });
+    const response = await collabServiceClient.get(this.getCollabUrl() + 'get-pair-ids', { params: { roomId } });
     return response.data;
   }
 
