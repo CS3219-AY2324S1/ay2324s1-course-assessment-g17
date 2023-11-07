@@ -40,3 +40,7 @@
 #questionDescription pre {
   white-space: pre-wrap;
 }
+
+#markdown pre {
+  white-space: pre-wrap;
+}

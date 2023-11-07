@@ -31,6 +31,8 @@ import IconWithText from '../../components/content/IconWithText';
 import axios from 'axios';
 import Whiteboard from '../../components/collaboration/Whiteboard';
 import { selectAwareness } from '../../reducers/awarenessSlice';
+import Hint from './Hint';
+
 interface Question {
   questionID: string;
   complexity: string;
@@ -210,6 +212,10 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       navigate('/');
     });
 
+    socket?.on('set-question', (questionId: number) => {
+      setQuestionId(questionId);
+    });
+
     socket?.on('broadcast-question', (questionId: number) => {
       setQuestionId(questionId);
     });
@@ -251,6 +257,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
         )}
         <Spacer />
         {awareness !== null && <CollaboratorUsers awareness={awareness} />}
+        {questionId !== undefined && <Hint questionId={questionId} />}
         <Whiteboard />
       </Flex>
       <Box width="100%" height="80vh" my={5}>
