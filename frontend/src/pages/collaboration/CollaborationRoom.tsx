@@ -70,17 +70,18 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
     }
   };
 
-  const handleQuestionChange = (newQuestionId: number | undefined): void => {
-    setQuestionId(newQuestionId);
-    // Emit change-question event to let other connected users know to change the question
-    socket?.emit('change-question', newQuestionId, roomId, user?.username);
-  };
-
-  // A user clicks next
-  const handleNextQuestion = (): void => {
+  const handleQuestionChange = (newQuestionId?: number): void => {
     if (user === null) return;
-    socket?.emit('user-agreed-next', roomId, user.id);
-    setAttemptedFirst(true);
+
+    if (isMatchingRoom) {
+      // User clicks next question
+      socket?.emit('user-agreed-next', roomId, user.id);
+      setAttemptedFirst(true);
+    } else {
+      setQuestionId(newQuestionId);
+      // Emit change-question event to let other connected users know to change the question
+      socket?.emit('change-question', newQuestionId, roomId, user?.username);
+    }
   };
 
   // A user clicks end session
@@ -170,11 +171,19 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       // Check that the user is authorised to enter the room
       void checkAuthorization();
     }
-  }, []);
 
-  useEffect(() => {
     // Emit join-room event to broadcast new user entering room
     socket?.emit('join-room', roomId, user?.username);
+
+    // Listen to new users joining
+    socket?.on('user-join', (newUser: string) => {
+      toast.showInfoToast({ title: `User ${newUser} has joined the room` });
+    });
+
+    // Listen to users leaving
+    socket?.on('user-disconnect', (disconnectedUser: string) => {
+      toast.showInfoToast({ title: `User ${disconnectedUser} has left the room` });
+    });
 
     // Attach matching listeners only for matching room
     if (isMatchingRoom) {
@@ -198,7 +207,13 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
         {isMatchingRoom && (
           <>
             {!attemptedFirst && (
-              <Button size="sm" onClick={handleNextQuestion} mx={4}>
+              <Button
+                size="sm"
+                onClick={() => {
+                  handleQuestionChange();
+                }}
+                mx={4}
+              >
                 Next Question {attemptedFirst}
               </Button>
             )}

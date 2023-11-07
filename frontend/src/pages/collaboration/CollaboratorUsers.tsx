@@ -1,9 +1,8 @@
-import { Avatar, AvatarGroup, Box, Button, HStack, Tooltip, useToast } from '@chakra-ui/react';
+import { Avatar, AvatarGroup, Box, Button, HStack, Tooltip } from '@chakra-ui/react';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import { HiUserGroup } from 'react-icons/hi';
-import React, { useContext, useEffect } from 'react';
-import { SocketContext } from '../../context/socket';
+import React from 'react';
 import { useUsers } from 'y-presence';
 import { type AwarenessUsers, type AwarenessUser } from '../../types/code/awareness';
 
@@ -12,32 +11,8 @@ interface UserTabProps {
 }
 
 const CollaboratorUsers: React.FC<UserTabProps> = ({ awareness }: UserTabProps) => {
-  const toast = useToast();
   const users = useUsers(awareness) as AwarenessUsers;
   const currentUser = useAppSelector(selectUser);
-  const { socket } = useContext(SocketContext);
-
-  useEffect(() => {
-    // Add listener for new users
-    socket?.on('user-join', (newUser: string) => {
-      toast({
-        title: `User ${newUser} has joined the room`,
-        status: 'info',
-        duration: 4000,
-        isClosable: true,
-      });
-    });
-
-    // Add listener for disconnected user
-    socket?.on('user-disconnect', (disconnectedUser: string) => {
-      toast({
-        title: `User ${disconnectedUser} has left the room`,
-        status: 'info',
-        duration: 4000,
-        isClosable: true,
-      });
-    });
-  }, [socket]);
 
   return (
     <HStack spacing={3}>
