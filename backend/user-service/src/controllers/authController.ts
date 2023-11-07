@@ -83,6 +83,7 @@ export const signUp: RequestHandler[] = [
           password: hashedPassword,
           email: formData.email,
           role: Role.USER,
+          // TODO2: and create a NULL for refreshToken
         },
       });
     } catch (err) {
@@ -130,10 +131,22 @@ export const logIn: RequestHandler[] = [
       return;
     }
     try {
+      //TODO
+      // Issue is needs to check that storedRefreshArray has no refreshToken before this.
+      // If there is, need to remove all previous before pushing new one
+
+      // Reasons:
+      // 1. This will prevent logins on multiple devices, which may reduce collab room mayhem
+      // (although perhaps matching could implement check to see if user is still in queue when matching, as can click away)
+      // 2. This will prevent the server from getting so bloated with refresh tokens if some idiot keeps deleting his cookies without logging out
+      // 3. This will prevent there from being 'defunct' refreshtokens still in server-side that hacker could get his hands on
       const { password: _, ...userWithoutPassword } = user;
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
+      // Perhaps look up user and then push to a value there
       storedRefreshTokens.push(refreshToken);
+
+      // TODO2: Or simply just replace the value of refreshToken in user records
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -159,7 +172,14 @@ export const logIn: RequestHandler[] = [
 ];
 
 export async function logOut(req: Request, res: Response) {
+  //TODO
+  // Issue is needs to check that storedRefreshArray has no other refreshToken besides refreshToken below.
+  // If there is, need to remove all previous and refreshToken below
+  
   // Clear server storage of refresh token
+
+  // TODO2:
+  // OR look up user and set refreshToken to NULL
   const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
   storedRefreshTokens.splice(index, 1);
 
@@ -185,6 +205,14 @@ export const deregister = async (req: Request, res: Response) => {
     },
   });
   await prisma.user.delete({ where: { id: user.id } });
+  //TODO
+  // Issue is needs to check that storedRefreshArray has no other refreshToken besides refreshToken below.
+  // If there is, need to remove all previous and refreshToken below
+
+  // also need to delete refreshToken
+
+  //TODO2
+  // HERE if deleting user, don't need to bother to remove JWT token from user in db
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: true,
@@ -211,6 +239,7 @@ export async function getCurrentUser(req: Request, res: Response) {
       where: { id: userId },
       select: {
         id: true,
+        // TODO2: Don't bother looking up the rest below
         username: true,
         email: true,
         role: true,
@@ -231,6 +260,7 @@ export async function getCurrentUser(req: Request, res: Response) {
 }
 
 // update after updating user profile
+// TODO2: Or jusy delete this entire thing ffs
 export async function updateBothTokens(req: Request, res: Response) {
   const refreshToken = req.cookies["refreshToken"];
 
@@ -242,6 +272,8 @@ export async function updateBothTokens(req: Request, res: Response) {
     try {
       const decoded = await authenticateRefreshToken(refreshToken);
 
+      // TODO2: modify here to get decoded.user?.id, 
+      // look up on prisma, then see if that refreshToken there matches refreshToken
       if (!storedRefreshTokens.includes(refreshToken)) {
         res.status(401).json({
           errors: [
@@ -262,6 +294,7 @@ export async function updateBothTokens(req: Request, res: Response) {
         }
         try {
           const { password: _, ...userWithoutPassword } = user;
+          // TODO2: replace refreshToken after generating (if using PSQL) in db user record
           const accessToken = await generateAccessToken(userWithoutPassword);
           const refreshToken = await generateRefreshToken(userWithoutPassword);
           storedRefreshTokens.push(refreshToken);
@@ -353,6 +386,8 @@ export const resetPassword: RequestHandler[] = [
     const { token } = req.query;
 
     try {
+      //TODO2: Remove all refreshTokens from this user in order to ensure security
+      // cos if resetting password might be because of security breach
       const isValidToken = await verifyTemporaryToken(token as string);
 
       if (!isValidToken) {
@@ -397,6 +432,7 @@ export async function updateAccessToken(req: Request, res: Response) {
     try {
       const decoded = await authenticateRefreshToken(refreshToken);
 
+      // TODO2: modify here to get decoded.user?.id, look up on prisma, then see if that refreshToken there matches refreshToken
       if (!storedRefreshTokens.includes(refreshToken)) {
         res.status(401).json({
           errors: [
@@ -427,6 +463,7 @@ export async function updateAccessToken(req: Request, res: Response) {
   }
 }
 
+// TODO2: When creating access and refresh token, just use the immutable user information.
 export const updateUserProfile: RequestHandler[] = [
   body("username").notEmpty().withMessage("Username cannot be empty"),
   body("email")
