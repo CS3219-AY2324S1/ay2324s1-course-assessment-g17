@@ -1,12 +1,12 @@
 import { Box, Button, Spinner, Text, useToast } from '@chakra-ui/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
-import axios, { type AxiosResponse, type AxiosError } from 'axios';
 import { setUser } from '../../reducers/authSlice';
 import { type User } from '../../types/users/users';
 import { useAppDispatch } from '../../reducers/hooks';
+import AuthAPI from '../../api/users/auth';
 
-interface oAuthLoginResponse {
+export interface oAuthLoginResponse {
   user: User | null;
   githubDetails: {
     githubId: number;
@@ -17,6 +17,7 @@ interface oAuthLoginResponse {
 }
 
 const GithubOAuth: React.FC = () => {
+  const authApi = new AuthAPI();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const toast = useToast();
@@ -29,61 +30,55 @@ const GithubOAuth: React.FC = () => {
   const sentAuthentication = useRef(false);
   const code = searchParams.get('code');
 
-  const handleAxiosErrors = (err: AxiosError<{ errors: Array<{ msg: string }> }>): void => {
-    const errors = err?.response?.data?.errors;
-    if (errors !== undefined) {
-      errors.map((error) =>
-        toast({
-          title: 'Login failed.',
-          description: error.msg,
-          status: 'error',
-          duration: 9000,
-          isClosable: true,
-        }),
-      );
-    }
+  const handleAxiosErrors = (errorDescription?: string): void => {
+    toast({
+      title: 'Login failed.',
+      description: errorDescription,
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+    });
+    navigate('/login');
   };
 
   const authenticateOAuth = async (): Promise<void> => {
-    setIsLoading(true);
-    await axios
-      .post(`${process.env.REACT_APP_USER_SERVICE_BACKEND_URL}oauth/auth`, { code }, { withCredentials: true })
-      .then((resp: AxiosResponse<oAuthLoginResponse, unknown>) => {
-        const user = resp.data.user;
-        const githubDetails = resp.data.githubDetails;
-        if (user !== null) {
-          // Exisiting user successful login
-          dispatch(setUser(user));
-          navigate('/');
-        } else if (githubDetails.githubId !== undefined) {
-          // New user successful oAuth login
-          setGithubId(githubDetails.githubId);
-          setUsername(githubDetails.username);
-          setName(githubDetails.name ?? '');
-          setEmail(githubDetails.email ?? '');
-        } else if (githubId === -1) {
-          toast({ title: 'Something went wrong!', status: 'error' });
-        }
-      })
-      .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
-        handleAxiosErrors(err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    if (code === null) {
+      handleAxiosErrors('Missing user code');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const { user, githubDetails } = await authApi.authenticateOAuth(code);
+      if (user !== null) {
+        // Exisiting user successful login
+        dispatch(setUser(user));
+        navigate('/');
+      } else if (githubDetails.githubId !== undefined) {
+        // New user successful oAuth login
+        setGithubId(githubDetails.githubId);
+        setUsername(githubDetails.username);
+        setName(githubDetails.name ?? '');
+        setEmail(githubDetails.email ?? '');
+      } else if (githubId === -1) {
+        throw Error('Failed to authenticate user');
+      }
+    } catch (error) {
+      handleAxiosErrors(error as string);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const createNewOAuthUser = async (): Promise<void> => {
-    await axios
-      .post(`${process.env.REACT_APP_USER_SERVICE_BACKEND_URL}oauth/signup`, { githubId, username, email })
-      .then((resp: AxiosResponse<User, unknown>) => {
-        console.log('resp.data', resp.data);
-        dispatch(setUser(resp.data));
-        navigate('/');
-      })
-      .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
-        handleAxiosErrors(err);
-      });
+    try {
+      const user = await authApi.createNewOAuthUser(githubId, username, email);
+      console.log('Created new oAuth user', user);
+      dispatch(setUser(user));
+      navigate('/');
+    } catch (err) {
+      handleAxiosErrors(err as string);
+    }
   };
 
   useEffect(() => {

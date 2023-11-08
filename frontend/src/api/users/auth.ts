@@ -1,5 +1,6 @@
 import type { LogInPostData, SignUpPostData } from '../../types/users/auth';
 import type { User, UserProfileUpdateData } from '../../types/users/users';
+import { type oAuthLoginResponse } from '../../pages/auth/GithubOAuth';
 import { userServiceClient } from '../base';
 
 export default class AuthAPI {
@@ -18,6 +19,14 @@ export default class AuthAPI {
 
   public async signUp(data: SignUpPostData): Promise<never> {
     return await userServiceClient.post(this.getAuthUrl() + 'signup', data);
+  }
+
+  public async authenticateOAuth(code: string): Promise<oAuthLoginResponse> {
+    return await userServiceClient.post(this.getAuthUrl() + 'oauth/auth', { code });
+  }
+
+  public async createNewOAuthUser(githubId: number, username: string, email: string): Promise<User> {
+    return await userServiceClient.post(this.getAuthUrl() + 'oauth/signup', { githubId, username, email });
   }
 
   public async deregister(): Promise<never> {
