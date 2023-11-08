@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import {
   Button,
   Card,
@@ -21,6 +20,9 @@ import { useAppDispatch } from '../../reducers/hooks';
 import { setUser } from '../../reducers/authSlice';
 
 const LoginForm: React.FC = () => {
+  const GITHUB_OAUTH_CLIENT_ID = process.env.REACT_APP_GITHUB_OAUTH_CLIENT_ID;
+  const GITHUB_OAUTH_REDIRECT_URI = process.env.REACT_APP_GITHUB_OAUTH_REDIRECT_URI;
+  const GITHUB_OAUTH_BASE_URL = `https://github.com/login/oauth/authorize?scope=user&client_id=${GITHUB_OAUTH_CLIENT_ID}&redirect_uri=${GITHUB_OAUTH_REDIRECT_URI}`;
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const toast = useToast();
@@ -50,6 +52,7 @@ const LoginForm: React.FC = () => {
         }
       });
   };
+
   return (
     <Container>
       <Card m={12} p={8}>
@@ -90,6 +93,9 @@ const LoginForm: React.FC = () => {
               <Text>
                 <Link to="/signup">Sign Up</Link>
               </Text>
+              <Button>
+                <a href={`${GITHUB_OAUTH_BASE_URL}?username=${username}`}>Login with Github</a>
+              </Button>
             </Flex>
           </Stack>
         </form>
