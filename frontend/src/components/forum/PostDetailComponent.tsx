@@ -110,7 +110,6 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
         <Divider mt={4} mb={4} />
         <HStack style={{ width: '80%', alignItems: 'flex-start' }}>
           <VStack style={{ width: '10%', justifyContent: 'flex-start' }}>
-
             <ForumUpvoteButton
               postId={postIdAsNumber}
               username={currentUser?.username ?? ''}
@@ -123,7 +122,6 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
               username={currentUser?.username ?? ''}
               onDownvote={handlePostUpvote}
             />
-            
           </VStack>
           <div
             style={{ width: '80%' }}

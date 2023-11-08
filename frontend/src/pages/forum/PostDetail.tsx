@@ -16,13 +16,13 @@ import {
   useToast,
   useColorModeValue,
   VStack,
-  Divider
+  Divider,
 } from '@chakra-ui/react';
 import DOMPurify from 'dompurify';
 // import CommentDeleteButton from '../../components/forum/CommentDeleteIconButton';
 import CommentUpvoteButton from '../../components/forum/CommentUpvoteIconButton';
 import CommentDownvoteButton from '../../components/forum/CommentDownvoteIconButton';
-import { AddIcon, CloseIcon, SearchIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import { AddIcon, CloseIcon, SearchIcon } from '@chakra-ui/icons';
 import { BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
 import ForumAPI from '../../api/forum/forum';
 import ForumPostsPagination from '../../components/forum/ForumPostsPagination';
@@ -37,7 +37,7 @@ const PostDetail: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
-  const [sortOption, setSortOption] = useState('newest'); // Default sorting is "Newest to Oldest"
+  const [sortOption, setSortOption] = useState<'newest' | 'mostVotes'>('newest'); // Default sorting is "Newest to Oldest"
   const commentsPerPage = 5;
   const newCommentLink = 'new-comment';
 
@@ -119,7 +119,6 @@ const PostDetail: React.FC = () => {
     });
   }, []);
 
-
   const formatCommentDate = (date: Date | undefined): string => {
     if (date !== undefined) {
       return new Date(date).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false });
@@ -127,15 +126,28 @@ const PostDetail: React.FC = () => {
     return '';
   };
 
-    // Calculate upvote status for each post.
-    const calculateUpvoteStatus = (comment: Comment): boolean => {
-      // Check if the user's username is in the upvotes array.
-      return comment.upvotes.includes(currentUser?.username ?? '');
-    };
-  
-    const handleCommentUpvote = (updatedComment: Comment): void => {
-      setComments((prev) => [...prev, updatedComment]);
-    }; // not sure if this is correct
+  // Calculate upvote status for each post.
+  const calculateUpvoteStatus = (comment: Comment): boolean => {
+    // Check if the user's username is in the upvotes array.
+    return comment.upvotes.includes(currentUser?.username ?? '');
+  };
+
+  const handleCommentUpvote = (updatedComment: Comment): void => {
+    const updatedComments = comments.filter((c) => c.id !== updatedComment.id);
+    const updatedFilteredComments = comments.filter((c) => c.id !== updatedComment.id);
+    setComments([...updatedComments, updatedComment]);
+
+    // Sort the posts based on the selected option.
+    const sorted = [...updatedFilteredComments, updatedComment];
+
+    if (sortOption === 'newest') {
+      sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } else if (sortOption === 'mostVotes') {
+      sorted.sort((a, b) => b.upvotes.length - a.upvotes.length);
+    }
+
+    setFilteredComments(sorted);
+  };
 
   const cardStyle = {
     border: '1px solid #ccc',
@@ -208,50 +220,39 @@ const PostDetail: React.FC = () => {
             </Button>
           </HStack>
 
-{/*  */}
+          {/*  */}
 
           <Stack padding={8} spacing={8} w="100%">
             {currentComments.map((comment) => (
-              <Flex direction="column" alignItems="center" style={cardStyle}>
+              <Flex key={comment.id} direction="column" alignItems="center" style={cardStyle}>
                 <Flex justifyContent="space-between" alignItems="center" style={{ maxWidth: '80%' }} mt={4}>
-                  
-                  {/* <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={4} mr={12}>
-                    <Box w="6" h="6" ml={2} mr={2}>
-                      <BiSolidUserCircle style={{ fontSize: '24px' }} />
-                    </Box>
-                    <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{comment?.username}</p>
-                  </Flex>
-                  <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={12} mr={12}>
-                    <Box w="6" h="6" ml={2} mr={2}>
-                      <BiSolidCalendar style={{ fontSize: '24px' }} />
-                    </Box>
-                    <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{formatCommentDate(comment?.createdAt)}</p>
-                  </Flex> */}
 
                   <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
                     <HStack>
                       <Box w="4" h="4">
                         <BiSolidUserCircle />
                       </Box>
-                      <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>{comment.username} commented...</Text>
+                      <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>
+                        {comment.username} commented...
+                      </Text>
                     </HStack>
                     <HStack>
                       <Box w="4" h="4">
                         <BiSolidCalendar />
                       </Box>
                       <Text style={{ fontStyle: 'italic' }}>
-                        {new Date(comment.createdAt).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false })}
+                        {formatCommentDate(comment.createdAt)}
                       </Text>
                     </HStack>
                   </Flex>
 
                   {/* {currentUser?.username === comment.username && (
                     <ForumDeleteIconButton
-                      postId={postIdAsNumber}
+                      commentId={commentIdAsNumber}
                       username={currentUser?.username ?? ''}
                       onDelete={handleCommentDeletion}
                     />
-                  )} */} 
+                  )} */}
                   {/* Delete not implemented yet */}
                 </Flex>
                 <Divider mt={4} mb={4} />
@@ -281,7 +282,7 @@ const PostDetail: React.FC = () => {
             ))}
           </Stack>
 
-{/*  */}
+          {/*  */}
 
           {/* Pagination component using the filteredPosts length */}
           <ForumPostsPagination

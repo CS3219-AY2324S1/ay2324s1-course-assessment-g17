@@ -222,10 +222,14 @@ const forumController = {
     } else {
       const updatedComment = await prisma.comment.update({
         where: { id: parseInt(commentId) },
-        data: { upvotes: { set: comment.upvotes.filter((upvote) => upvote !== username) } },
+        data: {
+          upvotes: {
+            set: comment.upvotes.filter((upvote) => upvote !== username),
+          },
+        },
       });
       res.json(updatedComment);
-    } 
+    }
   },
   async searchPost(req: Request, res: Response) {
     try {

@@ -6,7 +6,7 @@ import { type Comment } from '../../types/forum/forum';
 import { type AxiosError } from 'axios';
 
 interface CommentUpvoteIconButtonProps {
-  commentId: number; 
+  commentId: number;
   username: string;
   hasUpvoted: boolean;
   onUpvote: (updatedComment: Comment) => void;

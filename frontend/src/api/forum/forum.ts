@@ -53,7 +53,7 @@ export default class ForumAPI {
   // }
 
   /* Comments */
-  
+
   // Comments search is also directly done on frontend.
 
   public async viewComments(postId: number): Promise<Comment[]> {
