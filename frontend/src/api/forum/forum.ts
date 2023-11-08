@@ -70,9 +70,11 @@ export default class ForumAPI {
   //   return forumServiceClient.put(`${this.getForumUrl()}/comments/${commentId}`, data);
   // }
 
-  // public async deleteComment(commentId: number): Promise<void> {
-  //   await forumServiceClient.delete(`/comments/${commentId}`);
-  // }
+  public async deleteComment(commentId: number, username: string): Promise<void> {
+    await forumServiceClient.delete(`/comments/${commentId}`, {
+      data: { username },
+    });
+  }
 
   public async upvoteComment(commentId: number, username: string): Promise<Comment> {
     const response = await forumServiceClient.put(`/comments/${commentId}/upvote`, { username });

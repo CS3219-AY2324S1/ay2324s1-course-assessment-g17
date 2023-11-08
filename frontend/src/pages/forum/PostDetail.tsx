@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import PostDetailComponent from '../../components/forum/PostDetailComponent';
 import { type Comment } from '../../types/forum/forum';
 import {
@@ -19,7 +19,7 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import DOMPurify from 'dompurify';
-// import CommentDeleteButton from '../../components/forum/CommentDeleteIconButton';
+import CommentDeleteIconButton from '../../components/forum/CommentDeleteIconButton';
 import CommentUpvoteButton from '../../components/forum/CommentUpvoteIconButton';
 import CommentDownvoteButton from '../../components/forum/CommentDownvoteIconButton';
 import { AddIcon, CloseIcon, SearchIcon } from '@chakra-ui/icons';
@@ -32,6 +32,7 @@ import { selectUser } from '../../reducers/authSlice';
 const PostDetail: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -149,6 +150,23 @@ const PostDetail: React.FC = () => {
     setFilteredComments(sorted);
   };
 
+  const handleCommentDeletion = (deletedCommentId: number): void => {
+    const updatedComments = comments.filter((c) => c.id !== deletedCommentId);
+    const updatedFilteredComments = comments.filter((c) => c.id !== deletedCommentId);
+    setComments([...updatedComments]);
+
+    // Sort the posts based on the selected option.
+    const sorted = [...updatedFilteredComments];
+
+    if (sortOption === 'newest') {
+      sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } else if (sortOption === 'mostVotes') {
+      sorted.sort((a, b) => b.upvotes.length - a.upvotes.length);
+    }
+
+    setFilteredComments(sorted);
+  };
+
   const cardStyle = {
     border: '1px solid #ccc',
     padding: '20px 32px',
@@ -246,14 +264,14 @@ const PostDetail: React.FC = () => {
                     </HStack>
                   </Flex>
 
-                  {/* {currentUser?.username === comment.username && (
-                    <ForumDeleteIconButton
-                      commentId={commentIdAsNumber}
+                  {currentUser?.username === comment.username && (
+                    <CommentDeleteIconButton
+                      commentId={comment.id}
                       username={currentUser?.username ?? ''}
                       onDelete={handleCommentDeletion}
                     />
-                  )} */}
-                  {/* Delete not implemented yet */}
+                  )}
+                  
                 </Flex>
                 <Divider mt={4} mb={4} />
                 <HStack style={{ width: '80%', alignItems: 'flex-start' }}>
