@@ -1,10 +1,26 @@
-import { Box, Button, Spinner, Text, useToast } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  Flex,
+  FormControl,
+  FormLabel,
+  Input,
+  Skeleton,
+  Stack,
+  Text,
+  useToast,
+} from '@chakra-ui/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { setUser } from '../../reducers/authSlice';
 import { type User } from '../../types/users/users';
 import { useAppDispatch } from '../../reducers/hooks';
 import AuthAPI from '../../api/users/auth';
+import IconWithText from '../../components/content/IconWithText';
+import { FaGithub } from 'react-icons/fa';
+import { type AxiosError } from 'axios';
 
 export interface oAuthLoginResponse {
   user: User | null;
@@ -38,12 +54,12 @@ const GithubOAuth: React.FC = () => {
       duration: 5000,
       isClosable: true,
     });
-    navigate('/login');
   };
 
   const authenticateOAuth = async (): Promise<void> => {
     if (code === null) {
       handleAxiosErrors('Missing user code');
+      navigate('/login');
       return;
     }
 
@@ -66,6 +82,7 @@ const GithubOAuth: React.FC = () => {
     } catch (error) {
       console.log('Error authenticating user', error);
       handleAxiosErrors();
+      navigate('/login');
     } finally {
       setIsLoading(false);
     }
@@ -77,9 +94,12 @@ const GithubOAuth: React.FC = () => {
       console.log('Created new oAuth user', user);
       dispatch(setUser(user));
       navigate('/');
-    } catch (err) {
+    } catch (err: unknown) {
       console.log('Error creating new user', err);
-      handleAxiosErrors();
+      const errors = (err as AxiosError<{ errors: Array<{ msg: string }> }>)?.response?.data?.errors;
+      errors?.forEach((error) => {
+        handleAxiosErrors(error.msg);
+      });
     }
   };
 
@@ -91,22 +111,68 @@ const GithubOAuth: React.FC = () => {
   }, []);
 
   return (
-    <Box>
-      <Text>Loading...</Text>
-      {name !== '' && <Text>{`Hi ${name}...`}</Text>}
-      <Text>{`Username: ${username}`}</Text>
-      <Text>{`Email: ${email}`}</Text>
-      <Text>{`Code: ${code}`}</Text>
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <Button
-          onClick={() => {
-            void createNewOAuthUser();
-          }}
-        />
-      )}
-    </Box>
+    <Container minWidth="fit-content">
+      <Card marginY={16} padding={12} minWidth="fit-content">
+        <Box marginX={8} minWidth="max-content">
+          <IconWithText
+            text="Authenticate with Github OAuth"
+            fontSize="4xl"
+            fontWeight="bold"
+            icon={<FaGithub size={50} />}
+          />
+        </Box>
+        <Skeleton isLoaded={!isLoading} paddingX={12} marginY={4}>
+          <Box marginBottom={8}>
+            {name !== '' && <Text fontSize="2xl" marginBottom={2}>{`Hi ${name},`}</Text>}
+            <Text>{`Welcome to PeerPrep! Let's get started by getting to know you more...`}</Text>
+          </Box>
+          <Stack spacing={4}>
+            <FormControl isRequired>
+              <FormLabel>Username</FormLabel>
+              <Input
+                placeholder="Username"
+                size="md"
+                value={username}
+                onChange={(event) => {
+                  setUsername(event.target.value);
+                }}
+              />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel>Email</FormLabel>
+              <Input
+                placeholder="Email"
+                size="md"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                }}
+              />
+            </FormControl>
+          </Stack>
+        </Skeleton>
+        <Flex justifyContent="flex-end" marginTop={4}>
+          <Button
+            marginRight={4}
+            isLoading={isLoading}
+            onClick={() => {
+              navigate('/login');
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            colorScheme="teal"
+            isLoading={isLoading}
+            onClick={() => {
+              void createNewOAuthUser();
+            }}
+          >
+            Create PeerPrep Account
+          </Button>
+        </Flex>
+      </Card>
+    </Container>
   );
 };
 

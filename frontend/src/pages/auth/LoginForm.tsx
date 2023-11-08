@@ -13,7 +13,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaCode } from 'react-icons/fa';
+import { FaCode, FaGithub } from 'react-icons/fa';
 import AuthAPI from '../../api/users/auth';
 import type { AxiosError } from 'axios';
 import { useAppDispatch } from '../../reducers/hooks';
@@ -86,6 +86,9 @@ const LoginForm: React.FC = () => {
             <Button type="submit" colorScheme="teal" width={'100%'}>
               Log In
             </Button>
+            <Button width={'100%'} leftIcon={<FaGithub size={20} />}>
+              <a href={GITHUB_OAUTH_BASE_URL}>Login with Github</a>
+            </Button>
             <Flex justifyContent={'space-between'} width={'100%'}>
               <Text>
                 <Link to="/forgot-password">Forgot Password?</Link>
@@ -93,9 +96,6 @@ const LoginForm: React.FC = () => {
               <Text>
                 <Link to="/signup">Sign Up</Link>
               </Text>
-              <Button>
-                <a href={`${GITHUB_OAUTH_BASE_URL}?username=${username}`}>Login with Github</a>
-              </Button>
             </Flex>
           </Stack>
         </form>
