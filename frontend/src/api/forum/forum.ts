@@ -1,4 +1,4 @@
-import { type ForumData, type ForumPostData } from '../../types/forum/forum';
+import { type ForumData, type ForumPostData, type Comment, type CommentData } from '../../types/forum/forum';
 import { forumServiceClient } from '../base';
 
 export default class ForumAPI {
@@ -53,27 +53,34 @@ export default class ForumAPI {
   // }
 
   /* Comments */
-  // viewComments(postId: number) {
-  //   return forumServiceClient.get(`${this.getForumUrl()}/${postId}/comments`);
-  // }
+  
+  // Comments search is also directly done on frontend.
 
-  // addComment(postId: number, data: any) {
-  //   return forumServiceClient.post(`${this.getForumUrl()}/${postId}/comments`, data);
-  // }
+  public async viewComments(postId: number): Promise<Comment[]> {
+    const response = await forumServiceClient.get(`${this.getForumUrl()}/${postId}/comments`);
+    const commentList = response.data as Comment[];
+    return commentList;
+  }
 
-  // editComment(commentId: number, data: any) {
+  public async addComment(postId: number, data: CommentData): Promise<never> {
+    return await forumServiceClient.post(`${this.getForumUrl()}/${postId}/comments`, data);
+  }
+
+  // public async editComment(commentId: number, data: any) {
   //   return forumServiceClient.put(`${this.getForumUrl()}/comments/${commentId}`, data);
   // }
 
-  // deleteComment(commentId: number) {
-  //   return forumServiceClient.delete(`${this.getForumUrl()}/comments/${commentId}`);
+  // public async deleteComment(commentId: number): Promise<void> {
+  //   await forumServiceClient.delete(`/comments/${commentId}`);
   // }
 
-  // upvoteComment(commentId: number) {
-  //   return forumServiceClient.put(`${this.getForumUrl()}/comments/${commentId}/upvote`);
-  // }
+  public async upvoteComment(commentId: number, username: string): Promise<Comment> {
+    const response = await forumServiceClient.put(`/comments/${commentId}/upvote`, { username });
+    return response.data as Comment;
+  }
 
-  // downvoteComment(commentId: number) {
-  //   return forumServiceClient.put(`${this.getForumUrl()}/comments/${commentId}/downvote`);
-  // }
+  public async downvoteComment(commentId: number, username: string): Promise<Comment> {
+    const response = await forumServiceClient.put(`/comments/${commentId}/downvote`, { username });
+    return response.data as Comment;
+  }
 }

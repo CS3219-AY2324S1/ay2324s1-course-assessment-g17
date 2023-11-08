@@ -11,6 +11,7 @@ import Matching from '../matching/Matching';
 import ProtectedRoute from './ProtectedRoute';
 import Forum from '../forum/Forum';
 import CreatePost from '../forum/CreatePost';
+import CreateComment from '../forum/CreateComment';
 import PostDetail from '../forum/PostDetail';
 import { SocketProvider } from '../../context/socket';
 
@@ -20,7 +21,7 @@ const AuthenticatedApp: React.FC = () => {
       {/* Question routes */}
       <Route path="/" element={<Home />} />
       <Route path="/questions/new" element={<ProtectedRoute child={<CreateQuestion />} />} />
-      <Route path="question/:questionId/edit" element={<UpdateQuestion />} />
+      {/* <Route path="question/:questionId/edit" element={<UpdateQuestion />} /> */}
       <Route path="/question/:questionId" element={<ViewQuestion />} />
       <Route path="/question/:questionId/edit" element={<ProtectedRoute child={<UpdateQuestion />} />} />
       {/* User routes */}
@@ -49,6 +50,8 @@ const AuthenticatedApp: React.FC = () => {
       <Route path="/forum/new-post" element={<CreatePost />} />
       <Route path="/forum/:postId" element={<PostDetail />} />
       <Route path="*" element={<PageNotFound />} />
+      <Route path="/forum/:postId/new-comment" element={<CreateComment />} />
+      {/* <Route path="/forum/:postId/:commentId/edit" element={<UpdateQuestion />} /> */}
     </Routes>
   );
 };

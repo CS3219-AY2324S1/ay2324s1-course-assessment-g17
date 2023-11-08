@@ -21,3 +21,9 @@ export interface Comment {
   createdAt: Date;
   upvotes: string[];
 }
+
+export interface CommentData {
+  content: string;
+  postId: string;
+  username: string;
+}

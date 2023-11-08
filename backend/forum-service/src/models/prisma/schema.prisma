@@ -24,5 +24,6 @@ model Comment {
   post Post    @relation(fields: [postId], references: [id])
   username String
   postId Int
+  createdAt DateTime @default(now())
   upvotes String[]  @default([])
 }

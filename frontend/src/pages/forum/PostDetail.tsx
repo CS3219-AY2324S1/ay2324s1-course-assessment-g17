@@ -1,24 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import PostDetailComponent from '../../components/forum/PostDetailComponent';
+import { type Comment } from '../../types/forum/forum';
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Stack,
+  Text,
+  useToast,
+  useColorModeValue,
+  VStack,
+  Divider
+} from '@chakra-ui/react';
+import DOMPurify from 'dompurify';
+// import CommentDeleteButton from '../../components/forum/CommentDeleteIconButton';
+import CommentUpvoteButton from '../../components/forum/CommentUpvoteIconButton';
+import CommentDownvoteButton from '../../components/forum/CommentDownvoteIconButton';
+import { AddIcon, CloseIcon, SearchIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import { BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
 import ForumAPI from '../../api/forum/forum';
-import { type ForumData } from '../../types/forum/forum';
+import ForumPostsPagination from '../../components/forum/ForumPostsPagination';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
-import { Box, Button, Divider, Flex, HStack, Heading, Stack, VStack, useToast } from '@chakra-ui/react';
-import ForumDeleteIconButton from '../../components/forum/ForumDeleteIconButton';
-import ForumUpvoteButton from '../../components/forum/ForumUpvoteIconButton';
-import ForumDownvoteButton from '../../components/forum/ForumDownvoteIconButton';
-import { BiArrowBack, BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
-import DOMPurify from 'dompurify';
 
 const PostDetail: React.FC = () => {
-  const navigate = useNavigate();
+  const { postId } = useParams<{ postId: string }>();
   const toast = useToast();
 
-  const { postId } = useParams<{ postId: string }>();
-  const [post, setPost] = useState<ForumData | null>(null);
-
-  const currentUser = useAppSelector(selectUser);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
+  const [sortOption, setSortOption] = useState('newest'); // Default sorting is "Newest to Oldest"
+  const commentsPerPage = 5;
+  const newCommentLink = 'new-comment';
 
   let postIdAsNumber: number;
   if (postId !== undefined) {
@@ -27,15 +48,20 @@ const PostDetail: React.FC = () => {
     throw new Error('ID of post is undefined');
   }
 
-  const fetchPostDetail = async (): Promise<void> => {
+  const currentUser = useAppSelector(selectUser);
+
+  const fetchComments = async (): Promise<void> => {
     try {
       const forumAPI = new ForumAPI();
-      const postData = await forumAPI.viewPost(postIdAsNumber);
-      setPost(postData);
+      const postComments = await forumAPI.viewComments(postIdAsNumber);
+      // Default: sort the posts by creation date, from newest to oldest.
+      postComments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setComments(postComments);
+      setFilteredComments(postComments); // Initially, filtered posts are the same as all posts.
     } catch (error) {
-      console.error('Error fetching post details:', error);
+      console.error('Error fetching comments:', error);
       toast({
-        title: 'Error fetching post details.',
+        title: 'Error fetching comments.',
         description: 'Please try again later.',
         status: 'error',
         duration: 9000,
@@ -44,90 +70,229 @@ const PostDetail: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchPostDetail().catch((error) => {
-      console.error('Error fetching post detail:', error);
-    });
-  }, [postId]);
+  // Calculate the range of posts to display based on the current page and posts per page.
+  const startIndex = (currentPage - 1) * commentsPerPage;
+  const endIndex = startIndex + commentsPerPage;
+  const currentComments = filteredComments.slice(startIndex, endIndex); // Use filteredPosts for rendering.
 
-  const formatPostDate = (date: Date | undefined): string => {
+  const handlePageChange = (newPage: number): void => {
+    setCurrentPage(newPage);
+  };
+
+  // Handle live search as the user types.
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+
+    // Filter posts based on the search term.
+    const filtered = comments.filter((comment) => comment.content.toLowerCase().includes(newSearchTerm.toLowerCase()));
+
+    setFilteredComments(filtered);
+  };
+
+  const handleClearSearch = (): void => {
+    setSearchTerm('');
+    fetchComments().catch((error) => {
+      console.error('Error fetching comments:', error);
+    });
+  };
+
+  // Handle sorting.
+  const handleSort = (option: 'newest' | 'mostVotes'): void => {
+    setSortOption(option);
+
+    // Sort the posts based on the selected option.
+    const sorted = [...filteredComments];
+
+    if (option === 'newest') {
+      sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } else if (option === 'mostVotes') {
+      sorted.sort((a, b) => b.upvotes.length - a.upvotes.length);
+    }
+
+    setFilteredComments(sorted);
+  };
+
+  useEffect(() => {
+    fetchComments().catch((error) => {
+      console.error('Error fetching comments:', error);
+    });
+  }, []);
+
+
+  const formatCommentDate = (date: Date | undefined): string => {
     if (date !== undefined) {
       return new Date(date).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false });
     }
     return '';
   };
 
-  const handlePostDeletion = (): void => {
-    navigate('/forum');
+    // Calculate upvote status for each post.
+    const calculateUpvoteStatus = (comment: Comment): boolean => {
+      // Check if the user's username is in the upvotes array.
+      return comment.upvotes.includes(currentUser?.username ?? '');
+    };
+  
+    const handleCommentUpvote = (updatedComment: Comment): void => {
+      setComments((prev) => [...prev, updatedComment]);
+    }; // not sure if this is correct
+
+  const cardStyle = {
+    border: '1px solid #ccc',
+    padding: '20px 32px',
+    marginBottom: '16px',
+    borderRadius: '8px',
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    width: '85%',
+    // maxWidth: '800px',
+    // minWidth: '200px',
+    margin: '0 auto',
   };
 
-  // Calculate upvote status for each post.
-  const calculateUpvoteStatus = (post: ForumData): boolean => {
-    // Check if the user's username is in the upvotes array.
-    return post.upvotes.includes(currentUser?.username ?? '');
-  };
-
-  const handlePostUpvote = (updatedPost: ForumData): void => {
-    setPost(updatedPost);
+  const ellipsisStyle = {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   };
 
   return (
-    <Stack paddingX={16} paddingY={8}>
-      <Flex direction="column" alignItems="center">
-        <Flex justifyContent="flex-start" w="100%">
-          <Link to="/forum">
-            <Button leftIcon={<BiArrowBack />}>Back to Forum</Button>
-          </Link>
-        </Flex>
-        <Heading as="h1" size="xl" textAlign="center" style={{ maxWidth: '80%' }} mt={4}>
-          {post?.title}
-        </Heading>
-        <Flex justifyContent="space-between" alignItems="center" style={{ maxWidth: '80%' }} mt={4}>
-          <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={4} mr={12}>
-            <Box w="6" h="6" ml={2} mr={2}>
-              <BiSolidUserCircle style={{ fontSize: '24px' }} />
-            </Box>
-            <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{post?.username}</p>
+    <>
+      <PostDetailComponent postId={postId} />
+      <Stack paddingX={16} paddingY={8}>
+        <Flex direction="column" alignItems="center">
+          <Flex justifyContent="space-between" alignItems="center" w="85%" style={{ marginTop: '30px' }}>
+            {/* Input for live search */}
+            <InputGroup minWidth="fit-content" margin={4}>
+              <InputLeftElement paddingLeft={8} pointerEvents="none">
+                <SearchIcon color="gray.400" />
+              </InputLeftElement>
+              <Input
+                paddingLeft={16}
+                type="text"
+                placeholder="Search Comments..."
+                _placeholder={{ color: useColorModeValue('gray.500', 'gray.400'), opacity: 1 }}
+                value={searchTerm ?? ''}
+                onChange={handleSearch}
+              />
+              <InputRightElement
+                _hover={{ cursor: 'pointer', color: 'gray.600' }}
+                color="gray.400"
+                _active={{ transform: 'scale(0.9)' }}
+                onClick={handleClearSearch}
+              >
+                <CloseIcon />
+              </InputRightElement>
+            </InputGroup>
+            <Link to={newCommentLink}>
+              <Button leftIcon={<AddIcon />} colorScheme="teal">
+                New Comment
+              </Button>
+            </Link>
           </Flex>
-          <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={12} mr={12}>
-            <Box w="6" h="6" ml={2} mr={2}>
-              <BiSolidCalendar style={{ fontSize: '24px' }} />
-            </Box>
-            <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{formatPostDate(post?.createdAt)}</p>
-          </Flex>
-          {currentUser?.username === post?.username && (
-            <ForumDeleteIconButton
-              postId={postIdAsNumber}
-              username={currentUser?.username ?? ''}
-              onDelete={handlePostDeletion}
-            />
-          )}
-        </Flex>
-        <Divider mt={4} mb={4} />
-        <HStack style={{ width: '80%', alignItems: 'flex-start' }}>
-          <VStack style={{ width: '10%', justifyContent: 'flex-start' }}>
-            <ForumUpvoteButton
-              postId={postIdAsNumber}
-              username={currentUser?.username ?? ''}
-              hasUpvoted={post !== null ? calculateUpvoteStatus(post) : false}
-              onUpvote={handlePostUpvote}
-            />
-            <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{post?.upvotes.length}</p>
-            <ForumDownvoteButton
-              postId={postIdAsNumber}
-              username={currentUser?.username ?? ''}
-              onDownvote={handlePostUpvote}
-            />
-          </VStack>
-          <div
-            style={{ width: '80%' }}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(post?.description ?? ''),
-            }}
+          {/* Sorting buttons */}
+          <HStack spacing={4}>
+            <Button
+              colorScheme={sortOption === 'newest' ? 'teal' : 'gray'}
+              onClick={() => {
+                handleSort('newest');
+              }}
+            >
+              Newest to Oldest
+            </Button>
+            <Button
+              colorScheme={sortOption === 'mostVotes' ? 'teal' : 'gray'}
+              onClick={() => {
+                handleSort('mostVotes');
+              }}
+            >
+              Most Votes
+            </Button>
+          </HStack>
+
+{/*  */}
+
+          <Stack padding={8} spacing={8} w="100%">
+            {currentComments.map((comment) => (
+              <Flex direction="column" alignItems="center" style={cardStyle}>
+                <Flex justifyContent="space-between" alignItems="center" style={{ maxWidth: '80%' }} mt={4}>
+                  
+                  {/* <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={4} mr={12}>
+                    <Box w="6" h="6" ml={2} mr={2}>
+                      <BiSolidUserCircle style={{ fontSize: '24px' }} />
+                    </Box>
+                    <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{comment?.username}</p>
+                  </Flex>
+                  <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={12} mr={12}>
+                    <Box w="6" h="6" ml={2} mr={2}>
+                      <BiSolidCalendar style={{ fontSize: '24px' }} />
+                    </Box>
+                    <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{formatCommentDate(comment?.createdAt)}</p>
+                  </Flex> */}
+
+                  <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
+                    <HStack>
+                      <Box w="4" h="4">
+                        <BiSolidUserCircle />
+                      </Box>
+                      <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>{comment.username} commented...</Text>
+                    </HStack>
+                    <HStack>
+                      <Box w="4" h="4">
+                        <BiSolidCalendar />
+                      </Box>
+                      <Text style={{ fontStyle: 'italic' }}>
+                        {new Date(comment.createdAt).toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false })}
+                      </Text>
+                    </HStack>
+                  </Flex>
+
+                  {/* {currentUser?.username === comment.username && (
+                    <ForumDeleteIconButton
+                      postId={postIdAsNumber}
+                      username={currentUser?.username ?? ''}
+                      onDelete={handleCommentDeletion}
+                    />
+                  )} */} 
+                  {/* Delete not implemented yet */}
+                </Flex>
+                <Divider mt={4} mb={4} />
+                <HStack style={{ width: '80%', alignItems: 'flex-start' }}>
+                  <VStack style={{ width: '10%', justifyContent: 'flex-start' }}>
+                    <CommentUpvoteButton
+                      commentId={comment.id}
+                      username={currentUser?.username ?? ''}
+                      hasUpvoted={comment !== null ? calculateUpvoteStatus(comment) : false}
+                      onUpvote={handleCommentUpvote}
+                    />
+                    <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{comment?.upvotes.length}</p>
+                    <CommentDownvoteButton
+                      commentId={comment.id}
+                      username={currentUser?.username ?? ''}
+                      onDownvote={handleCommentUpvote}
+                    />
+                  </VStack>
+                  <div
+                    style={{ width: '80%' }}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(comment?.content ?? ''),
+                    }}
+                  />
+                </HStack>
+              </Flex>
+            ))}
+          </Stack>
+
+{/*  */}
+
+          {/* Pagination component using the filteredPosts length */}
+          <ForumPostsPagination
+            currentPage={currentPage}
+            totalItems={filteredComments.length}
+            itemsPerPage={commentsPerPage}
+            onPageChange={handlePageChange}
           />
-        </HStack>
-      </Flex>
-    </Stack>
+        </Flex>
+      </Stack>
+    </>
   );
 };
 
