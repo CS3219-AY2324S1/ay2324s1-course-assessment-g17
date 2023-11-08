@@ -19,6 +19,7 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import DOMPurify from 'dompurify';
+import CommentEditIconButton from '../../components/forum/CommentEditIconButton';
 import CommentDeleteIconButton from '../../components/forum/CommentDeleteIconButton';
 import CommentUpvoteButton from '../../components/forum/CommentUpvoteIconButton';
 import CommentDownvoteButton from '../../components/forum/CommentDownvoteIconButton';
@@ -258,11 +259,14 @@ const PostDetail: React.FC = () => {
                     </HStack>
                   </Flex>
                   {currentUser?.username === comment.username && (
-                    <CommentDeleteIconButton
-                      commentId={comment.id}
-                      username={currentUser?.username ?? ''}
-                      onDelete={handleCommentDeletion}
-                    />
+                    <>
+                      <CommentEditIconButton commentId={comment.id} postId={postIdAsNumber} />
+                      <CommentDeleteIconButton
+                        commentId={comment.id}
+                        username={currentUser?.username ?? ''}
+                        onDelete={handleCommentDeletion}
+                      />
+                    </>
                   )}
                 </Flex>
                 <Divider mt={4} mb={4} />

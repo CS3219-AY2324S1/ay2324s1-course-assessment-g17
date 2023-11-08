@@ -62,13 +62,22 @@ export default class ForumAPI {
     return commentList;
   }
 
+  public async getComment(commentId: number): Promise<Comment> {
+    const response = await forumServiceClient.get(`/comments/${commentId}`);
+    const comment = response.data as Comment;
+    return comment;
+  }
+
   public async addComment(postId: number, data: CommentData): Promise<never> {
     return await forumServiceClient.post(`${this.getForumUrl()}/${postId}/comments`, data);
   }
 
-  // public async editComment(commentId: number, data: any) {
-  //   return forumServiceClient.put(`${this.getForumUrl()}/comments/${commentId}`, data);
-  // }
+  public async editComment(commentId: number, username: string, commentData: CommentData): Promise<never> {
+    return await forumServiceClient.put(`/comments/${commentId}`, {
+      username,
+      content: commentData.content,
+    });
+  }
 
   public async deleteComment(commentId: number, username: string): Promise<void> {
     await forumServiceClient.delete(`/comments/${commentId}`, {

@@ -32,6 +32,18 @@ const forumController = {
     }
   },
 
+  async getComment(req: Request, res: Response) {
+    try {
+      const commentId = req.params.commentId;
+      const comment = await prisma.comment.findUnique({
+        where: { id: parseInt(commentId) },
+      });
+      res.json(comment);
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+
   async addPost(req: Request, res: Response) {
     const { title, description, username } = req.body;
     const post = await prisma.post.create({
@@ -85,8 +97,7 @@ const forumController = {
   async editComment(req: Request, res: Response) {
     try {
       const commentId = req.params.commentId;
-      const username = req.params.username;
-      const { content } = req.body;
+      const { username, content } = req.body;
       // only update comment if user is the author
       const comment = await prisma.comment.findUnique({
         where: { id: parseInt(commentId) },

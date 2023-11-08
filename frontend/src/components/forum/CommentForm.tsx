@@ -1,7 +1,17 @@
 // LOOKS TO BE DONE
 
-import React, { useState } from 'react';
-import { Button, FormControl, FormLabel, Stack, Card, useToast, useColorModeValue, Flex } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import {
+  Spinner,
+  Button,
+  FormControl,
+  FormLabel,
+  Stack,
+  Card,
+  useToast,
+  useColorModeValue,
+  Flex,
+} from '@chakra-ui/react';
 import RichTextEditor from '../content/RichTextEditor';
 import { FaCheck } from 'react-icons/fa6';
 import ConfirmationDialog from '../content/ConfirmationDialog';
@@ -18,7 +28,9 @@ interface CommentFormProps {
   postId: string;
   dialogHeader: string;
   dialogBody: string;
+  isLoading: boolean;
   handleData: (commentData: CommentData) => Promise<void>;
+  initialData?: CommentData | null;
   errorTitle: string;
   submitButtonLabel: string;
 }
@@ -28,7 +40,9 @@ const CommentForm: React.FC<CommentFormProps> = ({
   postId,
   dialogHeader,
   dialogBody,
+  isLoading,
   handleData,
+  initialData,
   errorTitle,
   submitButtonLabel,
 }) => {
@@ -39,13 +53,19 @@ const CommentForm: React.FC<CommentFormProps> = ({
   const user = useAppSelector(selectUser);
   const username = user?.username ?? '';
 
+  useEffect(() => {
+    if (initialData !== null && initialData !== undefined) {
+      setCommentContent(initialData.content);
+    }
+  }, [initialData]);
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
     if (content.replaceAll(/<[^>]*>/g, '').trim() === '') {
       // Description is not filled, or only contains whitespace(s), or only contains line breaks.
       toast({
-        title: 'Comment Creation Failed!',
+        title: `${formTitle} Failed!`,
         description: 'Content cannot be empty.',
         status: 'error',
         duration: 4000,
@@ -64,7 +84,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
       .then(() => {
         toast({
           title: 'Commented!',
-          description: 'Your comment has been created successfully!',
+          description: `Your ${formTitle} has been successful!`,
           status: 'success',
           duration: 4000,
           isClosable: true,
@@ -87,6 +107,8 @@ const CommentForm: React.FC<CommentFormProps> = ({
       });
   };
 
+  const disableSubmit = initialData !== undefined && initialData !== null ? content === initialData.content : false;
+
   const handleContentChange = (newContent: React.SetStateAction<string>): void => {
     setCommentContent(newContent);
   };
@@ -94,31 +116,35 @@ const CommentForm: React.FC<CommentFormProps> = ({
   return (
     <Card m={12} p={8}>
       <form onSubmit={handleSubmit}>
-        <Stack spacing={4}>
-          <IconWithText text={formTitle} icon={<MdForum size={25} />} fontSize={'2xl'} fontWeight="bold" />
-          {/* Insert the post content here */}
+        {isLoading ? (
+          <Spinner size="xl" />
+        ) : (
+          <Stack spacing={4}>
+            <IconWithText text={formTitle} icon={<MdForum size={25} />} fontSize={'2xl'} fontWeight="bold" />
+            {/* Insert the post content here */}
 
-          <FormControl isRequired>
-            <FormLabel>Description</FormLabel>
-            <RichTextEditor value={content} onChange={handleContentChange} useColorModeValue={useColorModeValue} />
-          </FormControl>
+            <FormControl isRequired>
+              <FormLabel>Description</FormLabel>
+              <RichTextEditor value={content} onChange={handleContentChange} useColorModeValue={useColorModeValue} />
+            </FormControl>
 
-          <Flex mt={4} justifyContent="space-between">
-            <ConfirmationDialog
-              dialogHeader={dialogHeader}
-              dialogBody={dialogBody}
-              mainButtonLabel="Cancel"
-              leftButtonLabel="No, stay on this form"
-              rightButtonLabel="Yes, bring me back"
-              onConfirm={() => {
-                navigate(`/forum/${postId}`);
-              }}
-            />
-            <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />}>
-              {submitButtonLabel}
-            </Button>
-          </Flex>
-        </Stack>
+            <Flex mt={4} justifyContent="space-between">
+              <ConfirmationDialog
+                dialogHeader={dialogHeader}
+                dialogBody={dialogBody}
+                mainButtonLabel="Cancel"
+                leftButtonLabel="No, stay on this form"
+                rightButtonLabel="Yes, bring me back"
+                onConfirm={() => {
+                  navigate(`/forum/${postId}`);
+                }}
+              />
+              <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />} isDisabled={disableSubmit}>
+                {submitButtonLabel}
+              </Button>
+            </Flex>
+          </Stack>
+        )}
       </form>
     </Card>
   );

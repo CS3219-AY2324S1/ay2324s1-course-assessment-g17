@@ -35,6 +35,7 @@ const CreateComment: React.FC = () => {
           postId={postId}
           dialogBody={'Are you sure? Your comment will not be saved!'}
           dialogHeader={'Cancel Comment Creation'}
+          isLoading={false}
           handleData={handleData}
           errorTitle={'Comment creation failed.'}
           submitButtonLabel={'Submit Comment'}

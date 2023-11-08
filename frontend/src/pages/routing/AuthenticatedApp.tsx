@@ -12,6 +12,7 @@ import ProtectedRoute from './ProtectedRoute';
 import Forum from '../forum/Forum';
 import CreatePost from '../forum/CreatePost';
 import CreateComment from '../forum/CreateComment';
+import EditComment from '../forum/EditComment';
 import PostDetail from '../forum/PostDetail';
 import { SocketProvider } from '../../context/socket';
 
@@ -51,7 +52,7 @@ const AuthenticatedApp: React.FC = () => {
       <Route path="/forum/:postId" element={<PostDetail />} />
       <Route path="*" element={<PageNotFound />} />
       <Route path="/forum/:postId/new-comment" element={<CreateComment />} />
-      {/* <Route path="/forum/:postId/:commentId/edit" element={<UpdateQuestion />} /> */}
+      <Route path="/forum/:postId/:commentId/edit" element={<EditComment />} />
     </Routes>
   );
 };

@@ -6,6 +6,7 @@ const router = express.Router();
 router.get("/posts", forumController.viewPosts);
 router.get("/posts/:postId", forumController.viewPost);
 router.get("/posts/:postId/comments", forumController.viewComments);
+router.get("/comments/:commentId", forumController.getComment);
 router.post("/posts", forumController.addPost);
 router.post("/posts/:postId/comments", forumController.addComment);
 router.put("/posts/:postId", forumController.editPost);
