@@ -1,3 +1,5 @@
+// eslint-disable @typescript-eslint/no-unsafe-assignment
+
 import { Avatar, AvatarGroup, Box, Tooltip } from '@chakra-ui/react';
 import { useSelf, useUsers } from 'y-presence';
 import { type WebsocketProvider } from 'y-websocket';

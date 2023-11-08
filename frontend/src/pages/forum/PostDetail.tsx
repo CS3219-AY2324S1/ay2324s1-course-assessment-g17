@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import PostDetailComponent from '../../components/forum/PostDetailComponent';
 import { type Comment } from '../../types/forum/forum';
 import {
@@ -32,7 +32,6 @@ import { selectUser } from '../../reducers/authSlice';
 const PostDetail: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
   const toast = useToast();
-  const navigate = useNavigate();
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -237,14 +236,11 @@ const PostDetail: React.FC = () => {
               Most Votes
             </Button>
           </HStack>
-
           {/*  */}
-
           <Stack padding={8} spacing={8} w="100%">
             {currentComments.map((comment) => (
               <Flex key={comment.id} direction="column" alignItems="center" style={cardStyle}>
                 <Flex justifyContent="space-between" alignItems="center" style={{ maxWidth: '80%' }} mt={4}>
-
                   <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
                     <HStack>
                       <Box w="4" h="4">
@@ -258,12 +254,9 @@ const PostDetail: React.FC = () => {
                       <Box w="4" h="4">
                         <BiSolidCalendar />
                       </Box>
-                      <Text style={{ fontStyle: 'italic' }}>
-                        {formatCommentDate(comment.createdAt)}
-                      </Text>
+                      <Text style={{ fontStyle: 'italic' }}>{formatCommentDate(comment.createdAt)}</Text>
                     </HStack>
                   </Flex>
-
                   {currentUser?.username === comment.username && (
                     <CommentDeleteIconButton
                       commentId={comment.id}
@@ -271,7 +264,6 @@ const PostDetail: React.FC = () => {
                       onDelete={handleCommentDeletion}
                     />
                   )}
-                  
                 </Flex>
                 <Divider mt={4} mb={4} />
                 <HStack style={{ width: '80%', alignItems: 'flex-start' }}>
@@ -299,9 +291,7 @@ const PostDetail: React.FC = () => {
               </Flex>
             ))}
           </Stack>
-
           {/*  */}
-
           {/* Pagination component using the filteredPosts length */}
           <ForumPostsPagination
             currentPage={currentPage}
