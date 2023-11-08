@@ -269,7 +269,10 @@ export const oAuthAuthenticate: RequestHandler[] = [
 export const oAuthNewUser: RequestHandler[] = [
   body("githubId").notEmpty(),
   body("username").notEmpty(),
-  body("email").isEmpty() || body("email").isEmail().withMessage("Email should be a valid email."),
+  body("email")
+    .notEmpty() 
+    .isEmail()
+    .withMessage("Email should be a valid email."),
   async (req, res, next) => {
     if (!validationResult(req).isEmpty()) {
       res.status(400).json({ errors: validationResult(req).array() });
@@ -284,14 +287,12 @@ export const oAuthNewUser: RequestHandler[] = [
       return;
     }
 
-    console.log(`test: ${body("email").isEmpty() ? `${username}@github.com` : email}`);
-
     try {
       const newUser = await prisma.user.create({
         data: {
           username: username,
           password: randomPassword(),
-          email: body("email").isEmpty() ? `${username}@github.com` : email,
+          email: email,
           role: Role.USER,
           githubId: githubUserId,
         },
