@@ -1,6 +1,6 @@
 import { Box, Button, Spinner, Text, useToast } from '@chakra-ui/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios, { type AxiosResponse, type AxiosError } from 'axios';
 import { setUser } from '../../reducers/authSlice';
 import { type User } from '../../types/users/users';
@@ -21,11 +21,12 @@ const GithubOAuth: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const [searchParams] = useSearchParams();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [githubId, setGithubId] = useState(-1);
+  const sentAuthentication = useRef(false);
   const code = searchParams.get('code');
 
   const handleAxiosErrors = (err: AxiosError<{ errors: Array<{ msg: string }> }>): void => {
@@ -44,8 +45,9 @@ const GithubOAuth: React.FC = () => {
   };
 
   const authenticateOAuth = async (): Promise<void> => {
+    setIsLoading(true);
     await axios
-      .post(`${process.env.REACT_APP_USER_SERVICE_BACKEND_URL}oauth/auth`, { code })
+      .post(`${process.env.REACT_APP_USER_SERVICE_BACKEND_URL}oauth/auth`, { code }, { withCredentials: true })
       .then((resp: AxiosResponse<oAuthLoginResponse, unknown>) => {
         const user = resp.data.user;
         const githubDetails = resp.data.githubDetails;
@@ -53,12 +55,14 @@ const GithubOAuth: React.FC = () => {
           // Exisiting user successful login
           dispatch(setUser(user));
           navigate('/');
-        } else {
+        } else if (githubDetails.githubId !== undefined) {
           // New user successful oAuth login
           setGithubId(githubDetails.githubId);
           setUsername(githubDetails.username);
           setName(githubDetails.name ?? '');
           setEmail(githubDetails.email ?? '');
+        } else if (githubId === -1) {
+          toast({ title: 'Something went wrong!', status: 'error' });
         }
       })
       .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
@@ -73,6 +77,7 @@ const GithubOAuth: React.FC = () => {
     await axios
       .post(`${process.env.REACT_APP_USER_SERVICE_BACKEND_URL}oauth/signup`, { githubId, username, email })
       .then((resp: AxiosResponse<User, unknown>) => {
+        console.log('resp.data', resp.data);
         dispatch(setUser(resp.data));
         navigate('/');
       })
@@ -82,7 +87,10 @@ const GithubOAuth: React.FC = () => {
   };
 
   useEffect(() => {
-    void authenticateOAuth();
+    if (!sentAuthentication.current) {
+      sentAuthentication.current = true;
+      void authenticateOAuth();
+    }
   }, []);
 
   return (
