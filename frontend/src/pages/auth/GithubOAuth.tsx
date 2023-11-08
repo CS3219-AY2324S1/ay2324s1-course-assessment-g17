@@ -11,8 +11,8 @@ export interface oAuthLoginResponse {
   githubDetails: {
     githubId: number;
     username: string;
-    name: string | null;
-    email: string | null;
+    name?: string;
+    email?: string;
   };
 }
 
@@ -54,7 +54,7 @@ const GithubOAuth: React.FC = () => {
         // Exisiting user successful login
         dispatch(setUser(user));
         navigate('/');
-      } else if (githubDetails.githubId !== undefined) {
+      } else if (githubDetails?.githubId !== undefined) {
         // New user successful oAuth login
         setGithubId(githubDetails.githubId);
         setUsername(githubDetails.username);
@@ -64,7 +64,8 @@ const GithubOAuth: React.FC = () => {
         throw Error('Failed to authenticate user');
       }
     } catch (error) {
-      handleAxiosErrors(error as string);
+      console.log('Error authenticating user', error);
+      handleAxiosErrors();
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +78,8 @@ const GithubOAuth: React.FC = () => {
       dispatch(setUser(user));
       navigate('/');
     } catch (err) {
-      handleAxiosErrors(err as string);
+      console.log('Error creating new user', err);
+      handleAxiosErrors();
     }
   };
 

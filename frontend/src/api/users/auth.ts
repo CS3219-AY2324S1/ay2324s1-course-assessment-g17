@@ -22,11 +22,13 @@ export default class AuthAPI {
   }
 
   public async authenticateOAuth(code: string): Promise<oAuthLoginResponse> {
-    return await userServiceClient.post(this.getAuthUrl() + 'oauth/auth', { code });
+    const resp = await userServiceClient.post(this.getAuthUrl() + 'oauth/auth', { code });
+    return resp.data;
   }
 
   public async createNewOAuthUser(githubId: number, username: string, email: string): Promise<User> {
-    return await userServiceClient.post(this.getAuthUrl() + 'oauth/signup', { githubId, username, email });
+    const resp = await userServiceClient.post(this.getAuthUrl() + 'oauth/signup', { githubId, username, email });
+    return resp.data.user;
   }
 
   public async deregister(): Promise<never> {
