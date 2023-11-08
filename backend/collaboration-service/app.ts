@@ -12,6 +12,7 @@ import {
 } from "./controllers/pair";
 import cors from "cors";
 import { EditorLanguageEnum } from "./types/languages";
+import pair from "./models/pair";
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const app = express();
@@ -118,24 +119,30 @@ io.on("connection", (socket) => {
     // Attach user's username and roomId to this connection
     socket.data.username = username;
     socket.data.roomId = roomId;
-  
+
     // Broadcast to all connected users that this user has joined the room
     io.to(roomId).emit("user-join", username);
   });
 
-  socket.on("user-agreed-next", (roomId, userId) => {
+  socket.on("user-agreed-next", async (roomId, userId) => {
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};
     usersAgreedNext[roomId][userId] = true;
     if (Object.keys(usersAgreedNext[roomId]).length === 2) {
-      io?.emit("both-users-agreed-next", roomId);
+      io.to(roomId).emit("both-users-agreed-next", roomId);
       usersAgreedNext[roomId] = {};
+
+      // set current question to second question
+      const pairs = await pair.find({ room_id: roomId });
+      const pairInfo = pairs[0];
+      const secondQuestionId = pairInfo.question_ids[1];
+      roomCurrentQuestion[roomId] = secondQuestionId;
     } else {
-      io?.emit("waiting-for-other-user", roomId);
+      io.to(roomId).emit("waiting-for-other-user", roomId);
     }
   });
 
-  socket.on("change-question", (nextQuestionId) => {
-    io?.emit("set-question", nextQuestionId);
+  socket.on("change-question", (nextQuestionId, roomId) => {
+    io.to(roomId).emit("set-question", nextQuestionId);
   });
 
   socket.on("user-agreed-end", (roomId, userId) => {
@@ -143,10 +150,10 @@ io.on("connection", (socket) => {
     usersAgreedEnd[roomId][userId] = true;
 
     if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
-      io?.emit("both-users-agreed-end", roomId);
+      io.to(roomId).emit("both-users-agreed-end", roomId);
       usersAgreedEnd[roomId] = {};
     } else {
-      io?.emit("waiting-for-other-user-end", roomId);
+      io.to(roomId).emit("waiting-for-other-user-end", roomId);
     }
   });
 
@@ -157,7 +164,11 @@ io.on("connection", (socket) => {
       // Update the selected language for the room.
       roomLanguages[roomId] = newLanguage;
       // Broadcast this change to all connected users in this room.
-      io.to(roomId).emit("receive-language-change", newLanguage, socket.data.username);
+      io.to(roomId).emit(
+        "receive-language-change",
+        newLanguage,
+        socket.data.username
+      );
     }
   );
 

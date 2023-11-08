@@ -85,7 +85,7 @@ const LoginForm: React.FC = () => {
             </Button>
             <Flex justifyContent={'space-between'} width={'100%'}>
               <Text>
-                <Link to="/">Forgot Password?</Link>
+                <Link to="/forgot-password">Forgot Password?</Link>
               </Text>
               <Text>
                 <Link to="/signup">Sign Up</Link>

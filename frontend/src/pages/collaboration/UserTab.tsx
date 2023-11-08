@@ -1,24 +1,31 @@
 import { Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, Box, Text } from '@chakra-ui/react';
 import React from 'react';
-import { useAppSelector } from '../../reducers/hooks';
-import { selectAwareness } from '../../reducers/awarenessSlice';
 import UserProfileEntry from './UserProfileEntry';
+import { useUsers } from 'y-presence';
+import { type AwarenessUser, type AwarenessUsers } from '../../types/code/awareness';
 
-const UserTab: React.FC = () => {
-  const awareness = useAppSelector(selectAwareness);
+interface UserTabProps {
+  awareness: AwarenessUser;
+}
+
+const UserTab: React.FC<UserTabProps> = ({ awareness }) => {
+  const users = useUsers(awareness) as AwarenessUsers;
+
   return (
     <Accordion allowMultiple>
       <AccordionItem>
         <AccordionButton>
           <Box as="span" flex="1" textAlign="left">
             <Text fontWeight="bold">
-              {awareness?.length} {awareness?.length === 1 ? 'user' : 'users'} in session
+              {users.size} {users.size === 1 ? 'user' : 'users'} in session
             </Text>
           </Box>
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel>
-          {awareness?.map((awareness, index) => <UserProfileEntry key={index} userAwareness={awareness} />)}
+          {Array.from(users.values())?.map((awareness, index) => (
+            <UserProfileEntry key={index} userAwareness={awareness} />
+          ))}
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
