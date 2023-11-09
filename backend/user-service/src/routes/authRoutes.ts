@@ -12,7 +12,7 @@ router.post("/signup", AuthController.signUp);
 router.get("/token", AuthController.updateAccessToken);
 
 // Protected access token routes
-router.get("/logout", AuthMiddleWare.verifyAccessToken, AuthController.logOut);
+router.get("/logout", AuthController.logOut);
 router.get(
   "/currentUser",
   AuthMiddleWare.verifyAccessToken,
