@@ -241,36 +241,40 @@ const PostDetail: React.FC = () => {
           <Stack padding={8} spacing={8} w="100%">
             {currentComments.map((comment) => (
               <Flex key={comment.id} direction="column" alignItems="center" style={cardStyle}>
-                <Flex justifyContent="space-between" alignItems="center" style={{ maxWidth: '80%' }} mt={4}>
+                <HStack justifyContent="space-between" alignItems="center" style={{ width: '80%' }} mt={4}>
                   <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
                     <HStack>
-                      <Box w="4" h="4">
-                        <BiSolidUserCircle />
-                      </Box>
-                      <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>
-                        {comment.username} commented...
-                      </Text>
-                    </HStack>
-                    <HStack>
-                      <Box w="4" h="4">
-                        <BiSolidCalendar />
-                      </Box>
-                      <Text style={{ fontStyle: 'italic' }}>{formatCommentDate(comment.createdAt)}</Text>
+                      <VStack>
+                        <HStack>
+                          <Box w="4" h="4">
+                            <BiSolidUserCircle />
+                          </Box>
+                          <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>
+                            {comment.username} commented...
+                          </Text>
+                        </HStack>
+                        <HStack>
+                          <Box w="4" h="4">
+                            <BiSolidCalendar />
+                          </Box>
+                          <Text style={{ fontStyle: 'italic' }}>{formatCommentDate(comment.createdAt)}</Text>
+                        </HStack>
+                      </VStack>
+                      {currentUser?.username === comment.username && (
+                        <CommentEditIconButton commentId={comment.id} postId={postIdAsNumber} />
+                      )}
                     </HStack>
                   </Flex>
                   {currentUser?.username === comment.username && (
-                    <>
-                      <CommentEditIconButton commentId={comment.id} postId={postIdAsNumber} />
-                      <CommentDeleteIconButton
-                        commentId={comment.id}
-                        username={currentUser?.username ?? ''}
-                        onDelete={handleCommentDeletion}
-                      />
-                    </>
+                    <CommentDeleteIconButton
+                      commentId={comment.id}
+                      username={currentUser?.username ?? ''}
+                      onDelete={handleCommentDeletion}
+                    />
                   )}
-                </Flex>
+                </HStack>
                 <Divider mt={4} mb={4} />
-                <HStack style={{ width: '80%', alignItems: 'flex-start' }}>
+                <HStack style={{ width: '100%', alignItems: 'flex-start' }}>
                   <VStack style={{ width: '10%', justifyContent: 'flex-start' }}>
                     <CommentUpvoteButton
                       commentId={comment.id}
@@ -286,7 +290,7 @@ const PostDetail: React.FC = () => {
                     />
                   </VStack>
                   <div
-                    style={{ width: '80%' }}
+                    style={{ width: '90%' }}
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(comment?.content ?? ''),
                     }}
