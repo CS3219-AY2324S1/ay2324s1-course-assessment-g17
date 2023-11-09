@@ -38,6 +38,7 @@ const EditPost: React.FC = () => {
 
   return (
     <ForumPostForm
+      navlink={'/forum/' + postIdNum}
       formTitle={'Edit Forum Post'}
       dialogBody={'Are you sure? Any progress on the form will not be saved. This action is irreversible!'}
       dialogHeader={'Cancel Post Edit'}

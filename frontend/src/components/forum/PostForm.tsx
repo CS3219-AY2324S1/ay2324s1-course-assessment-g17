@@ -23,6 +23,7 @@ import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 
 interface PostFormProps {
+  navlink: string;
   formTitle: string;
   dialogHeader: string;
   dialogBody: string;
@@ -34,6 +35,7 @@ interface PostFormProps {
 }
 
 const PostForm: React.FC<PostFormProps> = ({
+  navlink,
   formTitle,
   dialogHeader,
   dialogBody,
@@ -94,7 +96,7 @@ const PostForm: React.FC<PostFormProps> = ({
           duration: 4000,
           isClosable: true,
         });
-        navigate('/forum');
+        navigate(navlink);
       })
       .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
         const errors = err?.response?.data?.errors;
@@ -160,7 +162,7 @@ const PostForm: React.FC<PostFormProps> = ({
                 leftButtonLabel="No, stay on this form"
                 rightButtonLabel="Yes, bring me back"
                 onConfirm={() => {
-                  navigate('/forum');
+                  navigate(navlink);
                 }}
               />
               <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />}>
