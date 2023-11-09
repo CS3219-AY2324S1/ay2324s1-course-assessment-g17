@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   FormControl,
@@ -17,26 +17,30 @@ import ConfirmationDialog from '../content/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
 import IconWithText from '../content/IconWithText';
 import { MdForum } from 'react-icons/md';
-import type { ForumPostData } from '../../types/forum/forum';
+import type { ForumData, ForumPostData } from '../../types/forum/forum';
 import { type AxiosError } from 'axios';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 
 interface PostFormProps {
+  navlink: string;
   formTitle: string;
   dialogHeader: string;
   dialogBody: string;
   handleData: (forumData: ForumPostData) => Promise<void>;
+  initialData?: ForumData | null;
   isLoading?: boolean;
   errorTitle: string;
   submitButtonLabel: string;
 }
 
 const PostForm: React.FC<PostFormProps> = ({
+  navlink,
   formTitle,
   dialogHeader,
   dialogBody,
   handleData,
+  initialData,
   isLoading = false,
   errorTitle,
   submitButtonLabel,
@@ -92,7 +96,7 @@ const PostForm: React.FC<PostFormProps> = ({
           duration: 4000,
           isClosable: true,
         });
-        navigate('/forum');
+        navigate(navlink);
       })
       .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
         const errors = err?.response?.data?.errors;
@@ -113,6 +117,13 @@ const PostForm: React.FC<PostFormProps> = ({
   const handleDescriptionChange = (newContent: React.SetStateAction<string>): void => {
     setPostDescription(newContent);
   };
+
+  useEffect(() => {
+    if (initialData !== null && initialData !== undefined) {
+      setTitle(initialData.title);
+      setPostDescription(initialData.description);
+    }
+  }, [initialData]);
 
   return (
     <Card m={12} p={8}>
@@ -151,7 +162,7 @@ const PostForm: React.FC<PostFormProps> = ({
                 leftButtonLabel="No, stay on this form"
                 rightButtonLabel="Yes, bring me back"
                 onConfirm={() => {
-                  navigate('/forum');
+                  navigate(navlink);
                 }}
               />
               <Button type="submit" colorScheme="teal" leftIcon={<FaCheck size={20} />}>

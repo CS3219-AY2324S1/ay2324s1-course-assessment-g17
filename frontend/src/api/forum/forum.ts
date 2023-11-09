@@ -22,9 +22,13 @@ export default class ForumAPI {
     return await forumServiceClient.post(this.getForumUrl(), post);
   }
 
-  // editPost(postId: number, data: any) {
-  //   return forumServiceClient.put(`${this.getForumUrl()}/${postId}`, data);
-  // }
+  public async editPost(postId: number, updatedPostData: Partial<ForumPostData>): Promise<ForumData> {
+    const response = await forumServiceClient.patch(`${this.getForumUrl()}/${postId}`, {
+      ...updatedPostData,
+    });
+
+    return response.data as ForumData;
+  }
 
   public async deletePost(postId: number, username: string): Promise<void> {
     await forumServiceClient.delete(`${this.getForumUrl()}/${postId}`, {
@@ -42,20 +46,7 @@ export default class ForumAPI {
     return response.data as ForumData;
   }
 
-  // // Currently not used as search is directly done on frontend.
-  // public async searchPost(searchTerm: string): Promise<ForumData[]> {
-  //   const response = await forumServiceClient.get('/search', {
-  //     params: {
-  //       q: searchTerm,
-  //     },
-  //   });
-  //   return response.data;
-  // }
-
   /* Comments */
-
-  // Comments search is also directly done on frontend.
-
   public async viewComments(postId: number): Promise<Comment[]> {
     const response = await forumServiceClient.get(`${this.getForumUrl()}/${postId}/comments`);
     const commentList = response.data as Comment[];

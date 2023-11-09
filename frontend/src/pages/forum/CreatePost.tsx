@@ -10,6 +10,7 @@ const CreatePost: React.FC = () => {
 
   return (
     <PostForm
+      navlink={'/forum'}
       formTitle={'Create Post'}
       dialogBody={'Are you sure? Your post will not be saved!'}
       dialogHeader={'Cancel Post Creation'}

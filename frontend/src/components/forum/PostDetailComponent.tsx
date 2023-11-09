@@ -10,6 +10,7 @@ import ForumUpvoteButton from './ForumUpvoteIconButton';
 import ForumDownvoteButton from './ForumDownvoteIconButton';
 import { BiArrowBack, BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
 import DOMPurify from 'dompurify';
+import PostEditIconButton from './PostEditIconButton';
 
 interface PostDetailComponentProps {
   postId: string;
@@ -99,6 +100,9 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
             </Box>
             <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{formatPostDate(post?.createdAt)}</p>
           </Flex>
+          {currentUser?.username === post?.username && (
+            <PostEditIconButton postId={postIdAsNumber} title={post?.title ?? ''} />
+          )}
           {currentUser?.username === post?.username && (
             <ForumDeleteIconButton
               postId={postIdAsNumber}

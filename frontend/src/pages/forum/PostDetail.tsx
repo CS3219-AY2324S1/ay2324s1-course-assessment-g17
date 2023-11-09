@@ -198,7 +198,7 @@ const PostDetail: React.FC = () => {
               <Input
                 paddingLeft={16}
                 type="text"
-                placeholder="Search Comments..."
+                placeholder="Search Comment..."
                 _placeholder={{ color: useColorModeValue('gray.500', 'gray.400'), opacity: 1 }}
                 value={searchTerm ?? ''}
                 onChange={handleSearch}
@@ -302,6 +302,7 @@ const PostDetail: React.FC = () => {
           {/*  */}
           {/* Pagination component using the filteredPosts length */}
           <ForumPostsPagination
+            type={'comment'}
             currentPage={currentPage}
             totalItems={filteredComments.length}
             itemsPerPage={commentsPerPage}
