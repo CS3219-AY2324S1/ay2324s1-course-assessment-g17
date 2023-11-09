@@ -7,6 +7,7 @@ interface User {
   email: string;
   role: string;
   languages: string[];
+  refreshToken: string;
 }
 
 interface JwtPayload {

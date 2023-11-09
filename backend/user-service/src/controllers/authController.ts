@@ -30,14 +30,11 @@ interface User {
   email: string;
   role: string;
   languages: { id: number; language: string }[];
+  refreshToken: string;
 }
 
 interface UserWithoutPassword {
   id: number;
-  username: string;
-  email: string;
-  role: string;
-  languages: { id: number; language: string }[];
 }
 
 interface JwtPayload {
@@ -48,7 +45,7 @@ interface JwtPayload {
 
 const DEPLOYED_URL = "https://master.da377qx9p9syb.amplifyapp.com/";
 
-const storedRefreshTokens: string[] = [];
+// const storedRefreshTokens: string[] = [];
 // TODO: Make a MongoDB for refresh tokens
 // IF TIME PERMITS
 
@@ -83,7 +80,8 @@ export const signUp: RequestHandler[] = [
           password: hashedPassword,
           email: formData.email,
           role: Role.USER,
-          // TODO2: and create a NULL for refreshToken
+          // TODO2: and create a NULL for refreshToken x
+          refreshToken: '',
         },
       });
     } catch (err) {
@@ -144,9 +142,13 @@ export const logIn: RequestHandler[] = [
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
       // Perhaps look up user and then push to a value there
-      storedRefreshTokens.push(refreshToken);
+      // storedRefreshTokens.push(refreshToken);
 
       // TODO2: Or simply just replace the value of refreshToken in user records
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { refreshToken: refreshToken },
+      });
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -180,8 +182,44 @@ export async function logOut(req: Request, res: Response) {
 
   // TODO2:
   // OR look up user and set refreshToken to NULL
-  const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
-  storedRefreshTokens.splice(index, 1);
+  // const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
+  // storedRefreshTokens.splice(index, 1);
+  const accessToken = req.cookies["accessToken"];
+
+  const decoded = (await authenticateAccessToken(
+    accessToken,
+  )) as JwtPayload;
+  const userId = decoded.user.id;
+
+  // try {
+    
+  // } catch (error) {
+  //   res
+  //     .status(401)
+  //     .json({ errors: [{ msg: "Not authorized, access token failed" }] });
+  // }
+
+  // Fetch the latest user data from the database
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      username: true,
+      password: true,
+      email: true,
+      role: true,
+      refreshToken: true,
+    },
+  });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { refreshToken: '' },
+  });
 
   res.clearCookie("accessToken", {
     httpOnly: true,
@@ -208,10 +246,9 @@ export const deregister = async (req: Request, res: Response) => {
   //TODO
   // Issue is needs to check that storedRefreshArray has no other refreshToken besides refreshToken below.
   // If there is, need to remove all previous and refreshToken below
-
   // also need to delete refreshToken
 
-  //TODO2
+  //TODO2 x
   // HERE if deleting user, don't need to bother to remove JWT token from user in db
   res.clearCookie("accessToken", {
     httpOnly: true,
@@ -228,7 +265,13 @@ export const deregister = async (req: Request, res: Response) => {
 
 export async function getCurrentUser(req: Request, res: Response) {
   try {
-    const userId = req.user?.id; // user ID is used for identification
+    // const userId = req.user?.id; // user ID is used for identification
+    const accessToken = req.cookies["accessToken"];
+
+    const decoded = (await authenticateAccessToken(
+      accessToken,
+    )) as JwtPayload;
+    const userId = decoded.user.id;
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
@@ -239,11 +282,11 @@ export async function getCurrentUser(req: Request, res: Response) {
       where: { id: userId },
       select: {
         id: true,
-        // TODO2: Don't bother looking up the rest below
         username: true,
+        password: true,
         email: true,
         role: true,
-        languages: true,
+        refreshToken: true,
       },
     });
 
@@ -261,71 +304,71 @@ export async function getCurrentUser(req: Request, res: Response) {
 
 // update after updating user profile
 // TODO2: Or jusy delete this entire thing ffs
-export async function updateBothTokens(req: Request, res: Response) {
-  const refreshToken = req.cookies["refreshToken"];
+// export async function updateBothTokens(req: Request, res: Response) {
+//   const refreshToken = req.cookies["refreshToken"];
 
-  if (!refreshToken) {
-    res
-      .status(401)
-      .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
-  } else {
-    try {
-      const decoded = await authenticateRefreshToken(refreshToken);
+//   if (!refreshToken) {
+//     res
+//       .status(401)
+//       .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
+//   } else {
+//     try {
+//       const decoded = await authenticateRefreshToken(refreshToken);
 
-      // TODO2: modify here to get decoded.user?.id, 
-      // look up on prisma, then see if that refreshToken there matches refreshToken
-      if (!storedRefreshTokens.includes(refreshToken)) {
-        res.status(401).json({
-          errors: [
-            { msg: "Not authorized, refresh token not found in server" },
-          ],
-        });
-      } else {
-        const payload = decoded as JwtPayload;
-        const userId = payload.user.id;
-        const user = (await prisma.user.findFirst({
-          where: { id: userId },
-        })) as User;
-        if (!user) {
-          res
-            .status(401)
-            .json({ errors: [{ msg: "This username does not exist." }] });
-          return;
-        }
-        try {
-          const { password: _, ...userWithoutPassword } = user;
-          // TODO2: replace refreshToken after generating (if using PSQL) in db user record
-          const accessToken = await generateAccessToken(userWithoutPassword);
-          const refreshToken = await generateRefreshToken(userWithoutPassword);
-          storedRefreshTokens.push(refreshToken);
+//       // TODO2: modify here to get decoded.user?.id, 
+//       // look up on prisma, then see if that refreshToken there matches refreshToken
+//       if (!storedRefreshTokens.includes(refreshToken)) {
+//         res.status(401).json({
+//           errors: [
+//             { msg: "Not authorized, refresh token not found in server" },
+//           ],
+//         });
+//       } else {
+//         const payload = decoded as JwtPayload;
+//         const userId = payload.user.id;
+//         const user = (await prisma.user.findFirst({
+//           where: { id: userId },
+//         })) as User;
+//         if (!user) {
+//           res
+//             .status(401)
+//             .json({ errors: [{ msg: "This username does not exist." }] });
+//           return;
+//         }
+//         try {
+//           const { password: _, ...userWithoutPassword } = user;
+//           // TODO2: replace refreshToken after generating (if using PSQL) in db user record
+//           const accessToken = await generateAccessToken(userWithoutPassword);
+//           const refreshToken = await generateRefreshToken(userWithoutPassword);
+//           storedRefreshTokens.push(refreshToken);
 
-          res.cookie("accessToken", accessToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-          });
-          res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-          });
+//           res.cookie("accessToken", accessToken, {
+//             httpOnly: true,
+//             secure: true,
+//             sameSite: "none",
+//           });
+//           res.cookie("refreshToken", refreshToken, {
+//             httpOnly: true,
+//             secure: true,
+//             sameSite: "none",
+//           });
 
-          return res.status(200).json({
-            message: `Authorised, both refresh and access tokens refreshed.`,
-            accessToken,
-            refreshToken,
-          });
-        } catch (err) {
-          res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
-        }
-      }
-    } catch (error) {
-      res
-        .status(401)
-        .json({ errors: [{ msg: "Not authorized, invalid refresh token" }] });
-    }
-  }
-}
+//           return res.status(200).json({
+//             message: `Authorised, both refresh and access tokens refreshed.`,
+//             accessToken,
+//             refreshToken,
+//           });
+//         } catch (err) {
+//           res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
+//         }
+//       }
+//     } catch (error) {
+//       res
+//         .status(401)
+//         .json({ errors: [{ msg: "Not authorized, invalid refresh token" }] });
+//     }
+//   }
+// }
 
 export const sendResetEmail: RequestHandler[] = [
   body("email").notEmpty().isEmail(),
@@ -409,7 +452,7 @@ export const resetPassword: RequestHandler[] = [
       const hashedPassword = hashPassword(password);
       await prisma.user.update({
         where: { id: user.id },
-        data: { password: hashedPassword },
+        data: { password: hashedPassword, refreshToken: '' },
       });
 
       res.status(200).json({ message: "Password reset successful." });
@@ -432,8 +475,33 @@ export async function updateAccessToken(req: Request, res: Response) {
     try {
       const decoded = await authenticateRefreshToken(refreshToken);
 
+      // const userId = req.user?.id; // user ID is used for identification
+      const payload = decoded as JwtPayload;
+      const userWithoutPassword = payload.user;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+    
+      // Fetch the latest user data from the database
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          username: true,
+          password: true,
+          email: true,
+          role: true,
+          refreshToken: true,
+        },
+      });
+    
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       // TODO2: modify here to get decoded.user?.id, look up on prisma, then see if that refreshToken there matches refreshToken
-      if (!storedRefreshTokens.includes(refreshToken)) {
+      if (user.refreshToken != refreshToken) {
         res.status(401).json({
           errors: [
             { msg: "Not authorized, refresh token not found in server" },
@@ -509,9 +577,6 @@ export const updateUserProfile: RequestHandler[] = [
 
       const updatedUser = await prisma.user.update({
         where: { id: user.id },
-        include: {
-          languages: true,
-        },
         data: {
           username: username,
           email: email,

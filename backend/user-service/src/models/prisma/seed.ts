@@ -63,6 +63,7 @@ async function seed() {
         email: "admin@example.com",
         password: hashPassword("admin_password"),
         role: "ADMIN",
+        refreshToken: "",
       },
     });
 
@@ -72,6 +73,7 @@ async function seed() {
         email: "user@example.com",
         password: hashPassword("user_password"),
         role: "USER",
+        refreshToken: "",
       },
     });
 

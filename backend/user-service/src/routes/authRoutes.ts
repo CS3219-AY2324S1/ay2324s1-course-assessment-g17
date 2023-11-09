@@ -8,7 +8,7 @@ router.post("/login", AuthController.logIn);
 router.post("/signup", AuthController.signUp);
 
 // Protected refresh token routes
-router.get("/bothToken", AuthController.updateBothTokens);
+// router.get("/bothToken", AuthController.updateBothTokens);
 router.get("/token", AuthController.updateAccessToken);
 
 // Protected access token routes
