@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom';
 import IconWithText from '../../components/content/IconWithText';
 import { AddIcon, CloseIcon, SearchIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { MdForum } from 'react-icons/md';
-import { BiArrowBack, BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
+import { BiArrowBack, BiSolidCalendar, BiSolidCommentDetail, BiSolidUserCircle } from 'react-icons/bi';
 import { type ForumData } from '../../types/forum/forum';
 import ForumAPI from '../../api/forum/forum';
 import ForumPostsPagination from '../../components/forum/ForumPostsPagination';
@@ -26,6 +26,7 @@ const Forum: React.FC = () => {
   const toast = useToast();
 
   const [posts, setPosts] = useState<ForumData[]>([]);
+  const [commentCounts, setCommentCounts] = useState<Record<number, number>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredPosts, setFilteredPosts] = useState<ForumData[]>([]);
@@ -36,10 +37,24 @@ const Forum: React.FC = () => {
     try {
       const forumAPI = new ForumAPI();
       const forumPosts = await forumAPI.viewPosts();
+      const postsWithCommentCounts = await Promise.all(
+        forumPosts.map(async (post) => {
+          const comments = await forumAPI.viewComments(post.id);
+          return { ...post, commentCount: comments.length };
+        }),
+      );
+
       // Default: sort the posts by creation date, from newest to oldest.
-      forumPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setPosts(forumPosts);
-      setFilteredPosts(forumPosts); // Initially, filtered posts are the same as all posts.
+      postsWithCommentCounts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setPosts(postsWithCommentCounts);
+      setFilteredPosts(postsWithCommentCounts); // Initially, filtered posts are the same as all posts.
+
+      // Update comment counts state
+      const commentCountsObject: Record<number, number> = {};
+      postsWithCommentCounts.forEach((post) => {
+        commentCountsObject[post.id] = post.commentCount ?? 0;
+      });
+      setCommentCounts(commentCountsObject);
     } catch (error) {
       console.error('Error fetching forum posts:', error);
       toast({
@@ -224,6 +239,12 @@ const Forum: React.FC = () => {
               <HStack ml="4" mr="4">
                 <TriangleUpIcon boxSize="4" />
                 <Text>{post.upvotes.length}</Text>
+              </HStack>
+              <HStack ml="4" mr="4">
+                <Box w="4" h="4">
+                  <BiSolidCommentDetail />
+                </Box>
+                <Text>{commentCounts[post.id]}</Text>
               </HStack>
             </Flex>
           ))}
