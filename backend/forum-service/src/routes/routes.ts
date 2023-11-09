@@ -17,6 +17,5 @@ router.put("/posts/:postId/upvote", forumController.upvotePost);
 router.put("/posts/:postId/downvote", forumController.downvotePost);
 router.put("/comments/:commentId/upvote", forumController.upvoteComment);
 router.put("/comments/:commentId/downvote", forumController.downvoteComment);
-router.get("/search", forumController.searchPost);
 
 export default router;

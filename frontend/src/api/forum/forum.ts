@@ -46,20 +46,7 @@ export default class ForumAPI {
     return response.data as ForumData;
   }
 
-  // // Currently not used as search is directly done on frontend.
-  // public async searchPost(searchTerm: string): Promise<ForumData[]> {
-  //   const response = await forumServiceClient.get('/search', {
-  //     params: {
-  //       q: searchTerm,
-  //     },
-  //   });
-  //   return response.data;
-  // }
-
   /* Comments */
-
-  // Comments search is also directly done on frontend.
-
   public async viewComments(postId: number): Promise<Comment[]> {
     const response = await forumServiceClient.get(`${this.getForumUrl()}/${postId}/comments`);
     const commentList = response.data as Comment[];

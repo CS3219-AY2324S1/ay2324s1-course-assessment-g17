@@ -241,22 +241,6 @@ const forumController = {
       res.json(updatedComment);
     }
   },
-  async searchPost(req: Request, res: Response) {
-    try {
-      const searchTerm = req.query.q as string;
-      const posts = await prisma.post.findMany({
-        where: {
-          OR: [
-            { title: { contains: searchTerm } },
-            { description: { contains: searchTerm } },
-          ],
-        },
-      });
-      res.json(posts);
-    } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  },
 };
 
 export default forumController;
