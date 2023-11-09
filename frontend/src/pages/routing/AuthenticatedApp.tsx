@@ -11,9 +11,10 @@ import Matching from '../matching/Matching';
 import ProtectedRoute from './ProtectedRoute';
 import Forum from '../forum/Forum';
 import CreatePost from '../forum/CreatePost';
+import PostDetail from '../forum/PostDetail';
+import EditPost from '../forum/EditPost';
 import CreateComment from '../forum/CreateComment';
 import EditComment from '../forum/EditComment';
-import PostDetail from '../forum/PostDetail';
 import { SocketProvider } from '../../context/socket';
 
 const AuthenticatedApp: React.FC = () => {
@@ -50,9 +51,11 @@ const AuthenticatedApp: React.FC = () => {
       <Route path="/forum" element={<Forum />} />
       <Route path="/forum/new-post" element={<CreatePost />} />
       <Route path="/forum/:postId" element={<PostDetail />} />
-      <Route path="*" element={<PageNotFound />} />
+      <Route path="/forum/:postId/edit" element={<EditPost />} />
       <Route path="/forum/:postId/new-comment" element={<CreateComment />} />
       <Route path="/forum/:postId/:commentId/edit" element={<EditComment />} />
+      {/* Page Not Found */}
+      <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };

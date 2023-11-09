@@ -73,13 +73,12 @@ const forumController = {
   async editPost(req: Request, res: Response) {
     try {
       const postId = req.params.postId;
-      const editUsername = req.params.username;
       const { title, description, username } = req.body;
       // only update post if user is the author
       const post = await prisma.post.findUnique({
         where: { id: parseInt(postId) },
       });
-      if (post?.username !== editUsername) {
+      if (post?.username !== username) {
         return res
           .status(400)
           .json({ error: "User is not the author of the post" });

@@ -5,17 +5,16 @@ import React from 'react';
 
 interface PostEditIconButtonProps {
   postId: number;
+  title: string;
 }
 
-const PostEditIconButton: React.FC<PostEditIconButtonProps> = ({
-  postId,
-}: PostEditIconButtonProps) => {
+const PostEditIconButton: React.FC<PostEditIconButtonProps> = ({ postId, title }: PostEditIconButtonProps) => {
   const navigate = useNavigate();
-
   return (
-    <Tooltip label={'Edit Post'}>
+    <Tooltip label={`Edit Post ${postId}: ${title}`}>
       <IconButton
-        aria-label="Edit Comment"
+        aria-label="Edit Post"
+        value={postId}
         onClick={() => {
           navigate(`/forum/${postId}/edit`);
         }}
@@ -27,4 +26,4 @@ const PostEditIconButton: React.FC<PostEditIconButtonProps> = ({
   );
 };
 
-export default PostEditIconButtonProps;
+export default PostEditIconButton;

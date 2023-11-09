@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   FormControl,
@@ -17,7 +17,7 @@ import ConfirmationDialog from '../content/ConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
 import IconWithText from '../content/IconWithText';
 import { MdForum } from 'react-icons/md';
-import type { ForumPostData } from '../../types/forum/forum';
+import type { ForumData, ForumPostData } from '../../types/forum/forum';
 import { type AxiosError } from 'axios';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
@@ -27,6 +27,7 @@ interface PostFormProps {
   dialogHeader: string;
   dialogBody: string;
   handleData: (forumData: ForumPostData) => Promise<void>;
+  initialData?: ForumData | null;
   isLoading?: boolean;
   errorTitle: string;
   submitButtonLabel: string;
@@ -37,6 +38,7 @@ const PostForm: React.FC<PostFormProps> = ({
   dialogHeader,
   dialogBody,
   handleData,
+  initialData,
   isLoading = false,
   errorTitle,
   submitButtonLabel,
@@ -113,6 +115,13 @@ const PostForm: React.FC<PostFormProps> = ({
   const handleDescriptionChange = (newContent: React.SetStateAction<string>): void => {
     setPostDescription(newContent);
   };
+
+  useEffect(() => {
+    if (initialData !== null && initialData !== undefined) {
+      setTitle(initialData.title);
+      setPostDescription(initialData.description);
+    }
+  }, [initialData]);
 
   return (
     <Card m={12} p={8}>

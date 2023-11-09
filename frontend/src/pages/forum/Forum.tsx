@@ -230,6 +230,7 @@ const Forum: React.FC = () => {
         </Stack>
         {/* Pagination component using the filteredPosts length */}
         <ForumPostsPagination
+          type={'post'}
           currentPage={currentPage}
           totalItems={filteredPosts.length}
           itemsPerPage={postsPerPage}

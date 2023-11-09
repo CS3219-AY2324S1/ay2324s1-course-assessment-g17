@@ -4,6 +4,7 @@ import { ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, ArrowRightIcon } from
 import CustomNumberInput from './CustomNumberInput';
 
 interface ForumPostsPaginationProps {
+  type: string;
   currentPage: number;
   totalItems: number;
   itemsPerPage: number;
@@ -11,6 +12,7 @@ interface ForumPostsPaginationProps {
 }
 
 const ForumPostsPagination: React.FC<ForumPostsPaginationProps> = ({
+  type,
   currentPage,
   totalItems,
   itemsPerPage,
@@ -18,7 +20,7 @@ const ForumPostsPagination: React.FC<ForumPostsPaginationProps> = ({
 }: ForumPostsPaginationProps) => {
   const totalPages = totalItems > 0 ? Math.ceil(totalItems / itemsPerPage) : 1;
 
-  const pluralForm = totalItems <= 1 ? 'post' : 'posts';
+  const pluralForm = totalItems <= 1 ? type : type + 's';
 
   return (
     <Flex justifyContent="space-between" alignItems="center" borderTopWidth="1px" padding={4}>

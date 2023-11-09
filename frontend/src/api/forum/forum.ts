@@ -22,9 +22,13 @@ export default class ForumAPI {
     return await forumServiceClient.post(this.getForumUrl(), post);
   }
 
-  // editPost(postId: number, data: any) {
-  //   return forumServiceClient.put(`${this.getForumUrl()}/${postId}`, data);
-  // }
+  public async editPost(postId: number, updatedPostData: Partial<ForumPostData>): Promise<ForumData> {
+    const response = await forumServiceClient.patch(`${this.getForumUrl()}/${postId}`, {
+      ...updatedPostData,
+    });
+
+    return response.data as ForumData;
+  }
 
   public async deletePost(postId: number, username: string): Promise<void> {
     await forumServiceClient.delete(`${this.getForumUrl()}/${postId}`, {

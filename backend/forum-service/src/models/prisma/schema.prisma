@@ -26,5 +26,4 @@ model Comment {
   postId Int
   createdAt DateTime @default(now())
   upvotes String[]  @default([])
-  createdAt DateTime @default(now())
 }
