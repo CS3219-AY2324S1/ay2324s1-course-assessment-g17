@@ -469,13 +469,11 @@ export const updateUserProfile: RequestHandler[] = [
       const updatedUser = await prisma.user.update({
         where: { id: user.id },
         data: {
-          username: username,
-          email: email,
           languages: {
             set: [],
-            connect: languageIds.map((id) => ({ id: id })),
+            connect: languageIds.map((id) => ({ id })),
           },
-        },
+        }
       });
 
       res.json({
