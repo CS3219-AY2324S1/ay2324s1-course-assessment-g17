@@ -55,10 +55,10 @@ const PostDetail: React.FC = () => {
     try {
       const forumAPI = new ForumAPI();
       const postComments = await forumAPI.viewComments(postIdAsNumber);
-      // Default: sort the posts by creation date, from newest to oldest.
+      // Default: sort the comments by creation date, from newest to oldest.
       postComments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setComments(postComments);
-      setFilteredComments(postComments); // Initially, filtered posts are the same as all posts.
+      setFilteredComments(postComments); // Initially, filtered comments are the same as all comments.
     } catch (error) {
       console.error('Error fetching comments:', error);
       toast({
@@ -71,10 +71,10 @@ const PostDetail: React.FC = () => {
     }
   };
 
-  // Calculate the range of posts to display based on the current page and posts per page.
+  // Calculate the range of comments to display based on the current page and comments per page.
   const startIndex = (currentPage - 1) * commentsPerPage;
   const endIndex = startIndex + commentsPerPage;
-  const currentComments = filteredComments.slice(startIndex, endIndex); // Use filteredPosts for rendering.
+  const currentComments = filteredComments.slice(startIndex, endIndex); // Use filteredComments for rendering.
 
   const handlePageChange = (newPage: number): void => {
     setCurrentPage(newPage);
@@ -85,7 +85,7 @@ const PostDetail: React.FC = () => {
     const newSearchTerm = event.target.value;
     setSearchTerm(newSearchTerm);
 
-    // Filter posts based on the search term.
+    // Filter comments based on the search term.
     const filtered = comments.filter((comment) => comment.content.toLowerCase().includes(newSearchTerm.toLowerCase()));
 
     setFilteredComments(filtered);
@@ -102,7 +102,7 @@ const PostDetail: React.FC = () => {
   const handleSort = (option: 'newest' | 'mostVotes'): void => {
     setSortOption(option);
 
-    // Sort the posts based on the selected option.
+    // Sort the comments based on the selected option.
     const sorted = [...filteredComments];
 
     if (option === 'newest') {
@@ -127,7 +127,7 @@ const PostDetail: React.FC = () => {
     return '';
   };
 
-  // Calculate upvote status for each post.
+  // Calculate upvote status for each comment.
   const calculateUpvoteStatus = (comment: Comment): boolean => {
     // Check if the user's username is in the upvotes array.
     return comment.upvotes.includes(currentUser?.username ?? '');
@@ -138,7 +138,7 @@ const PostDetail: React.FC = () => {
     const updatedFilteredComments = comments.filter((c) => c.id !== updatedComment.id);
     setComments([...updatedComments, updatedComment]);
 
-    // Sort the posts based on the selected option.
+    // Sort the comments based on the selected option.
     const sorted = [...updatedFilteredComments, updatedComment];
 
     if (sortOption === 'newest') {
@@ -155,7 +155,7 @@ const PostDetail: React.FC = () => {
     const updatedFilteredComments = comments.filter((c) => c.id !== deletedCommentId);
     setComments([...updatedComments]);
 
-    // Sort the posts based on the selected option.
+    // Sort the comments based on the selected option.
     const sorted = [...updatedFilteredComments];
 
     if (sortOption === 'newest') {
@@ -174,8 +174,6 @@ const PostDetail: React.FC = () => {
     borderRadius: '8px',
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     width: '85%',
-    // maxWidth: '800px',
-    // minWidth: '200px',
     margin: '0 auto',
   };
 
@@ -198,7 +196,7 @@ const PostDetail: React.FC = () => {
               <Input
                 paddingLeft={16}
                 type="text"
-                placeholder="Search Comment..."
+                placeholder="Search Comments..."
                 _placeholder={{ color: useColorModeValue('gray.500', 'gray.400'), opacity: 1 }}
                 value={searchTerm ?? ''}
                 onChange={handleSearch}
@@ -237,14 +235,13 @@ const PostDetail: React.FC = () => {
               Most Votes
             </Button>
           </HStack>
-          {/*  */}
           <Stack padding={8} spacing={8} w="100%">
             {currentComments.map((comment) => (
               <Flex key={comment.id} direction="column" alignItems="center" style={cardStyle}>
                 <HStack justifyContent="space-between" alignItems="center" style={{ width: '80%' }} mt={4}>
                   <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
                     <HStack>
-                      <VStack>
+                      <VStack alignItems="start">
                         <HStack>
                           <Box w="4" h="4">
                             <BiSolidUserCircle />
@@ -299,8 +296,7 @@ const PostDetail: React.FC = () => {
               </Flex>
             ))}
           </Stack>
-          {/*  */}
-          {/* Pagination component using the filteredPosts length */}
+          {/* Pagination component using the filteredComments length */}
           <ForumPostsPagination
             type={'comment'}
             currentPage={currentPage}

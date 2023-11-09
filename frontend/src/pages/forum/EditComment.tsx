@@ -1,5 +1,3 @@
-// DONE EXCEPT FOR DISPLAYING POST CONTENT
-
 import React, { useEffect, useState } from 'react';
 import ForumAPI from '../../api/forum/forum';
 import { useNavigate, useParams } from 'react-router-dom';

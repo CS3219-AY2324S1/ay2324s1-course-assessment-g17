@@ -1,5 +1,3 @@
-// LOOKS TO BE DONE
-
 import React, { useState, useEffect } from 'react';
 import {
   Spinner,
@@ -121,13 +119,10 @@ const CommentForm: React.FC<CommentFormProps> = ({
         ) : (
           <Stack spacing={4}>
             <IconWithText text={formTitle} icon={<MdForum size={25} />} fontSize={'2xl'} fontWeight="bold" />
-            {/* Insert the post content here */}
-
             <FormControl isRequired>
               <FormLabel>Description</FormLabel>
               <RichTextEditor value={content} onChange={handleContentChange} useColorModeValue={useColorModeValue} />
             </FormControl>
-
             <Flex mt={4} justifyContent="space-between">
               <ConfirmationDialog
                 dialogHeader={dialogHeader}

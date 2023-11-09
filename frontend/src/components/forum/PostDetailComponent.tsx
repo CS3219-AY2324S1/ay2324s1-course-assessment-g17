@@ -4,7 +4,7 @@ import ForumAPI from '../../api/forum/forum';
 import { type ForumData } from '../../types/forum/forum';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
-import { Box, Button, Divider, Stack, Flex, HStack, Heading, VStack, useToast } from '@chakra-ui/react';
+import { Box, Button, Divider, Stack, Flex, HStack, Heading, VStack, useToast, Text } from '@chakra-ui/react';
 import ForumDeleteIconButton from './ForumDeleteIconButton';
 import ForumUpvoteButton from './ForumUpvoteIconButton';
 import ForumDownvoteButton from './ForumDownvoteIconButton';
@@ -76,6 +76,11 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
     setPost(updatedPost);
   };
 
+  const ellipsisStyle = {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  };
+
   return (
     <Stack paddingX={16} paddingY={8}>
       <Flex direction="column" alignItems="center">
@@ -87,30 +92,42 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
         <Heading as="h1" size="xl" textAlign="center" style={{ maxWidth: '80%' }} mt={4}>
           {post?.title}
         </Heading>
-        <Flex justifyContent="space-between" alignItems="center" style={{ maxWidth: '80%' }} mt={4}>
-          <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={4} mr={12}>
-            <Box w="6" h="6" ml={2} mr={2}>
-              <BiSolidUserCircle style={{ fontSize: '24px' }} />
-            </Box>
-            <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{post?.username}</p>
+        <Stack padding={8} spacing={8} alignItems="center" style={{ width: '100%' }}>
+          <Flex direction="column" alignItems="center" style={{ width: '85%' }}>
+            <HStack justifyContent="space-between" alignItems="center" style={{ width: '80%' }} mt={4}>
+              <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
+                <HStack>
+                  <VStack alignItems="start">
+                    <HStack>
+                      <Box w="4" h="4">
+                        <BiSolidUserCircle />
+                      </Box>
+                      <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>
+                        {post?.username} posted...
+                      </Text>
+                    </HStack>
+                    <HStack>
+                      <Box w="4" h="4">
+                        <BiSolidCalendar />
+                      </Box>
+                      <Text style={{ fontStyle: 'italic' }}>{formatPostDate(post?.createdAt)}</Text>
+                    </HStack>
+                  </VStack>
+                  {currentUser?.username === post?.username && (
+                    <PostEditIconButton postId={postIdAsNumber} title={post?.title ?? ''} />
+                  )}
+                </HStack>
+              </Flex>
+              {currentUser?.username === post?.username && (
+                <ForumDeleteIconButton
+                  postId={postIdAsNumber}
+                  username={currentUser?.username ?? ''}
+                  onDelete={handlePostDeletion}
+                />
+              )}
+            </HStack>
           </Flex>
-          <Flex alignItems="center" style={{ maxWidth: '50%' }} ml={12} mr={12}>
-            <Box w="6" h="6" ml={2} mr={2}>
-              <BiSolidCalendar style={{ fontSize: '24px' }} />
-            </Box>
-            <p style={{ fontStyle: 'italic', maxWidth: '100%' }}>{formatPostDate(post?.createdAt)}</p>
-          </Flex>
-          {currentUser?.username === post?.username && (
-            <PostEditIconButton postId={postIdAsNumber} title={post?.title ?? ''} />
-          )}
-          {currentUser?.username === post?.username && (
-            <ForumDeleteIconButton
-              postId={postIdAsNumber}
-              username={currentUser?.username ?? ''}
-              onDelete={handlePostDeletion}
-            />
-          )}
-        </Flex>
+        </Stack>
         <Divider mt={4} mb={4} />
         <HStack style={{ width: '80%', alignItems: 'flex-start' }}>
           <VStack style={{ width: '10%', justifyContent: 'flex-start' }}>

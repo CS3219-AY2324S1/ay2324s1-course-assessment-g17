@@ -1,8 +1,5 @@
-// DONE EXCEPT FOR DISPLAYING POST CONTENT
-
 import React from 'react';
 import ForumAPI from '../../api/forum/forum';
-// import { Stack } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import CommentForm from '../../components/forum/CommentForm';
 import PostDetailComponent from '../../components/forum/PostDetailComponent';
@@ -21,10 +18,6 @@ const CreateComment: React.FC = () => {
   const handleData = async (commentData: CommentData): Promise<void> => {
     await new ForumAPI().addComment(postIdNum, commentData);
   };
-
-  //   addComment(postId: number, data: any) {
-  //   return forumServiceClient.post(`${this.getForumUrl()}/${postId}/comments`, data);
-  // }
 
   return (
     <div style={{ width: '100%', alignItems: 'center' }}>
