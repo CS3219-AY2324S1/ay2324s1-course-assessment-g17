@@ -18,7 +18,8 @@ const PostEditIconButton: React.FC<PostEditIconButtonProps> = ({ postId, title }
         onClick={() => {
           navigate(`/forum/${postId}/edit`);
         }}
-        m={2}
+        ml={4}
+        mr={4}
       >
         <EditIcon />
       </IconButton>
