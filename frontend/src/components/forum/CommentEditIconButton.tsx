@@ -21,7 +21,7 @@ const CommentEditIconButton: React.FC<CommentEditIconButtonProps> = ({
         onClick={() => {
           navigate(`/forum/${postId}/${commentId}/edit`);
         }}
-        ml={4}
+        m={2}
       >
         <EditIcon />
       </IconButton>
