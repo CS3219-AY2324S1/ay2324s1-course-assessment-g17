@@ -165,31 +165,31 @@ export async function logOut(req: Request, res: Response) {
 
   // Look up user and set refreshToken to NULL
   const accessToken = req.cookies["accessToken"];
+  if (accessToken) {
+    const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;
+    const userId = decoded.user.id;
 
-  const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;
-  const userId = decoded.user.id;
+    // Fetch the latest user data from the database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        email: true,
+        role: true,
+        token: true,
+      },
+    }) as User;
 
-  // Fetch the latest user data from the database
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      username: true,
-      password: true,
-      email: true,
-      role: true,
-      token: true,
-    },
-  }) as User;
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    if (user) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { token: null },
+      });
+    } // otherwise, ignore that user is not logged in
+    // or will lead to weird scenario where you need token to leave
   }
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { token: null },
-  });
 
   res.clearCookie("accessToken", {
     httpOnly: true,
@@ -230,16 +230,22 @@ export const deregister = async (req: Request, res: Response) => {
 
 export async function getCurrentUser(req: Request, res: Response) {
   try {
-    const accessToken = req.cookies["accessToken"];
-
-    const decoded = (await authenticateAccessToken(
-      accessToken,
-    )) as JwtPayload;
-    const userId = decoded.user.id;
+    const userId = req.user?.id; // user ID is used for identification
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // const accessToken = req.cookies["accessToken"];
+
+    // const decoded = (await authenticateAccessToken(
+    //   accessToken,
+    // )) as JwtPayload;
+    // const userId = decoded.user.id;
+
+    // if (!userId) {
+    //   return res.status(401).json({ message: "User not authenticated" });
+    // }
 
     // Fetch the latest user data from the database
     const user = await prisma.user.findUnique({
@@ -468,12 +474,17 @@ export const updateUserProfile: RequestHandler[] = [
 
       const updatedUser = await prisma.user.update({
         where: { id: user.id },
+        include: {
+          languages: true,
+        },
         data: {
+          username: username,
+          email: email,
           languages: {
             set: [],
-            connect: languageIds.map((id) => ({ id })),
+            connect: languageIds.map((id) => ({ id: id })),
           },
-        }
+        },
       });
 
       res.json({
