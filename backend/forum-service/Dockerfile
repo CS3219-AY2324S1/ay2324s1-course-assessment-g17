@@ -11,6 +11,9 @@ RUN npm install --frozen-lockfile
 RUN npm install -g typescript ts-node
 
 COPY . .
+
+RUN npx prisma generate
+
 ENV PORT=9001
 
 EXPOSE 9001
