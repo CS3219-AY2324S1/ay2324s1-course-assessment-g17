@@ -24,7 +24,7 @@ model User {
   role             Role
   languages        Language[]
   AnsweredQuestion AnsweredQuestion[]
-  refreshToken     String
+  token            String?
 }
 
 model Language {
