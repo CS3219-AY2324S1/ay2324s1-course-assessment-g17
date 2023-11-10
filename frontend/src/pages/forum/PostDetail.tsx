@@ -24,7 +24,7 @@ import CommentDeleteIconButton from '../../components/forum/CommentDeleteIconBut
 import CommentUpvoteButton from '../../components/forum/CommentUpvoteIconButton';
 import CommentDownvoteButton from '../../components/forum/CommentDownvoteIconButton';
 import { AddIcon, CloseIcon, SearchIcon } from '@chakra-ui/icons';
-import { BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
+import { BiSolidUserCircle } from 'react-icons/bi';
 import ForumAPI from '../../api/forum/forum';
 import ForumPostsPagination from '../../components/forum/ForumPostsPagination';
 import { useAppSelector } from '../../reducers/hooks';
@@ -167,16 +167,6 @@ const PostDetail: React.FC = () => {
     setFilteredComments(sorted);
   };
 
-  const cardStyle = {
-    border: '1px solid #ccc',
-    padding: '20px 32px',
-    marginBottom: '16px',
-    borderRadius: '8px',
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-    width: '85%',
-    margin: '0 auto',
-  };
-
   const ellipsisStyle = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -237,7 +227,7 @@ const PostDetail: React.FC = () => {
           </HStack>
           <Stack padding={8} spacing={8} w="100%">
             {currentComments.map((comment) => (
-              <Flex key={comment.id} direction="column" alignItems="center" style={cardStyle}>
+              <Flex key={comment.id} direction="column" alignItems="center">
                 <HStack justifyContent="space-between" alignItems="center" style={{ width: '80%' }} mt={4}>
                   <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
                     <HStack>
@@ -247,14 +237,11 @@ const PostDetail: React.FC = () => {
                             <BiSolidUserCircle />
                           </Box>
                           <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>
-                            {comment.username} commented...
+                            {comment.username}
                           </Text>
-                        </HStack>
-                        <HStack>
-                          <Box w="4" h="4">
-                            <BiSolidCalendar />
-                          </Box>
-                          <Text style={{ fontStyle: 'italic' }}>{formatCommentDate(comment.createdAt)}</Text>
+                          <Text style={{ fontStyle: 'italic', color: 'gray', fontSize: 'small' }}>
+                            • {formatCommentDate(comment.createdAt)}
+                          </Text>
                         </HStack>
                       </VStack>
                       {currentUser?.username === comment.username && (

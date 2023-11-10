@@ -1,9 +1,9 @@
-import { TriangleUpIcon } from '@chakra-ui/icons';
 import { Tooltip, IconButton, useToast, useColorModeValue } from '@chakra-ui/react';
 import React from 'react';
 import ForumAPI from '../../api/forum/forum';
 import { type Comment } from '../../types/forum/forum';
 import { type AxiosError } from 'axios';
+import { FaArrowUp } from 'react-icons/fa6';
 
 interface CommentUpvoteIconButtonProps {
   commentId: number;
@@ -64,14 +64,13 @@ const CommentUpvoteIconButton: React.FC<CommentUpvoteIconButtonProps> = ({
     <Tooltip label={`Upvote: This comment is useful and clear.`}>
       <IconButton
         aria-label="Upvote Comment"
+        icon={<FaArrowUp />}
         onClick={handleUpvote}
         _hover={{ bg: useColorModeValue('#0a9dad', '#025361') }}
         bg={buttonBgColor}
         borderRadius="50%"
         border="1px solid #b4b6b8"
-      >
-        <TriangleUpIcon boxSize="4" />
-      </IconButton>
+      />
     </Tooltip>
   );
 };
