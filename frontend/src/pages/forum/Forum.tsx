@@ -121,12 +121,11 @@ const Forum: React.FC = () => {
   }, []);
 
   const cardStyle = {
-    border: '1px solid #ccc',
     padding: '20px 32px',
     marginBottom: '16px',
     borderRadius: '8px',
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-    width: '80%',
+    width: '100%',
     maxWidth: '800px',
     minWidth: '200px',
     margin: '0 auto',

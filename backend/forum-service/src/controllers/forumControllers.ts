@@ -191,7 +191,9 @@ const forumController = {
     if (!post?.upvotes.includes(username)) {
       return res.status(400).json({ error: "User has not upvoted before" });
     } else {
-      const upvotes = post.upvotes.filter((upvote: string) => upvote !== username);
+      const upvotes = post.upvotes.filter(
+        (upvote: string) => upvote !== username,
+      );
       const updatedPost = await prisma.post.update({
         where: { id: parseInt(postId) },
         data: { upvotes },
@@ -234,7 +236,9 @@ const forumController = {
         where: { id: parseInt(commentId) },
         data: {
           upvotes: {
-            set: comment.upvotes.filter((upvote: string) => upvote !== username),
+            set: comment.upvotes.filter(
+              (upvote: string) => upvote !== username,
+            ),
           },
         },
       });

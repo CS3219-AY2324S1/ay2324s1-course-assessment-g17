@@ -143,8 +143,8 @@ const PostDetail: React.FC = () => {
 
   return (
     <>
-      <PostDetailComponent postId={postId} />
       <Stack paddingX={16} paddingY={8}>
+        <PostDetailComponent postId={postId} />
         <Flex direction="column" alignItems="center">
           <Flex justifyContent="space-between" alignItems="center" w="85%" style={{ marginTop: '30px' }}>
             <Link to={newCommentLink}>

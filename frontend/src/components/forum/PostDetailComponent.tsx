@@ -81,19 +81,19 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
   };
 
   return (
-    <Stack paddingX={16} paddingY={8}>
+    <>
       <Flex direction="column" alignItems="center">
         <Flex justifyContent="flex-start" w="100%">
           <Link to="/forum">
             <Button leftIcon={<BiArrowBack />}>Back to Forum</Button>
           </Link>
         </Flex>
-        <Heading as="h1" size="xl" textAlign="center" style={{ maxWidth: '80%' }} mt={4}>
+        <Heading as="h1" size="xl" textAlign="left" style={{ maxWidth: '100%' }} mt={4}>
           {post?.title}
         </Heading>
-        <Stack padding={8} spacing={8} alignItems="center" style={{ width: '100%' }}>
-          <Flex direction="column" alignItems="center" style={{ width: '85%' }}>
-            <HStack justifyContent="space-between" alignItems="center" style={{ width: '80%' }} mt={4}>
+        <Stack alignItems="center" style={{ width: '100%' }}>
+          <Flex direction="column" alignItems="left" style={{ width: '85%' }}>
+            <HStack justifyContent="space-between" alignItems="left" style={{ width: '80%' }} mt={4}>
               <Flex direction="column" style={{ overflow: 'hidden' }} flex="1">
                 <HStack>
                   <VStack alignItems="start">
@@ -122,7 +122,7 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
             </HStack>
           </Flex>
         </Stack>
-        <Divider mt={4} mb={4} />
+        <Divider mb={4} />
         <HStack style={{ width: '80%', alignItems: 'flex-start' }}>
           <VStack style={{ width: '10%', justifyContent: 'flex-start' }}>
             <ForumUpvoteButton
@@ -146,7 +146,7 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
           />
         </HStack>
       </Flex>
-    </Stack>
+    </>
   );
 };
 
