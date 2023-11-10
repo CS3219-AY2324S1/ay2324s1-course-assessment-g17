@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.post("/login", AuthController.logIn);
 router.post("/signup", AuthController.signUp);
+router.post("/oauth/auth", AuthController.oAuthAuthenticate);
+router.post("/oauth/signup", AuthController.oAuthNewUser);
 
 // Protected refresh token routes
 router.get("/bothToken", AuthController.updateBothTokens);
