@@ -5,7 +5,6 @@ import { type Comment } from '../../types/forum/forum';
 import { Box, Button, Flex, HStack, Stack, Text, useToast, VStack, Divider, Select } from '@chakra-ui/react';
 import DOMPurify from 'dompurify';
 import CommentEditIconButton from '../../components/forum/CommentEditIconButton';
-import CommentDeleteIconButton from '../../components/forum/CommentDeleteIconButton';
 import CommentUpvoteButton from '../../components/forum/CommentUpvoteIconButton';
 import CommentDownvoteButton from '../../components/forum/CommentDownvoteIconButton';
 import { AddIcon } from '@chakra-ui/icons';
@@ -181,17 +180,15 @@ const PostDetail: React.FC = () => {
                         </HStack>
                       </VStack>
                       {currentUser?.username === comment.username && (
-                        <CommentEditIconButton commentId={comment.id} postId={postIdAsNumber} />
+                        <CommentEditIconButton
+                          username={currentUser?.username ?? ''}
+                          onDelete={handleCommentDeletion}
+                          commentId={comment.id}
+                          postId={postIdAsNumber}
+                        />
                       )}
                     </HStack>
                   </Flex>
-                  {currentUser?.username === comment.username && (
-                    <CommentDeleteIconButton
-                      commentId={comment.id}
-                      username={currentUser?.username ?? ''}
-                      onDelete={handleCommentDeletion}
-                    />
-                  )}
                 </HStack>
                 <Divider mt={4} mb={4} />
                 <HStack style={{ width: '100%', alignItems: 'flex-start' }}>

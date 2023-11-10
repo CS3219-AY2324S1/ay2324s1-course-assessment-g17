@@ -5,7 +5,6 @@ import { type ForumData } from '../../types/forum/forum';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import { Box, Button, Divider, Stack, Flex, HStack, Heading, VStack, useToast, Text } from '@chakra-ui/react';
-import ForumDeleteIconButton from './ForumDeleteIconButton';
 import ForumUpvoteButton from './ForumUpvoteIconButton';
 import ForumDownvoteButton from './ForumDownvoteIconButton';
 import { BiArrowBack, BiSolidUserCircle } from 'react-icons/bi';
@@ -111,17 +110,15 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
                     </HStack>
                   </VStack>
                   {currentUser?.username === post?.username && (
-                    <PostEditIconButton postId={postIdAsNumber} title={post?.title ?? ''} />
+                    <PostEditIconButton
+                      username={currentUser?.username ?? ''}
+                      onDelete={handlePostDeletion}
+                      postId={postIdAsNumber}
+                      title={post?.title ?? ''}
+                    />
                   )}
                 </HStack>
               </Flex>
-              {currentUser?.username === post?.username && (
-                <ForumDeleteIconButton
-                  postId={postIdAsNumber}
-                  username={currentUser?.username ?? ''}
-                  onDelete={handlePostDeletion}
-                />
-              )}
             </HStack>
           </Flex>
         </Stack>
