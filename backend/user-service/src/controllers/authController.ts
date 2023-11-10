@@ -3,6 +3,7 @@ import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
 import { Request, RequestHandler, Response, NextFunction } from "express";
 import { comparePassword, hashPassword } from "../utils/auth";
+import { User, UserWithoutPassword, JwtPayload } from "../middleware/authMiddleware"
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -21,26 +22,6 @@ interface LogInData {
 interface SignUpData extends LogInData {
   email: string;
   confirmPassword: string;
-}
-
-interface User {
-  id: number;
-  password: string;
-  username: string;
-  email: string;
-  role: string;
-  languages: { id: number; language: string }[];
-  token?: string;
-}
-
-interface UserWithoutPassword {
-  id: number;
-}
-
-interface JwtPayload {
-  user: UserWithoutPassword;
-  exp: number;
-  iat: number;
 }
 
 const DEPLOYED_URL = "https://master.da377qx9p9syb.amplifyapp.com/";
@@ -163,7 +144,13 @@ export const logIn: RequestHandler[] = [
 
 export async function logOut(req: Request, res: Response) {
 
-  const userId = req.user?.id; // user ID is used for identification
+  const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
+
+  const decoded = (await authenticateAccessToken(
+    accessToken,
+  )) as JwtPayload;
+
+  const userId = decoded.user.id; // user ID is used for identification
 
   if (userId) {
     // Fetch the latest user data from the database
@@ -180,7 +167,7 @@ export async function logOut(req: Request, res: Response) {
     }) as User;
 
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: userId },
       data: { token: null },
     });
   }
@@ -199,14 +186,22 @@ export async function logOut(req: Request, res: Response) {
 }
 
 export const deregister = async (req: Request, res: Response) => {
-  const user = req.user!;
+  
+  const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
+
+  const decoded = (await authenticateAccessToken(
+    accessToken,
+  )) as JwtPayload;
+
+  const userId = decoded.user.id; // user ID is used for identification
+
   await prisma.user.update({
-    where: { id: user.id },
+    where: { id: userId },
     data: {
       languages: { set: [] },
     },
   });
-  await prisma.user.delete({ where: { id: user.id } });
+  await prisma.user.delete({ where: { id: userId } });
 
   // HERE if deleting user, don't need to bother to remove JWT token from user in db
   res.clearCookie("accessToken", {
@@ -224,7 +219,13 @@ export const deregister = async (req: Request, res: Response) => {
 
 export async function getCurrentUser(req: Request, res: Response) {
   try {
-    const userId = req.user?.id; // user ID is used for identification
+    const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
+
+    const decoded = (await authenticateAccessToken(
+      accessToken,
+    )) as JwtPayload;
+
+    const userId = decoded.user.id; // user ID is used for identification
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
@@ -357,7 +358,7 @@ export async function updateAccessToken(req: Request, res: Response) {
       .status(401)
       .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
   } else {
-    // Get decoded.user?.id, look up on prisma, then see if that refreshToken there matches refreshToken
+
     try {
       const decoded = (await authenticateRefreshToken(refreshToken)) as JwtPayload;
       const userWithoutPassword = decoded.user;
@@ -426,9 +427,15 @@ export const updateUserProfile: RequestHandler[] = [
     }
 
     try {
-      const user = req.user;
+      const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
-      if (!user) {
+      const decoded = (await authenticateAccessToken(
+        accessToken,
+      )) as JwtPayload;
+
+      const userId = decoded.user.id; // user ID is used for identification
+
+      if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
       }
 
@@ -456,7 +463,7 @@ export const updateUserProfile: RequestHandler[] = [
       }
 
       const updatedUser = await prisma.user.update({
-        where: { id: user.id },
+        where: { id: userId },
         include: {
           languages: true,
         },
