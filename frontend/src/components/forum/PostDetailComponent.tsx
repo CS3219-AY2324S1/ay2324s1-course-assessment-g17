@@ -4,10 +4,10 @@ import ForumAPI from '../../api/forum/forum';
 import { type ForumData } from '../../types/forum/forum';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
-import { Box, Button, Divider, Stack, Flex, HStack, Heading, VStack, useToast, Text } from '@chakra-ui/react';
+import { Avatar, Button, Divider, Stack, Flex, HStack, Heading, VStack, useToast, Text } from '@chakra-ui/react';
 import ForumUpvoteButton from './ForumUpvoteIconButton';
 import ForumDownvoteButton from './ForumDownvoteIconButton';
-import { BiArrowBack, BiSolidUserCircle } from 'react-icons/bi';
+import { BiArrowBack } from 'react-icons/bi';
 import DOMPurify from 'dompurify';
 import PostEditIconButton from './PostEditIconButton';
 
@@ -98,10 +98,8 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
                 <HStack>
                   <VStack alignItems="start">
                     <HStack>
-                      <Box w="4" h="4">
-                        <BiSolidUserCircle />
-                      </Box>
-                      <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>
+                      <Avatar size="sm" name={post?.username} />
+                      <Text style={{ fontWeight: 'bold', whiteSpace: 'nowrap', ...ellipsisStyle }}>
                         {post?.username}
                       </Text>
                       <Text style={{ fontStyle: 'italic', color: 'gray', fontSize: 'small' }}>

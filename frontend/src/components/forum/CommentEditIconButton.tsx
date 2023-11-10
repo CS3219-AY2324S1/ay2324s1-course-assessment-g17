@@ -45,7 +45,7 @@ const CommentEditIconButton: React.FC<CommentEditIconButtonProps> = ({
   return (
     <Menu>
       <Tooltip label="Options">
-        <MenuButton as={Button} variant="ghost" m={2} fontSize="sm">
+        <MenuButton as={Button} variant="ghost" fontSize="sm">
           {' '}
           ...
         </MenuButton>

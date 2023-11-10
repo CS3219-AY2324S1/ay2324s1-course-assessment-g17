@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import PostDetailComponent from '../../components/forum/PostDetailComponent';
 import { type Comment } from '../../types/forum/forum';
-import { Box, Button, Flex, HStack, Stack, Text, useToast, VStack, Divider, Select } from '@chakra-ui/react';
+import { Avatar, Button, Flex, HStack, Stack, Text, useToast, VStack, Divider, Select } from '@chakra-ui/react';
 import DOMPurify from 'dompurify';
 import CommentEditIconButton from '../../components/forum/CommentEditIconButton';
 import CommentUpvoteButton from '../../components/forum/CommentUpvoteIconButton';
 import CommentDownvoteButton from '../../components/forum/CommentDownvoteIconButton';
 import { AddIcon } from '@chakra-ui/icons';
-import { BiSolidUserCircle } from 'react-icons/bi';
 import ForumAPI from '../../api/forum/forum';
 import ForumPostsPagination from '../../components/forum/ForumPostsPagination';
 import { useAppSelector } from '../../reducers/hooks';
@@ -168,10 +167,8 @@ const PostDetail: React.FC = () => {
                     <HStack>
                       <VStack alignItems="start">
                         <HStack>
-                          <Box w="4" h="4">
-                            <BiSolidUserCircle />
-                          </Box>
-                          <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>
+                          <Avatar size="sm" name={comment.username} />
+                          <Text style={{ fontWeight: 'bold', whiteSpace: 'nowrap', ...ellipsisStyle }}>
                             {comment.username}
                           </Text>
                           <Text style={{ fontStyle: 'italic', color: 'gray', fontSize: 'small' }}>
