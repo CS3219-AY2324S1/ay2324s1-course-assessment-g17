@@ -129,6 +129,10 @@ const forumController = {
           .status(400)
           .json({ error: "User is not the author of the post" });
       } else {
+        await prisma.comment.deleteMany({
+          where: { postId: parseInt(postId) },
+        });
+
         await prisma.post.delete({
           where: { id: parseInt(postId) },
         });
