@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import PostDetailComponent from '../../components/forum/PostDetailComponent';
 import { type Comment } from '../../types/forum/forum';
-import { Box, Button, Flex, HStack, Stack, Text, useToast, VStack, Divider } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Stack, Text, useToast, VStack, Divider, Select } from '@chakra-ui/react';
 import DOMPurify from 'dompurify';
 import CommentEditIconButton from '../../components/forum/CommentEditIconButton';
 import CommentDeleteIconButton from '../../components/forum/CommentDeleteIconButton';
@@ -34,6 +34,10 @@ const PostDetail: React.FC = () => {
   }
 
   const currentUser = useAppSelector(selectUser);
+
+  const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+    handleSort(event.target.value as 'newest' | 'mostVotes');
+  };
 
   const fetchComments = async (): Promise<void> => {
     try {
@@ -149,26 +153,14 @@ const PostDetail: React.FC = () => {
                 Add a Comment
               </Button>
             </Link>
+            <HStack>
+              <Text>Sort by:</Text>
+              <Select value={sortOption} onChange={handleSortChange} width="150px">
+                <option value="newest">New to Old</option>
+                <option value="mostVotes">Most Votes</option>
+              </Select>
+            </HStack>
           </Flex>
-          {/* Sorting buttons */}
-          <HStack spacing={4}>
-            <Button
-              colorScheme={sortOption === 'newest' ? 'teal' : 'gray'}
-              onClick={() => {
-                handleSort('newest');
-              }}
-            >
-              Newest to Oldest
-            </Button>
-            <Button
-              colorScheme={sortOption === 'mostVotes' ? 'teal' : 'gray'}
-              onClick={() => {
-                handleSort('mostVotes');
-              }}
-            >
-              Most Votes
-            </Button>
-          </HStack>
           <Stack padding={8} spacing={8} w="100%">
             {currentComments.map((comment) => (
               <Flex key={comment.id} direction="column" alignItems="center">
