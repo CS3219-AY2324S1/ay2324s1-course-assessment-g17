@@ -38,7 +38,7 @@ const CommentDeleteIconButton: React.FC<CommentDeleteIconButtonProps> = ({
     <ConfirmationDialog
       dialogHeader={'Delete Comment'}
       dialogBody={'Are you sure you want to delete your comment? This action is irreversible!'}
-      mainButtonLabel={'Delete my comment'}
+      mainButtonLabel={'Delete comment'}
       rightButtonLabel={'Yes, delete my comment permanently!'}
       onConfirm={handleDelete}
       mainButtonProps={{ colorScheme: 'gray' }}

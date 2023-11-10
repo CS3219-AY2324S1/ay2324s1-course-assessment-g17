@@ -38,7 +38,7 @@ const ForumDeleteIconButton: React.FC<ForumDeleteIconButtonProps> = ({
     <ConfirmationDialog
       dialogHeader={'Delete Post'}
       dialogBody={'Are you sure you want to delete your post? This action is irreversible!'}
-      mainButtonLabel={'Delete my post'}
+      mainButtonLabel={'Delete post'}
       rightButtonLabel={'Yes, delete my post permanently!'}
       onConfirm={handleDelete}
       mainButtonProps={{ colorScheme: 'gray' }}

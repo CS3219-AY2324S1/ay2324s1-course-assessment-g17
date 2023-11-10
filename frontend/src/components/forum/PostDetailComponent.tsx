@@ -8,7 +8,7 @@ import { Box, Button, Divider, Stack, Flex, HStack, Heading, VStack, useToast, T
 import ForumDeleteIconButton from './ForumDeleteIconButton';
 import ForumUpvoteButton from './ForumUpvoteIconButton';
 import ForumDownvoteButton from './ForumDownvoteIconButton';
-import { BiArrowBack, BiSolidCalendar, BiSolidUserCircle } from 'react-icons/bi';
+import { BiArrowBack, BiSolidUserCircle } from 'react-icons/bi';
 import DOMPurify from 'dompurify';
 import PostEditIconButton from './PostEditIconButton';
 
@@ -103,14 +103,11 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
                         <BiSolidUserCircle />
                       </Box>
                       <Text style={{ fontStyle: 'italic', whiteSpace: 'nowrap', ...ellipsisStyle }}>
-                        {post?.username} posted...
+                        {post?.username}
                       </Text>
-                    </HStack>
-                    <HStack>
-                      <Box w="4" h="4">
-                        <BiSolidCalendar />
-                      </Box>
-                      <Text style={{ fontStyle: 'italic' }}>{formatPostDate(post?.createdAt)}</Text>
+                      <Text style={{ fontStyle: 'italic', color: 'gray', fontSize: 'small' }}>
+                        • {formatPostDate(post?.createdAt)}
+                      </Text>
                     </HStack>
                   </VStack>
                   {currentUser?.username === post?.username && (
