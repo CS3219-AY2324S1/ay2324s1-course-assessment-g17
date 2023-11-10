@@ -1,3 +1,5 @@
+// eslint-disable @typescript-eslint/no-unsafe-assignment
+
 import { Avatar, AvatarGroup, Box, Button, HStack, Tooltip, useToast } from '@chakra-ui/react';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';

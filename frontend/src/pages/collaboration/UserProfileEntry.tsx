@@ -1,3 +1,5 @@
+// eslint-disable @typescript-eslint/no-unsafe-assignment
+
 import { Avatar, HStack, Stack, Text, useColorModeValue } from '@chakra-ui/react';
 import React from 'react';
 import { useAppSelector } from '../../reducers/hooks';

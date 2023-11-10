@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRESQL_DATABASE_URL")
+}
+
+model Post {
+  id Int       @id @default(autoincrement())
+  title String
+  description String?
+  username String
+  comments Comment[]
+  createdAt DateTime @default(now())
+  upvotes String[]   @default([])
+}
+
+model Comment {
+  id Int       @id @default(autoincrement())
+  content String
+  post Post    @relation(fields: [postId], references: [id])
+  username String
+  postId Int
+  createdAt DateTime @default(now())
+  upvotes String[]  @default([])
+}

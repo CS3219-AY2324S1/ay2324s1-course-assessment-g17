@@ -1,5 +1,6 @@
 import { Flex, Button, HStack } from '@chakra-ui/react';
 import { BiSolidChalkboard, BiGroup } from 'react-icons/bi';
+import { MdForum } from 'react-icons/md';
 import IconWithText from '../../components/content/IconWithText';
 import React from 'react';
 import CreatePracticeRoom from './CreatePracticeRoom';
@@ -20,6 +21,11 @@ const CreateCollaboration: React.FC = () => {
           <Link to="/matching">
             <Button leftIcon={<BiGroup size={18} />} colorScheme="teal">
               New Collaboration Match
+            </Button>
+          </Link>
+          <Link to="/forum">
+            <Button leftIcon={<MdForum size={18} />} colorScheme="teal">
+              Forum
             </Button>
           </Link>
         </HStack>
