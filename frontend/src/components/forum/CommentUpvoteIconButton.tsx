@@ -3,7 +3,7 @@ import React from 'react';
 import ForumAPI from '../../api/forum/forum';
 import { type Comment } from '../../types/forum/forum';
 import { type AxiosError } from 'axios';
-import { TriangleDownIcon } from '@chakra-ui/icons';
+import { TriangleUpIcon } from '@chakra-ui/icons';
 
 interface CommentUpvoteIconButtonProps {
   commentId: number;
@@ -61,7 +61,7 @@ const CommentUpvoteIconButton: React.FC<CommentUpvoteIconButtonProps> = ({
   const buttonBgColor = hasUpvoted ? useColorModeValue('#4bd6c8', '#0c9c9c') : 'transparent';
 
   return (
-    <Tooltip label={`Upvote: This comment is useful and clear.`}>
+    <Tooltip label={`Upvote: Love this comment!`}>
       <IconButton
         aria-label="Upvote Comment"
         onClick={handleUpvote}
@@ -70,7 +70,7 @@ const CommentUpvoteIconButton: React.FC<CommentUpvoteIconButtonProps> = ({
         borderRadius="50%"
         border="1px solid #b4b6b8"
       >
-        <TriangleDownIcon boxSize="4" />
+        <TriangleUpIcon boxSize="4" />
       </IconButton>
     </Tooltip>
   );

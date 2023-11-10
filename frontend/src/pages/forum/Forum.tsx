@@ -152,7 +152,7 @@ const Forum: React.FC = () => {
           fontStyle="italic"
           color={useColorModeValue('gray.600', 'gray.400')}
         >
-          Get code help and start discussions!
+          Feeling stuck? Ask a question or share your knowledge with the community!
         </Text>
         <Flex justifyContent="space-between" alignItems="center" w="85%" style={{ marginTop: '30px' }}>
           {/* Input for live search */}
