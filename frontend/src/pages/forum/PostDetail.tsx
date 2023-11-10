@@ -2,28 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import PostDetailComponent from '../../components/forum/PostDetailComponent';
 import { type Comment } from '../../types/forum/forum';
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  Stack,
-  Text,
-  useToast,
-  useColorModeValue,
-  VStack,
-  Divider,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Stack, Text, useToast, VStack, Divider } from '@chakra-ui/react';
 import DOMPurify from 'dompurify';
 import CommentEditIconButton from '../../components/forum/CommentEditIconButton';
 import CommentDeleteIconButton from '../../components/forum/CommentDeleteIconButton';
 import CommentUpvoteButton from '../../components/forum/CommentUpvoteIconButton';
 import CommentDownvoteButton from '../../components/forum/CommentDownvoteIconButton';
-import { AddIcon, CloseIcon, SearchIcon } from '@chakra-ui/icons';
+import { AddIcon } from '@chakra-ui/icons';
 import { BiSolidUserCircle } from 'react-icons/bi';
 import ForumAPI from '../../api/forum/forum';
 import ForumPostsPagination from '../../components/forum/ForumPostsPagination';
@@ -36,7 +21,6 @@ const PostDetail: React.FC = () => {
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
   const [sortOption, setSortOption] = useState<'newest' | 'mostVotes'>('newest'); // Default sorting is "Newest to Oldest"
   const commentsPerPage = 5;
@@ -78,24 +62,6 @@ const PostDetail: React.FC = () => {
 
   const handlePageChange = (newPage: number): void => {
     setCurrentPage(newPage);
-  };
-
-  // Handle live search as the user types.
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const newSearchTerm = event.target.value;
-    setSearchTerm(newSearchTerm);
-
-    // Filter comments based on the search term.
-    const filtered = comments.filter((comment) => comment.content.toLowerCase().includes(newSearchTerm.toLowerCase()));
-
-    setFilteredComments(filtered);
-  };
-
-  const handleClearSearch = (): void => {
-    setSearchTerm('');
-    fetchComments().catch((error) => {
-      console.error('Error fetching comments:', error);
-    });
   };
 
   // Handle sorting.
@@ -178,31 +144,9 @@ const PostDetail: React.FC = () => {
       <Stack paddingX={16} paddingY={8}>
         <Flex direction="column" alignItems="center">
           <Flex justifyContent="space-between" alignItems="center" w="85%" style={{ marginTop: '30px' }}>
-            {/* Input for live search */}
-            <InputGroup minWidth="fit-content" margin={4}>
-              <InputLeftElement paddingLeft={8} pointerEvents="none">
-                <SearchIcon color="gray.400" />
-              </InputLeftElement>
-              <Input
-                paddingLeft={16}
-                type="text"
-                placeholder="Search Comments..."
-                _placeholder={{ color: useColorModeValue('gray.500', 'gray.400'), opacity: 1 }}
-                value={searchTerm ?? ''}
-                onChange={handleSearch}
-              />
-              <InputRightElement
-                _hover={{ cursor: 'pointer', color: 'gray.600' }}
-                color="gray.400"
-                _active={{ transform: 'scale(0.9)' }}
-                onClick={handleClearSearch}
-              >
-                <CloseIcon />
-              </InputRightElement>
-            </InputGroup>
             <Link to={newCommentLink}>
-              <Button leftIcon={<AddIcon />} colorScheme="teal">
-                New Comment
+              <Button leftIcon={<AddIcon />} colorScheme="gray">
+                Add a Comment
               </Button>
             </Link>
           </Flex>
