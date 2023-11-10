@@ -10,7 +10,7 @@ const AppRouter: React.FC = () => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const dispatch = useAppDispatch();
   const authApi = new AuthAPI();
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   if (!isLoggedIn) {
     authApi
@@ -29,13 +29,13 @@ const AppRouter: React.FC = () => {
           .catch(() => 'User is currently unauthenticated')
           .finally(() => {
             setLoading(false);
-          })
+          });
       });
   }
   return loading ? (
-    <Center h='100vh'>
+    <Center h="100vh">
       <Spinner size="xl" />
-    </Center> 
+    </Center>
   ) : isLoggedIn ? (
     <AuthenticatedApp />
   ) : (

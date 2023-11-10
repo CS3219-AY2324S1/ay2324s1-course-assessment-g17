@@ -36,10 +36,12 @@ export async function verifyAccessToken(
       .json({ errors: [{ msg: "Not authorized, no access token" }] });
   } else {
     try {
-      const decoded = (await authenticateAccessToken(
-        accessToken,
-      )) as JwtPayload;
-      req.user = decoded.user;
+      // const decoded = (await authenticateAccessToken(
+      //   accessToken,
+      // )) as JwtPayload;
+      // req.user = decoded.user;
+
+      await authenticateAccessToken(accessToken);
 
       next();
     } catch (error) {

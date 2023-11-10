@@ -3,7 +3,11 @@ import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
 import { Request, RequestHandler, Response, NextFunction } from "express";
 import { comparePassword, hashPassword } from "../utils/auth";
-import { User, UserWithoutPassword, JwtPayload } from "../middleware/authMiddleware" 
+import {
+  User,
+  UserWithoutPassword,
+  JwtPayload,
+} from "../middleware/authMiddleware";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -20,27 +24,6 @@ interface SignUpData extends LogInData {
   email: string;
   confirmPassword: string;
 }
-
-// interface User {
-//   id: number;
-//   password: string;
-//   username: string;
-//   email: string;
-//   role: string;
-//   languages: { id: number; language: string }[];
-//   token?: string;
-// }
-
-// interface UserWithoutPassword {
-//   id: number;
-//   role: string;
-// }
-
-// interface JwtPayload {
-//   user: UserWithoutPassword;
-//   exp: number;
-//   iat: number;
-// }
 
 export const signUp: RequestHandler[] = [
   body("username").notEmpty(),
@@ -159,12 +142,14 @@ export const logIn: RequestHandler[] = [
 ];
 
 export async function logOut(req: Request, res: Response) {
+  const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
-  const userId = req.user?.id; // user ID is used for identification
+  const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;
+  const userId = decoded.user.id;
 
   if (userId) {
     // Fetch the latest user data from the database
-    const user = await prisma.user.findUnique({
+    const user = (await prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -174,7 +159,7 @@ export async function logOut(req: Request, res: Response) {
         role: true,
         token: true,
       },
-    }) as User;
+    })) as User;
 
     await prisma.user.update({
       where: { id: user.id },
@@ -197,7 +182,10 @@ export async function logOut(req: Request, res: Response) {
 
 export async function getCurrentUser(req: Request, res: Response) {
   try {
-    const userId = req.user?.id; // user ID is used for identification
+    const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
+
+    const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;
+    const userId = decoded.user.id;
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
@@ -239,13 +227,15 @@ export async function updateAccessToken(req: Request, res: Response) {
   } else {
     // Get decoded.user?.id, look up on prisma, then see if that refreshToken there matches refreshToken
     try {
-      const decoded = (await authenticateRefreshToken(refreshToken)) as JwtPayload;
+      const decoded = (await authenticateRefreshToken(
+        refreshToken,
+      )) as JwtPayload;
       const userWithoutPassword = decoded.user;
-      
+
       if (!userWithoutPassword.id) {
         return res.status(401).json({ message: "User not authenticated" });
       }
-      
+
       // Fetch the latest user data from the database
       const user = await prisma.user.findUnique({
         where: { id: userWithoutPassword.id },
@@ -258,7 +248,7 @@ export async function updateAccessToken(req: Request, res: Response) {
           token: true,
         },
       });
-    
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
