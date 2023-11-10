@@ -80,7 +80,7 @@ const ViewProfile: React.FC = () => {
                 {(user?.languages?.length ?? 0) > 0 ? user?.languages?.map((lang) => lang.language).join(', ') : 'None'}
               </Text>
             </HStack>
-            <HStack spacing={5} align="center" mt={4}>
+            <HStack spacing={5} align="center" mt={4} ml={2}>
               <DeregisterButton />
             </HStack>
           </Box>
