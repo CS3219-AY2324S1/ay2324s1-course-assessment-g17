@@ -3,6 +3,7 @@ import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
 import { Request, RequestHandler, Response, NextFunction } from "express";
 import { comparePassword, hashPassword } from "../utils/auth";
+import { User, UserWithoutPassword, JwtPayload } from "../middleware/authMiddleware" 
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -20,32 +21,26 @@ interface SignUpData extends LogInData {
   confirmPassword: string;
 }
 
-interface User {
-  id: number;
-  password: string;
-  username: string;
-  email: string;
-  role: string;
-  languages: { id: number; language: string }[];
-}
+// interface User {
+//   id: number;
+//   password: string;
+//   username: string;
+//   email: string;
+//   role: string;
+//   languages: { id: number; language: string }[];
+//   token?: string;
+// }
 
-interface UserWithoutPassword {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-  languages: { id: number; language: string }[];
-}
+// interface UserWithoutPassword {
+//   id: number;
+//   role: string;
+// }
 
-interface JwtPayload {
-  user: UserWithoutPassword;
-  exp: number;
-  iat: number;
-}
-
-const storedRefreshTokens: string[] = [];
-// TODO: Make a MongoDB for refresh tokens
-// IF TIME PERMITS
+// interface JwtPayload {
+//   user: UserWithoutPassword;
+//   exp: number;
+//   iat: number;
+// }
 
 export const signUp: RequestHandler[] = [
   body("username").notEmpty(),
@@ -78,6 +73,7 @@ export const signUp: RequestHandler[] = [
           password: hashedPassword,
           email: formData.email,
           role: Role.USER,
+          token: null,
         },
       });
     } catch (err) {
@@ -125,18 +121,33 @@ export const logIn: RequestHandler[] = [
       return;
     }
     try {
+      // Only allow one refreshToken at all times
+      // 1. This will prevent logins on multiple devices, which may reduce collab room mayhem
+      // (although perhaps matching could implement check to see if user is still in queue when matching, as can click away)
+      // 2. This will prevent the server from getting so bloated with refresh tokens if some idiot keeps deleting his cookies without logging out
+      // 3. This will prevent there from being 'defunct' refreshtokens still in server-side that hacker could get his hands on
       const { password: _, ...userWithoutPassword } = user;
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
-      storedRefreshTokens.push(refreshToken);
 
-      res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { token: refreshToken },
+      });
+
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: false,
+        secure: true,
+        sameSite: "none",
       });
 
       return res.status(200).json({
+        user: userWithoutPassword,
         message: `${userWithoutPassword.username} has been authenticated`,
         accessToken,
         refreshToken,
@@ -148,87 +159,72 @@ export const logIn: RequestHandler[] = [
 ];
 
 export async function logOut(req: Request, res: Response) {
-  // Clear server storage of refresh token
-  const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
-  storedRefreshTokens.splice(index, 1);
 
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
+  const userId = req.user?.id; // user ID is used for identification
+
+  if (userId) {
+    // Fetch the latest user data from the database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        email: true,
+        role: true,
+        token: true,
+      },
+    }) as User;
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { token: null },
+    });
+  }
+
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
   res.end();
 }
 
 export async function getCurrentUser(req: Request, res: Response) {
-  const accessToken = req.cookies["accessToken"];
-
   try {
-    const decoded = await authenticateAccessToken(accessToken);
-    res.json(decoded);
-  } catch (error) {
-    res.status(400).json({ errors: [{ msg: "Invalid JWT token" }] });
-  }
-}
+    const userId = req.user?.id; // user ID is used for identification
 
-// update after updating user profile
-export async function updateBothTokens(req: Request, res: Response) {
-  const refreshToken = req.cookies["refreshToken"];
-
-  if (!refreshToken) {
-    res
-      .status(401)
-      .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
-  } else {
-    try {
-      const decoded = await authenticateRefreshToken(refreshToken);
-
-      if (!storedRefreshTokens.includes(refreshToken)) {
-        res
-          .status(401)
-          .json({
-            errors: [
-              { msg: "Not authorized, refresh token not found in server" },
-            ],
-          });
-      } else {
-        const payload = decoded as JwtPayload;
-        const userId = payload.user.id;
-        const user = (await prisma.user.findFirst({
-          where: { id: userId },
-        })) as User;
-        if (!user) {
-          res
-            .status(401)
-            .json({ errors: [{ msg: "This username does not exist." }] });
-          return;
-        }
-        try {
-          const { password: _, ...userWithoutPassword } = user;
-          const accessToken = await generateAccessToken(userWithoutPassword);
-          const refreshToken = await generateRefreshToken(userWithoutPassword);
-          storedRefreshTokens.push(refreshToken);
-
-          res.cookie("accessToken", accessToken, {
-            httpOnly: true,
-            secure: false,
-          });
-          res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: false,
-          });
-
-          return res.status(200).json({
-            message: `Authorised, both refresh and access tokens refreshed.`,
-            accessToken,
-            refreshToken,
-          });
-        } catch (err) {
-          res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
-        }
-      }
-    } catch (error) {
-      res
-        .status(401)
-        .json({ errors: [{ msg: "Not authorized, invalid refresh token" }] });
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
     }
+
+    // Fetch the latest user data from the database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        email: true,
+        role: true,
+        token: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send the user data in the response
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
@@ -241,25 +237,45 @@ export async function updateAccessToken(req: Request, res: Response) {
       .status(401)
       .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
   } else {
+    // Get decoded.user?.id, look up on prisma, then see if that refreshToken there matches refreshToken
     try {
-      const decoded = await authenticateRefreshToken(refreshToken);
+      const decoded = (await authenticateRefreshToken(refreshToken)) as JwtPayload;
+      const userWithoutPassword = decoded.user;
+      
+      if (!userWithoutPassword.id) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+      
+      // Fetch the latest user data from the database
+      const user = await prisma.user.findUnique({
+        where: { id: userWithoutPassword.id },
+        select: {
+          id: true,
+          username: true,
+          password: true,
+          email: true,
+          role: true,
+          token: true,
+        },
+      });
+    
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-      if (!storedRefreshTokens.includes(refreshToken)) {
-        res
-          .status(401)
-          .json({
-            errors: [
-              { msg: "Not authorized, refresh token not found in server" },
-            ],
-          });
+      if (user.token != refreshToken) {
+        res.status(401).json({
+          errors: [
+            { msg: "Not authorized, refresh token not found in server" },
+          ],
+        });
       } else {
-        const payload = decoded as JwtPayload;
-        const userWithoutPassword = payload.user;
         const accessToken = await generateAccessToken(userWithoutPassword);
 
         res.cookie("accessToken", accessToken, {
           httpOnly: true,
-          secure: false,
+          secure: true,
+          sameSite: "none",
         });
 
         return res.status(200).json({

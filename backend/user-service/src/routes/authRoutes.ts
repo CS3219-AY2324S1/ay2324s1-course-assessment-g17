@@ -8,11 +8,10 @@ router.post("/login", AuthController.logIn);
 router.post("/signup", AuthController.signUp);
 
 // Protected refresh token routes
-router.get("/bothToken", AuthController.updateBothTokens);
 router.get("/token", AuthController.updateAccessToken);
 
 // Protected access token routes
-router.get("/logout", AuthMiddleWare.verifyAccessToken, AuthController.logOut);
+router.get("/logout", AuthController.logOut);
 router.get(
   "/currentUser",
   AuthMiddleWare.verifyAccessToken,

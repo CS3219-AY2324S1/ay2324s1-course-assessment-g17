@@ -10,4 +10,5 @@ export interface User {
   email: string;
   role: Role;
   languages: Language[];
+  token: string;
 }

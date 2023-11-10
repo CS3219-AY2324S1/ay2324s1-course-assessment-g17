@@ -24,4 +24,8 @@ export default class AuthAPI {
     const response = await userServiceClient.get(this.getAuthUrl() + 'currentUser');
     return response.data.user;
   }
+
+  public async useRefreshToken(): Promise<never> {
+    return await userServiceClient.get(this.getAuthUrl() + 'token');
+  }
 }
