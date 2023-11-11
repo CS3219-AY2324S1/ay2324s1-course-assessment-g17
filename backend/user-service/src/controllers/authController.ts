@@ -146,30 +146,32 @@ export async function logOut(req: Request, res: Response) {
 
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
-  const decoded = (await authenticateAccessToken(
-    accessToken,
-  )) as JwtPayload;
+  if (accessToken) {
+    const decoded = (await authenticateAccessToken(
+      accessToken,
+    )) as JwtPayload;
 
-  const userId = decoded.user.id; // user ID is used for identification
+    const userId = decoded.user.id; // user ID is used for identification
 
-  if (userId) {
-    // Fetch the latest user data from the database
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        password: true,
-        email: true,
-        role: true,
-        token: true,
-      },
-    }) as User;
+    if (userId) {
+      // Fetch the latest user data from the database
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          username: true,
+          password: true,
+          email: true,
+          role: true,
+          token: true,
+        },
+      }) as User;
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { token: null },
-    });
+      await prisma.user.update({
+        where: { id: userId },
+        data: { token: null },
+      });
+    }
   }
 
   res.clearCookie("accessToken", {
