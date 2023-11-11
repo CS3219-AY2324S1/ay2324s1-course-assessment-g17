@@ -1,6 +1,5 @@
-import AuthAPI from '../../api/users/auth';
-import React, { useEffect } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 import { CreateQuestion } from '../questions/CreateQuestion';
 import Questions from '../questions/Questions';
 import { UpdateQuestion } from '../questions/UpdateQuestion';

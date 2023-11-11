@@ -1,7 +1,7 @@
-import { Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue, Tooltip } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Text, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import React from 'react';
-import { FaCode, FaUserCog } from 'react-icons/fa';
+import { FaCode } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../reducers/hooks';
 import { logOut, selectIsLoggedIn } from '../../reducers/authSlice';
