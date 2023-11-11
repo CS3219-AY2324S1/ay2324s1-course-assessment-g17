@@ -23,7 +23,7 @@ client.interceptors.response.use(null, async (error: AxiosError) => {
         console.log('Refreshed1');
         return await axios.request(error.config);
       } catch (error) {
-        console.log('Error1');
+        throw error;
       }
     }
   }
