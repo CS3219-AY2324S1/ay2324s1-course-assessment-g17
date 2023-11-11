@@ -3,7 +3,11 @@ import prisma from "../lib/prisma";
 import { body, matchedData, validationResult } from "express-validator";
 import { Request, RequestHandler, Response, NextFunction } from "express";
 import { comparePassword, hashPassword } from "../utils/auth";
-import { User, UserWithoutPassword, JwtPayload } from "../middleware/authMiddleware"
+import {
+  User,
+  UserWithoutPassword,
+  JwtPayload,
+} from "../middleware/authMiddleware";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -110,7 +114,10 @@ export const logIn: RequestHandler[] = [
       // (although perhaps matching could implement check to see if user is still in queue when matching, as can click away)
       // 2. This will prevent the server from getting so bloated with refresh tokens if some idiot keeps deleting his cookies without logging out
       // 3. This will prevent there from being 'defunct' refreshtokens still in server-side that hacker could get his hands on
-      const userWithoutPassword = { id: user.id, role: user.role } as UserWithoutPassword;
+      const userWithoutPassword = {
+        id: user.id,
+        role: user.role,
+      } as UserWithoutPassword;
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
 
@@ -193,12 +200,9 @@ export async function logOut(req: Request, res: Response) {
 }
 
 export const deregister = async (req: Request, res: Response) => {
-  
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
-  const decoded = (await authenticateAccessToken(
-    accessToken,
-  )) as JwtPayload;
+  const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;
 
   const userId = decoded.user.id; // user ID is used for identification
 
@@ -228,9 +232,7 @@ export async function getCurrentUser(req: Request, res: Response) {
   try {
     const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
-    const decoded = (await authenticateAccessToken(
-      accessToken,
-    )) as JwtPayload;
+    const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;
 
     const userId = decoded.user.id; // user ID is used for identification
 
@@ -365,15 +367,16 @@ export async function updateAccessToken(req: Request, res: Response) {
       .status(401)
       .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
   } else {
-
     try {
-      const decoded = (await authenticateRefreshToken(refreshToken)) as JwtPayload;
+      const decoded = (await authenticateRefreshToken(
+        refreshToken,
+      )) as JwtPayload;
       const userWithoutPassword = decoded.user;
-      
+
       if (!userWithoutPassword.id) {
         return res.status(401).json({ message: "User not authenticated" });
       }
-      
+
       // Fetch the latest user data from the database
       const user = await prisma.user.findUnique({
         where: { id: userWithoutPassword.id },
@@ -386,7 +389,7 @@ export async function updateAccessToken(req: Request, res: Response) {
           token: true,
         },
       });
-    
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
