@@ -110,7 +110,7 @@ export const logIn: RequestHandler[] = [
       // (although perhaps matching could implement check to see if user is still in queue when matching, as can click away)
       // 2. This will prevent the server from getting so bloated with refresh tokens if some idiot keeps deleting his cookies without logging out
       // 3. This will prevent there from being 'defunct' refreshtokens still in server-side that hacker could get his hands on
-      const { password: _, ...userWithoutPassword } = user;
+      const userWithoutPassword = { id: user.id, role: user.role } as UserWithoutPassword;
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
 
@@ -132,7 +132,7 @@ export const logIn: RequestHandler[] = [
 
       return res.status(200).json({
         user: userWithoutPassword,
-        message: `${userWithoutPassword.username} has been authenticated`,
+        message: `${user.username} has been authenticated`,
         accessToken,
         refreshToken,
       });
@@ -143,35 +143,40 @@ export const logIn: RequestHandler[] = [
 ];
 
 export async function logOut(req: Request, res: Response) {
+  try {
+    const refreshToken = req.cookies["refreshToken"]; // If JWT token is stored in a cookie
+    if (refreshToken) {
+      const decoded = (await authenticateRefreshToken(
+        refreshToken,
+      )) as JwtPayload;
+      const userId = decoded.user.id; // user ID is used for identification
+      if (userId) {
+        // Fetch the latest user data from the database
+        const user = (await prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            id: true,
+            username: true,
+            password: true,
+            email: true,
+            role: true,
+            token: true,
+          },
+        })) as User;
 
-  const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
-
-  if (accessToken) {
-    const decoded = (await authenticateAccessToken(
-      accessToken,
-    )) as JwtPayload;
-
-    const userId = decoded.user.id; // user ID is used for identification
-
-    if (userId) {
-      // Fetch the latest user data from the database
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          username: true,
-          password: true,
-          email: true,
-          role: true,
-          token: true,
-        },
-      }) as User;
-
-      await prisma.user.update({
-        where: { id: userId },
-        data: { token: null },
-      });
+        await prisma.user.update({
+          where: { id: userId },
+          data: { token: null },
+        });
+      }
     }
+  } catch (error) {
+    // This means access token has expired
+    console.log("Cannot remove login refresh token from server: " + error);
+    console.log(
+      "You might have removed it somehow. Suggested that you login again to remove old refreshToken from server.",
+    );
+    console.log("Proceeding with rest of log out procedure...");
   }
 
   res.clearCookie("accessToken", {
