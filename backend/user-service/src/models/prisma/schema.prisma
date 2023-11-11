@@ -25,6 +25,7 @@ model User {
   languages        Language[]
   AnsweredQuestion AnsweredQuestion[]
   token            String?
+  githubId         Int?               @unique
 }
 
 model Language {

@@ -55,6 +55,19 @@ services:
       - ./backend/matching-service:/usr/src/app
     env_file: ./backend/matching-service/.env
 
+  forum-service:
+    build: ./backend/forum-service
+    ports:
+      - 9001:9001
+    volumes:
+      - ./backend/forum-service:/usr/src/app
+    env_file: ./backend/forum-service/.env
+
+  api-gateway:
+  build: ./backend/api-gateway
+  ports:
+    - 7777:8080
+      
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq

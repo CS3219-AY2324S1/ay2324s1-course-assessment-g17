@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import {
   Button,
   Card,
@@ -14,13 +13,16 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaCode } from 'react-icons/fa';
+import { FaCode, FaGithub } from 'react-icons/fa';
 import AuthAPI from '../../api/users/auth';
 import type { AxiosError } from 'axios';
 import { useAppDispatch } from '../../reducers/hooks';
 import { setUser } from '../../reducers/authSlice';
 
 const LoginForm: React.FC = () => {
+  const GITHUB_OAUTH_CLIENT_ID = process.env.REACT_APP_GITHUB_OAUTH_CLIENT_ID;
+  const GITHUB_OAUTH_REDIRECT_URI = process.env.REACT_APP_GITHUB_OAUTH_REDIRECT_URI;
+  const GITHUB_OAUTH_BASE_URL = `https://github.com/login/oauth/authorize?scope=user&client_id=${GITHUB_OAUTH_CLIENT_ID}&redirect_uri=${GITHUB_OAUTH_REDIRECT_URI}`;
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const toast = useToast();
@@ -50,6 +52,7 @@ const LoginForm: React.FC = () => {
         }
       });
   };
+
   return (
     <Container>
       <Card m={12} p={8}>
@@ -82,6 +85,9 @@ const LoginForm: React.FC = () => {
             </FormControl>
             <Button type="submit" colorScheme="teal" width={'100%'}>
               Log In
+            </Button>
+            <Button width={'100%'} leftIcon={<FaGithub size={20} />}>
+              <a href={GITHUB_OAUTH_BASE_URL}>Login with Github</a>
             </Button>
             <Flex justifyContent={'space-between'} width={'100%'}>
               <Text>

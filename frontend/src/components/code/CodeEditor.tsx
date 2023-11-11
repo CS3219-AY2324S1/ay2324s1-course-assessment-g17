@@ -24,8 +24,9 @@ import { useParams } from 'react-router-dom';
 import { MonacoBinding } from 'y-monaco';
 import { selectUser } from '../../reducers/authSlice';
 import { useAppDispatch, useAppSelector } from '../../reducers/hooks';
-import { type AwarenessState, setAwareness } from '../../reducers/awarenessSlice';
+import { setAwareness } from '../../reducers/awarenessSlice';
 import { SocketContext } from '../../context/socket';
+import { type AwarenessUser } from '../../types/code/awareness';
 
 interface CodeEditorProps {
   defaultTheme: string;
@@ -335,12 +336,7 @@ const CodeEditor: ForwardRefRenderFunction<editor.IStandaloneCodeEditor, CodeEdi
 
                 awareness.on('change', (changes: { added: number[]; updated: number[]; removed: number[] }) => {
                   const awarenessStates = awareness.getStates();
-                  const awarenessPayload: AwarenessState[] = [];
-                  awarenessStates.forEach((value, key) =>
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    awarenessPayload.push({ clientId: key, awareness: value.user }),
-                  );
-                  dispatch(setAwareness(awarenessPayload));
+                  dispatch(setAwareness(awareness as AwarenessUser));
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                   changes.added.forEach((clientId) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

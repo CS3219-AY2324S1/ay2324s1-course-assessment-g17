@@ -1,3 +1,5 @@
+// eslint-disable @typescript-eslint/no-unsafe-assignment
+
 import {
   useDisclosure,
   Button,
@@ -17,8 +19,11 @@ import '@tldraw/tldraw/tldraw.css';
 import React, { useEffect } from 'react';
 import { useYjsStore } from './useYjsStore';
 import WhiteboardAwarenessDisplay from './WhiteboardAwareness';
+import { useAppSelector } from '../../reducers/hooks';
+import { selectUser } from '../../reducers/authSlice';
 
 const Whiteboard: React.FC = () => {
+  const currentUser = useAppSelector(selectUser);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode } = useColorMode();
   const { roomId } = useParams();
@@ -30,6 +35,7 @@ const Whiteboard: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { tlStore: store, awareness } = useYjsStore({
     roomId: 'whiteboard_' + (roomId as string),
+    currentUser,
     hostUrl: process.env.REACT_APP_COLLABORATION_SERVICE_WEBSOCKET_BACKEND_URL as string,
   });
 

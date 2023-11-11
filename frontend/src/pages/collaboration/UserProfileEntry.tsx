@@ -1,11 +1,13 @@
+// eslint-disable @typescript-eslint/no-unsafe-assignment
+
 import { Avatar, HStack, Stack, Text, useColorModeValue } from '@chakra-ui/react';
-import { type AwarenessState } from '../../reducers/awarenessSlice';
 import React from 'react';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
+import { type AwarenessUser } from '../../types/code/awareness';
 
 interface UserProfileEntryProps {
-  userAwareness: AwarenessState;
+  userAwareness: AwarenessUser;
 }
 
 const UserProfileEntry: React.FC<UserProfileEntryProps> = ({ userAwareness }: UserProfileEntryProps) => {
@@ -18,17 +20,12 @@ const UserProfileEntry: React.FC<UserProfileEntryProps> = ({ userAwareness }: Us
       borderRadius={4}
       _hover={{ backgroundColor: useColorModeValue('gray.50', 'gray.700') }}
     >
-      <Avatar
-        size="md"
-        name={userAwareness.awareness.name}
-        backgroundColor={userAwareness.awareness.color}
-        color="black"
-      />
+      <Avatar size="md" name={userAwareness.user.name} backgroundColor={userAwareness.user.color} color="black" />
       <Stack spacing={0}>
         <Text fontSize="md" fontWeight="bold">
-          {userAwareness.awareness.name} {currentUser?.id === userAwareness.awareness.userId ? '(Me)' : ''}
+          {userAwareness.user.name} {currentUser?.id === userAwareness.user.userId ? '(Me)' : ''}
         </Text>
-        <Text fontSize="xs">{userAwareness.awareness.email}</Text>
+        <Text fontSize="xs">{userAwareness.user.email}</Text>
       </Stack>
     </HStack>
   );

@@ -15,7 +15,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, useCol
       <MantineRichTextEditor
         value={value}
         onChange={onChange}
-        placeholder="Enter question description..."
+        placeholder="Enter description..."
         controls={[
           ['bold', 'italic', 'underline', 'link', 'code', 'blockquote'],
           ['unorderedList', 'orderedList', 'h1', 'h2', 'h3'],
