@@ -64,9 +64,9 @@ services:
     env_file: ./backend/forum-service/.env
 
   api-gateway:
-  build: ./backend/api-gateway
-  ports:
-    - 7777:8080
+    build: ./backend/api-gateway
+    ports:
+      - 7777:8080
       
   rabbitmq:
     image: rabbitmq:management
@@ -91,8 +91,4 @@ services:
       - ./backend/chat-service:/usr/src/app
     env_file: ./backend/chat-service/.env
 
-  api-gateway:
-    build: ./backend/api-gateway
-    ports:
-      - 7777:8080
 # https://medium.com/@sumankpaul/run-db-migration-script-in-docker-compose-ce8e447a77ba

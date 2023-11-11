@@ -160,19 +160,6 @@ export async function logOut(req: Request, res: Response) {
       )) as JwtPayload;
       const userId = decoded.user.id; // user ID is used for identification
       if (userId) {
-        // Fetch the latest user data from the database
-        const user = (await prisma.user.findUnique({
-          where: { id: userId },
-          select: {
-            id: true,
-            username: true,
-            password: true,
-            email: true,
-            role: true,
-            token: true,
-          },
-        })) as User;
-
         await prisma.user.update({
           where: { id: userId },
           data: { token: null },
@@ -266,7 +253,7 @@ export const oAuthAuthenticate: RequestHandler[] = [
 
         return res.status(200).json({
           user: userWithoutPassword,
-          message: `${userWithoutPassword.username} has been authenticated`,
+          message: `${user.username} has been authenticated`,
           accessToken: appAccessToken,
           refreshToken,
         });
@@ -353,7 +340,7 @@ export const oAuthNewUser: RequestHandler[] = [
 
       return res.status(200).json({
         user: userWithoutPassword,
-        message: `${userWithoutPassword.username} has been authenticated`,
+        message: `${newUser.username} has been authenticated`,
         accessToken,
         refreshToken,
       });

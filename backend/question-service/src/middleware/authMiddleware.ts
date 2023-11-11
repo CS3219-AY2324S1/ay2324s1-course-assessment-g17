@@ -8,7 +8,7 @@ export interface User {
   email: string;
   role: string;
   languages: { id: number; language: string }[];
-  token?: string;
+  githubId?: number;
 }
 
 export interface UserWithoutPassword {

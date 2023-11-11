@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { authenticateAccessToken } from "../utils/jwt";
 
-interface User {
+export interface User {
   id: number;
   password: string;
   username: string;
@@ -11,12 +11,12 @@ interface User {
   githubId?: number;
 }
 
-interface UserWithoutPassword {
+export interface UserWithoutPassword {
   id: number;
   role: string;
 }
 
-interface JwtPayload {
+export interface JwtPayload {
   user: UserWithoutPassword;
   exp: number;
   iat: number;
