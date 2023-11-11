@@ -35,7 +35,9 @@ const ChatBox: React.FC = () => {
       console.error('Server Error: Could not connect to the server');
     } else {
       // Initialize the socket variable
-      socket.current = io(socketIoURL);
+      socket.current = io(socketIoURL, {
+        path: process.env.REACT_APP_CHAT_SERVICE_PATH ?? '/socket.io/',
+      });
       // Clean up the socket connection when the component unmounts
       return () => {
         socket.current?.disconnect();

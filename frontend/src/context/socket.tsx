@@ -31,7 +31,9 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       console.error('Server Error: Could not connect to the server');
     } else {
       // Initialize the socket variable
-      const socket = io(socketIoURL);
+      const socket = io(socketIoURL, {
+        path: process.env.REACT_APP_COLLAB_SERVICE_PATH ?? '/socket.io/',
+      });
       setSocket(socket);
     }
 
