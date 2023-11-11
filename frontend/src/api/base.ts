@@ -30,31 +30,4 @@ client.interceptors.response.use(null, async (error: AxiosError) => {
   return error.response;
 });
 
-// Add a response interceptor
-// userServiceClient.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
-
-//     // If the error status is 401 and there is no originalRequest._retry flag,
-//     // it means the token has expired and we need to refresh it
-//     if ((error.response.status as number) === 401 && !(originalRequest._retry as boolean)) {
-//       originalRequest._retry = true;
-//       const authApi = new AuthAPI();
-//       // const navigate = useNavigate();
-
-//       try {
-//         await authApi.useRefreshToken();
-//         console.log('Refreshed2');
-//         return axios(originalRequest);
-//       } catch (error) {
-//         console.log('Error2');
-//         // await authApi.logOut();
-//         // navigate('/');
-//       }
-//     }
-//     return error.response;
-//   },
-// );
-
 export default client;
