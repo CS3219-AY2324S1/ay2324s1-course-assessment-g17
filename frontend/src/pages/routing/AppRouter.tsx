@@ -11,7 +11,7 @@ const AppRouter: React.FC = () => {
   const dispatch = useAppDispatch();
   const authApi = new AuthAPI();
   const [loading, setLoading] = useState(true);
-  
+
   if (!isLoggedIn) {
     authApi
       .getCurrentUser()
@@ -32,7 +32,7 @@ const AppRouter: React.FC = () => {
           });
       });
   }
-  
+
   return loading ? (
     <Center h="100vh">
       <Spinner size="xl" />

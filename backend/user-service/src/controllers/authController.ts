@@ -142,29 +142,40 @@ export const logIn: RequestHandler[] = [
 ];
 
 export async function logOut(req: Request, res: Response) {
-  const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
+  try {
+    const refreshToken = req.cookies["refreshToken"]; // If JWT token is stored in a cookie
+    if (refreshToken) {
+      const decoded = (await authenticateRefreshToken(
+        refreshToken,
+      )) as JwtPayload;
+      const userId = decoded.user.id; // user ID is used for identification
+      if (userId) {
+        // Fetch the latest user data from the database
+        const user = (await prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            id: true,
+            username: true,
+            password: true,
+            email: true,
+            role: true,
+            token: true,
+          },
+        })) as User;
 
-  const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;
-  const userId = decoded.user.id;
-
-  if (userId) {
-    // Fetch the latest user data from the database
-    const user = (await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        password: true,
-        email: true,
-        role: true,
-        token: true,
-      },
-    })) as User;
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { token: null },
-    });
+        await prisma.user.update({
+          where: { id: userId },
+          data: { token: null },
+        });
+      }
+    }
+  } catch (error) {
+    // This means access token has expired
+    console.log("Cannot remove login refresh token from server: " + error);
+    console.log(
+      "You might have removed it somehow. Suggested that you login again to remove old refreshToken from server.",
+    );
+    console.log("Proceeding with rest of log out procedure...");
   }
 
   res.clearCookie("accessToken", {

@@ -1,5 +1,6 @@
 import axios from 'axios';
-import AuthAPI from "./users/auth"
+import type { AxiosError } from 'axios';
+import AuthAPI from './users/auth';
 
 const client = axios.create({
   baseURL: process.env.REACT_APP_BACKEND_URL,
@@ -12,49 +13,48 @@ export const userServiceClient = axios.create({
 });
 
 // Add a response interceptor
-client.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // If the error status is 401 and there is no originalRequest._retry flag,
-    // it means the token has expired and we need to refresh it
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
+client.interceptors.response.use(null, async (error: AxiosError) => {
+  // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
+  if (error != null && error.config != null && error.response != null) {
+    if (error.response.status === 401) {
       try {
         const authApi = new AuthAPI();
-        await authApi.useRefreshToken()    
-        return axios(originalRequest);
+        await authApi.useRefreshToken();
+        console.log('Refreshed1');
+        return await axios.request(error.config);
       } catch (error) {
-        console.log(error)
+        console.log('Error1');
       }
     }
-    return Promise.reject(error);
   }
-);
+  return error.response;
+});
 
 // Add a response interceptor
-userServiceClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+// userServiceClient.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const originalRequest = error.config;
 
-    // If the error status is 401 and there is no originalRequest._retry flag,
-    // it means the token has expired and we need to refresh it
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+//     // If the error status is 401 and there is no originalRequest._retry flag,
+//     // it means the token has expired and we need to refresh it
+//     if ((error.response.status as number) === 401 && !(originalRequest._retry as boolean)) {
+//       originalRequest._retry = true;
+//       const authApi = new AuthAPI();
+//       // const navigate = useNavigate();
 
-      try {
-        const authApi = new AuthAPI();
-        await authApi.useRefreshToken()    
-        return axios(originalRequest);
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+//       try {
+//         await authApi.useRefreshToken();
+//         console.log('Refreshed2');
+//         return axios(originalRequest);
+//       } catch (error) {
+//         console.log('Error2');
+//         // await authApi.logOut();
+//         // navigate('/');
+//       }
+//     }
+//     return error.response;
+//   },
+// );
 
 export default client;
