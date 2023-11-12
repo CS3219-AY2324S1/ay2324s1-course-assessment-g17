@@ -85,7 +85,7 @@ const PostDetailComponent: React.FC<PostDetailComponentProps> = ({ postId }) => 
       <Flex direction="column" alignItems="center">
         <Flex justifyContent="flex-start" w="100%">
           <Link to="/forum">
-            <Button mt={4} leftIcon={<BiArrowBack />}>
+            <Button mt={4} ml={4} leftIcon={<BiArrowBack />}>
               Back to Forum
             </Button>
           </Link>
