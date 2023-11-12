@@ -62,7 +62,10 @@ const ViewQuestion: React.FC = () => {
         <Heading as="h2" size="md">
           Description
         </Heading>
-        <Text whiteSpace="pre-line" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(question.questionDescription) }} />
+        <Text
+          whiteSpace="pre-line"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(question.questionDescription) }}
+        />
       </VStack>
     </Box>
   );
