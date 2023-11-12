@@ -39,6 +39,6 @@ Ensure that you have the following:
 PeerPrep is deployed on both AWS and GCP for scalability and reliability. 
 
 - The frontend is deployed on AWS Amplify.
-- The backend is deployed on GCP Cloud Run, question storage (MongoDB Atlas), relational database needs (AWS RDS), RabbitMQ for message queieing (AWS EC2) and serverless functions for question scraping (GCP Cloud Functions, Cloud Scheduler). 
+- The backend is deployed on GCP Cloud Run, question storage (MongoDB Atlas), relational database needs (AWS RDS), RabbitMQ for message queuing (AWS EC2) and serverless functions for question scraping (GCP Cloud Functions, Cloud Scheduler). 
 - CI is done using GitHub Actions.
 
