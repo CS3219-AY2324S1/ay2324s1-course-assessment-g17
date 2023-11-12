@@ -40,7 +40,14 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 
   return (
     <>
-      <Button mt={2} size={'sm'} onClick={onOpen} {...mainButtonProps}>
+      <Button
+        mt={2}
+        padding={2}
+        size={'sm'}
+        onClick={onOpen}
+        {...mainButtonProps}
+        style={{ whiteSpace: 'normal', width: 'auto', height: 'auto' }}
+      >
         {mainButtonLabel}
       </Button>
       <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>

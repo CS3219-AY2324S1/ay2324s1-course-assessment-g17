@@ -1,3 +1,5 @@
+// eslint-disable @typescript-eslint/no-unsafe-assignment
+
 import { Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, Box, Text } from '@chakra-ui/react';
 import React from 'react';
 import UserProfileEntry from './UserProfileEntry';

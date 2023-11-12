@@ -15,6 +15,11 @@ export const collabServiceClient = axios.create({
   withCredentials: true,
 });
 
+export const forumServiceClient = axios.create({
+  baseURL: process.env.REACT_APP_FORUM_SERVICE_BACKEND_URL,
+  withCredentials: true,
+});
+
 export const codeExecutionServiceClient = axios.create({
   baseURL: `https://${process.env.REACT_APP_RAPID_API_HOST}`,
 });
