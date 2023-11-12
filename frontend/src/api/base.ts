@@ -10,6 +10,11 @@ export const userServiceClient = axios.create({
   withCredentials: true,
 });
 
+export const collabServiceClient = axios.create({
+  baseURL: process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL,
+  withCredentials: true,
+});
+
 export const forumServiceClient = axios.create({
   baseURL: process.env.REACT_APP_FORUM_SERVICE_BACKEND_URL,
   withCredentials: true,
