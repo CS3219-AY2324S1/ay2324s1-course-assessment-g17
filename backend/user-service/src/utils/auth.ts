@@ -11,11 +11,12 @@ export function comparePassword(password: string, hash: string): boolean {
 }
 
 export function randomPassword(passwordLength: number = 16): string {
-  const chars = '0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const chars =
+    "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const array = new Uint32Array(chars.length);
   crypto.getRandomValues(array);
-  
-  let password = '';
+
+  let password = "";
   for (let i = 0; i < passwordLength; i++) {
     password += chars[array[i] % chars.length];
   }

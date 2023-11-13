@@ -100,11 +100,11 @@ export async function findMatch(matchingInfo: MatchingInfo) {
     ...potentialMatch.toObject(),
     categories: findIntersection(
       potentialMatch.categories,
-      matchingInfo.topics
+      matchingInfo.topics,
     ),
     difficulty_levels: findIntersection(
       potentialMatch.difficulty_levels,
-      matchingInfo.difficulty_level
+      matchingInfo.difficulty_level,
     ),
   };
 
@@ -119,6 +119,6 @@ export async function markAsTimeout(matchingInfo: MatchingInfo) {
       socket_id: matchingInfo.socket_id,
       status: MatchStatusEnum.PENDING,
     },
-    { status: MatchStatusEnum.TIMEOUT }
+    { status: MatchStatusEnum.TIMEOUT },
   );
 }

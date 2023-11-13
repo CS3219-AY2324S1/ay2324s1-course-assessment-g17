@@ -1,16 +1,23 @@
 import { Request, Response, NextFunction } from "express";
 import { authenticateAccessToken } from "../utils/jwt";
 
-interface User {
+export interface User {
   id: number;
+  password: string;
   username: string;
   email: string;
   role: string;
-  languages: string[];
+  languages: { id: number; language: string }[];
+  githubId?: number;
 }
 
-interface JwtPayload {
-  user: User;
+export interface UserWithoutPassword {
+  id: number;
+  role: string;
+}
+
+export interface JwtPayload {
+  user: UserWithoutPassword;
   exp: number;
   iat: number;
 }
@@ -25,6 +32,7 @@ export async function verifyAccessToken(
     next();
     return;
   }
+
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
   if (!accessToken) {

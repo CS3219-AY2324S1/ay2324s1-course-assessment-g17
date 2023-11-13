@@ -4,6 +4,11 @@ import { body, matchedData, param, validationResult } from "express-validator";
 import { Request, RequestHandler, Response, NextFunction } from "express";
 import { comparePassword, hashPassword, randomPassword } from "../utils/auth";
 import {
+  User,
+  UserWithoutPassword,
+  JwtPayload,
+} from "../middleware/authMiddleware";
+import {
   generateAccessToken,
   generateRefreshToken,
   authenticateAccessToken,
@@ -23,38 +28,9 @@ interface SignUpData extends LogInData {
   confirmPassword: string;
 }
 
-interface User {
-  id: number;
-  password: string;
-  username: string;
-  email: string;
-  role: string;
-  languages: { id: number; language: string }[];
-  githubId?: number;
-}
-
-interface UserWithoutPassword {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-  languages: { id: number; language: string }[];
-  githubId?: number;
-}
-
-interface JwtPayload {
-  user: UserWithoutPassword;
-  exp: number;
-  iat: number;
-}
-
 const DEPLOYED_URL = "https://master.da377qx9p9syb.amplifyapp.com/";
 const OAUTH_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID as string;
 const OAUTH_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET as string;
-
-const storedRefreshTokens: string[] = [];
-// TODO: Make a MongoDB for refresh tokens
-// IF TIME PERMITS
 
 export const signUp: RequestHandler[] = [
   body("username").notEmpty(),
@@ -87,6 +63,7 @@ export const signUp: RequestHandler[] = [
           password: hashedPassword,
           email: formData.email,
           role: Role.USER,
+          token: null,
         },
       });
     } catch (err) {
@@ -134,10 +111,22 @@ export const logIn: RequestHandler[] = [
       return;
     }
     try {
-      const { password: _, ...userWithoutPassword } = user;
+      // Only allow one refreshToken at all times
+      // 1. This will prevent logins on multiple devices, which may reduce collab room mayhem
+      // (although perhaps matching could implement check to see if user is still in queue when matching, as can click away)
+      // 2. This will prevent the server from getting so bloated with refresh tokens if some idiot keeps deleting his cookies without logging out
+      // 3. This will prevent there from being 'defunct' refreshtokens still in server-side that hacker could get his hands on
+      const userWithoutPassword = {
+        id: user.id,
+        role: user.role,
+      } as UserWithoutPassword;
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
-      storedRefreshTokens.push(refreshToken);
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { token: refreshToken },
+      });
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -152,7 +141,7 @@ export const logIn: RequestHandler[] = [
 
       return res.status(200).json({
         user: userWithoutPassword,
-        message: `${userWithoutPassword.username} has been authenticated`,
+        message: `${user.username} has been authenticated`,
         accessToken,
         refreshToken,
       });
@@ -163,9 +152,28 @@ export const logIn: RequestHandler[] = [
 ];
 
 export async function logOut(req: Request, res: Response) {
-  // Clear server storage of refresh token
-  const index = storedRefreshTokens.indexOf(req.cookies["refreshToken"]);
-  storedRefreshTokens.splice(index, 1);
+  try {
+    const refreshToken = req.cookies["refreshToken"]; // If JWT token is stored in a cookie
+    if (refreshToken) {
+      const decoded = (await authenticateRefreshToken(
+        refreshToken,
+      )) as JwtPayload;
+      const userId = decoded.user.id; // user ID is used for identification
+      if (userId) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { token: null },
+        });
+      }
+    }
+  } catch (error) {
+    // This means access token has expired
+    console.log("Cannot remove login refresh token from server: " + error);
+    console.log(
+      "You might have removed it somehow. Suggested that you login again to remove old refreshToken from server.",
+    );
+    console.log("Proceeding with rest of log out procedure...");
+  }
 
   res.clearCookie("accessToken", {
     httpOnly: true,
@@ -187,43 +195,56 @@ export const oAuthAuthenticate: RequestHandler[] = [
       res.status(400).json({ errors: validationResult(req).array() });
       return;
     }
-  
+
     const formData = new FormData();
-    formData.append('client_id', OAUTH_CLIENT_ID as string);
-    formData.append('client_secret', OAUTH_CLIENT_SECRET as string);
-    formData.append('code', req.body.code as string);
-    const response = await fetch(`https://github.com/login/oauth/access_token`, {
+    formData.append("client_id", OAUTH_CLIENT_ID as string);
+    formData.append("client_secret", OAUTH_CLIENT_SECRET as string);
+    formData.append("code", req.body.code as string);
+    const response = await fetch(
+      `https://github.com/login/oauth/access_token`,
+      {
         method: "POST",
         body: formData,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Accept': 'application/json',
+          "Access-Control-Allow-Origin": "*",
+          Accept: "application/json",
         },
-    });
+      },
+    );
 
     const resp = await response.text();
     const params = JSON.parse(resp);
-    const githubAccessToken = params['access_token'];
-    console.log('Received Github access token', githubAccessToken);
+    const githubAccessToken = params["access_token"];
+    console.log("Received Github access token", githubAccessToken);
 
     const user_resp = await fetch(`https://api.github.com/user`, {
       headers: { Authorization: `token ${githubAccessToken}` },
     });
     const githubUser = await user_resp.json();
-    const githubUserId = githubUser['id'] as number;
-    const user = await prisma.user.findFirst({ where: { githubId: githubUserId } });
+    const githubUserId = githubUser["id"] as number;
+    const user = await prisma.user.findFirst({
+      where: { githubId: githubUserId },
+    });
 
     if (user !== null) {
       // User already exists in the database
       try {
-        const { password: _, ...userWithoutPassword } = user;
+        // Justin: CHANGED THIS BIT FOR TOKEN GENERATION!
+        const userWithoutPassword = {
+          id: user.id,
+          role: user.role,
+        } as UserWithoutPassword;
         const appAccessToken = await generateAccessToken(userWithoutPassword);
         const refreshToken = await generateRefreshToken(userWithoutPassword);
-        storedRefreshTokens.push(refreshToken);
 
-        console.log('generated access token', appAccessToken);
-        console.log('generated refresh token', refreshToken);
-  
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { token: refreshToken },
+        });
+
+        console.log("generated access token", appAccessToken);
+        console.log("generated refresh token", refreshToken);
+
         res.cookie("accessToken", appAccessToken, {
           httpOnly: true,
           secure: true,
@@ -237,7 +258,7 @@ export const oAuthAuthenticate: RequestHandler[] = [
 
         return res.status(200).json({
           user: userWithoutPassword,
-          message: `${userWithoutPassword.username} has been authenticated`,
+          message: `${user.username} has been authenticated`,
           accessToken: appAccessToken,
           refreshToken,
         });
@@ -247,22 +268,20 @@ export const oAuthAuthenticate: RequestHandler[] = [
     }
 
     // New user
-    const githubName = githubUser['name'];
-    const githubUsername = githubUser['login'];
-    const githubEmail = githubUser['email'];
+    const githubName = githubUser["name"];
+    const githubUsername = githubUser["login"];
+    const githubEmail = githubUser["email"];
 
-    return res.status(200).json(
-      {
-        user: null,
-        githubDetails: {
-          githubId: githubUserId,
-          username: githubUsername,
-          name: githubName,
-          email: githubEmail,
-        },
-        message: 'Successful OAuth login for new user',
-      }
-    );
+    return res.status(200).json({
+      user: null,
+      githubDetails: {
+        githubId: githubUserId,
+        username: githubUsername,
+        name: githubName,
+        email: githubEmail,
+      },
+      message: "Successful OAuth login for new user",
+    });
   },
 ];
 
@@ -270,7 +289,7 @@ export const oAuthNewUser: RequestHandler[] = [
   body("githubId").notEmpty(),
   body("username").notEmpty(),
   body("email")
-    .notEmpty() 
+    .notEmpty()
     .isEmail()
     .withMessage("Email should be a valid email."),
   async (req, res, next) => {
@@ -280,10 +299,18 @@ export const oAuthNewUser: RequestHandler[] = [
     }
 
     const { githubId: githubUserId, username, email } = req.body;
-    const user = await prisma.user.findFirst({ where: { githubId: githubUserId } });
+    const user = await prisma.user.findFirst({
+      where: { githubId: githubUserId },
+    });
 
     if (user !== null) {
-      res.status(400).json({ errors: [`Github user with ID ${githubUserId} already exists in the system`] });
+      res
+        .status(400)
+        .json({
+          errors: [
+            `Github user with ID ${githubUserId} already exists in the system`,
+          ],
+        });
       return;
     }
 
@@ -298,10 +325,18 @@ export const oAuthNewUser: RequestHandler[] = [
         },
       });
 
-      const { password: _, ...userWithoutPassword } = newUser;
+      // Justin: CHANGED THIS BIT FOR TOKEN GENERATION!
+      const userWithoutPassword = {
+        id: newUser.id,
+        role: newUser.role,
+      } as UserWithoutPassword;
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
-      storedRefreshTokens.push(refreshToken);
+
+      await prisma.user.update({
+        where: { id: newUser.id },
+        data: { token: refreshToken },
+      });
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -316,25 +351,32 @@ export const oAuthNewUser: RequestHandler[] = [
 
       return res.status(200).json({
         user: userWithoutPassword,
-        message: `${userWithoutPassword.username} has been authenticated`,
+        message: `${newUser.username} has been authenticated`,
         accessToken,
         refreshToken,
       });
     } catch (err) {
       return next(err);
     }
-  }
+  },
 ];
 
 export const deregister = async (req: Request, res: Response) => {
-  const user = req.user!;
+  const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
+
+  const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;
+
+  const userId = decoded.user.id; // user ID is used for identification
+
   await prisma.user.update({
-    where: { id: user.id },
+    where: { id: userId },
     data: {
       languages: { set: [] },
     },
   });
-  await prisma.user.delete({ where: { id: user.id } });
+  await prisma.user.delete({ where: { id: userId } });
+
+  // HERE if deleting user, don't need to bother to remove JWT token from user in db
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: true,
@@ -350,7 +392,11 @@ export const deregister = async (req: Request, res: Response) => {
 
 export async function getCurrentUser(req: Request, res: Response) {
   try {
-    const userId = req.user?.id; // user ID is used for identification
+    const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
+
+    const decoded = (await authenticateAccessToken(accessToken)) as JwtPayload;
+
+    const userId = decoded.user.id; // user ID is used for identification
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
@@ -362,9 +408,10 @@ export async function getCurrentUser(req: Request, res: Response) {
       select: {
         id: true,
         username: true,
+        password: true,
         email: true,
         role: true,
-        languages: true,
+        token: true,
       },
     });
 
@@ -377,70 +424,6 @@ export async function getCurrentUser(req: Request, res: Response) {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
-  }
-}
-
-// update after updating user profile
-export async function updateBothTokens(req: Request, res: Response) {
-  const refreshToken = req.cookies["refreshToken"];
-
-  if (!refreshToken) {
-    res
-      .status(401)
-      .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
-  } else {
-    try {
-      const decoded = await authenticateRefreshToken(refreshToken);
-
-      if (!storedRefreshTokens.includes(refreshToken)) {
-        res.status(401).json({
-          errors: [
-            { msg: "Not authorized, refresh token not found in server" },
-          ],
-        });
-      } else {
-        const payload = decoded as JwtPayload;
-        const userId = payload.user.id;
-        const user = (await prisma.user.findFirst({
-          where: { id: userId },
-        })) as User;
-        if (!user) {
-          res
-            .status(401)
-            .json({ errors: [{ msg: "This username does not exist." }] });
-          return;
-        }
-        try {
-          const { password: _, ...userWithoutPassword } = user;
-          const accessToken = await generateAccessToken(userWithoutPassword);
-          const refreshToken = await generateRefreshToken(userWithoutPassword);
-          storedRefreshTokens.push(refreshToken);
-
-          res.cookie("accessToken", accessToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-          });
-          res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-          });
-
-          return res.status(200).json({
-            message: `Authorised, both refresh and access tokens refreshed.`,
-            accessToken,
-            refreshToken,
-          });
-        } catch (err) {
-          res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
-        }
-      }
-    } catch (error) {
-      res
-        .status(401)
-        .json({ errors: [{ msg: "Not authorized, invalid refresh token" }] });
-    }
   }
 }
 
@@ -524,7 +507,9 @@ export const resetPassword: RequestHandler[] = [
       const hashedPassword = hashPassword(password);
       await prisma.user.update({
         where: { id: user.id },
-        data: { password: hashedPassword },
+        // Remove all refreshTokens from this user in order to ensure security
+        // cos if resetting password might be because of security breach
+        data: { password: hashedPassword, token: null },
       });
 
       res.status(200).json({ message: "Password reset successful." });
@@ -545,17 +530,39 @@ export async function updateAccessToken(req: Request, res: Response) {
       .json({ errors: [{ msg: "Not authorized, no refresh token" }] });
   } else {
     try {
-      const decoded = await authenticateRefreshToken(refreshToken);
+      const decoded = (await authenticateRefreshToken(
+        refreshToken,
+      )) as JwtPayload;
+      const userWithoutPassword = decoded.user;
 
-      if (!storedRefreshTokens.includes(refreshToken)) {
+      if (!userWithoutPassword.id) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Fetch the latest user data from the database
+      const user = await prisma.user.findUnique({
+        where: { id: userWithoutPassword.id },
+        select: {
+          id: true,
+          username: true,
+          password: true,
+          email: true,
+          role: true,
+          token: true,
+        },
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.token != refreshToken) {
         res.status(401).json({
           errors: [
             { msg: "Not authorized, refresh token not found in server" },
           ],
         });
       } else {
-        const payload = decoded as JwtPayload;
-        const userWithoutPassword = payload.user;
         const accessToken = await generateAccessToken(userWithoutPassword);
 
         res.cookie("accessToken", accessToken, {
@@ -577,6 +584,7 @@ export async function updateAccessToken(req: Request, res: Response) {
   }
 }
 
+// When creating access and refresh token, just use the immutable user information, id.
 export const updateUserProfile: RequestHandler[] = [
   body("username").notEmpty().withMessage("Username cannot be empty"),
   body("email")
@@ -591,9 +599,15 @@ export const updateUserProfile: RequestHandler[] = [
     }
 
     try {
-      const user = req.user;
+      const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
-      if (!user) {
+      const decoded = (await authenticateAccessToken(
+        accessToken,
+      )) as JwtPayload;
+
+      const userId = decoded.user.id; // user ID is used for identification
+
+      if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
       }
 
@@ -621,7 +635,7 @@ export const updateUserProfile: RequestHandler[] = [
       }
 
       const updatedUser = await prisma.user.update({
-        where: { id: user.id },
+        where: { id: userId },
         include: {
           languages: true,
         },
