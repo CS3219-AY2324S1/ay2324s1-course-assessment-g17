@@ -3,21 +3,14 @@ import { authenticateAccessToken } from "../utils/jwt";
 
 export interface User {
   id: number;
-  password: string;
   username: string;
   email: string;
   role: string;
-  languages: { id: number; language: string }[];
-  githubId?: number;
+  languages: string[];
 }
 
-export interface UserWithoutPassword {
-  id: number;
-  role: string;
-}
-
-export interface JwtPayload {
-  user: UserWithoutPassword;
+interface JwtPayload {
+  user: User;
   exp: number;
   iat: number;
 }
@@ -36,7 +29,11 @@ export async function verifyAccessToken(
       .json({ errors: [{ msg: "Not authorized, no access token" }] });
   } else {
     try {
-      await authenticateAccessToken(accessToken);
+      const decoded = (await authenticateAccessToken(
+        accessToken,
+      )) as JwtPayload;
+      req.user = decoded.user;
+
       next();
     } catch (error) {
       res

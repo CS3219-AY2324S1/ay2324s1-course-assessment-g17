@@ -24,7 +24,6 @@ model User {
   role             Role
   languages        Language[]
   AnsweredQuestion AnsweredQuestion[]
-  token            String?
   githubId         Int?               @unique
 }
 

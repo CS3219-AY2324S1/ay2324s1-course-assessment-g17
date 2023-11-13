@@ -78,7 +78,7 @@ app.get(
         const output = result[0]["candidates"]![0]["output"];
         res.send(output);
       });
-  },
+  }
 );
 
 app.listen(port, () => {
