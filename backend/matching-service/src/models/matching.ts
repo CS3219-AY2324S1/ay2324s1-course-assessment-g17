@@ -9,6 +9,7 @@ export enum MatchStatusEnum {
   MATCHED = "Matched",
   PENDING = "Pending",
   TIMEOUT = "Timeout",
+  CANCELLED = "Cancelled",
 }
 
 export interface Matching {

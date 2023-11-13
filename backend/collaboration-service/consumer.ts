@@ -83,7 +83,7 @@ export function startRabbitMQ(io: Server) {
 
           roomCurrentQuestion[pairInfo.room_id] = pairInfo.question_ids[0];
           io.to(pairInfo.room_id).emit(
-            "set-question",
+            "set-first-question",
             pairInfo.question_ids[0],
           );
         },

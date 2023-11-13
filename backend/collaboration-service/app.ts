@@ -114,7 +114,7 @@ io.on("connection", (socket) => {
     socket.emit("initial-language", initialLanguage);
 
     const initialQuestionId = roomCurrentQuestion[roomId];
-    if (initialQuestionId) socket.emit("set-question", initialQuestionId);
+    if (initialQuestionId) socket.emit("set-first-question", initialQuestionId);
 
     // Attach user's username and roomId to this connection
     socket.data.username = username;
@@ -141,8 +141,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("change-question", (nextQuestionId, roomId) => {
-    io.to(roomId).emit("set-question", nextQuestionId);
+  socket.on("change-question", (nextQuestionId, roomId, username: string) => {
+    io.to(roomId).emit("set-question", nextQuestionId, username);
   });
 
   socket.on("user-agreed-end", (roomId, userId) => {
