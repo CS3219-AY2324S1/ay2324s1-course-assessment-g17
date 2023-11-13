@@ -28,6 +28,11 @@ export async function verifyAccessToken(
   res: Response,
   next: NextFunction,
 ) {
+  if (req.cookies["serverToken"] == process.env.SERVER_SECRET) {
+    next();
+    return;
+  }
+  
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
   if (!accessToken) {
