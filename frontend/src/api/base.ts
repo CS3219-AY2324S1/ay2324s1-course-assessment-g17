@@ -11,7 +11,9 @@ export const userServiceClient = axios.create({
 });
 
 export const collabServiceClient = axios.create({
-  baseURL: process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL,
+  baseURL:
+    process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL +
+    (process.env.REACT_APP_COLLABORATION_API_PATH ?? ''),
   withCredentials: true,
 });
 
