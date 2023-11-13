@@ -10,11 +10,11 @@ router.post("/oauth/auth", AuthController.oAuthAuthenticate);
 router.post("/oauth/signup", AuthController.oAuthNewUser);
 
 // Protected refresh token routes
-// router.get("/bothToken", AuthController.updateBothTokens);
+router.get("/bothToken", AuthController.updateBothTokens);
 router.get("/token", AuthController.updateAccessToken);
 
 // Protected access token routes
-router.get("/logout", AuthController.logOut);
+router.get("/logout", AuthMiddleWare.verifyAccessToken, AuthController.logOut);
 router.get(
   "/currentUser",
   AuthMiddleWare.verifyAccessToken,
