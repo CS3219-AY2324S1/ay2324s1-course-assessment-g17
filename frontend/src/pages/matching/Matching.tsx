@@ -48,6 +48,18 @@ const Matching: React.FC = () => {
       });
     });
 
+    newSocket.on('cancelled', () => {
+      setMatchingState(MatchingStateEnum.NO_REQUEST);
+
+      toast({
+        title: 'Matching failed.',
+        description: 'Match request cancelled. Did you start another request in another tab?',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+    });
+
     newSocket.on('matchFound', ({ roomId }) => {
       setMatchingState(MatchingStateEnum.MATCHED);
       toast({

@@ -10,6 +10,12 @@ export const QuestionComplexityEnumToLevelMap: Record<QuestionComplexityEnum, nu
   [QuestionComplexityEnum.HARD]: 3,
 });
 
+export interface QuestionMiniData {
+  questionID: string;
+  complexity: string;
+  categories: string[];
+}
+
 export interface QuestionData {
   id: number;
   questionID: number;

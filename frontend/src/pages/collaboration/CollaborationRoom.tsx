@@ -9,7 +9,6 @@ import {
   TabPanels,
   Tabs,
   useColorModeValue,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { Allotment } from 'allotment';
@@ -28,232 +27,209 @@ import { type editor } from 'monaco-editor';
 import CodeExecutor from '../../components/code/CodeExecutor';
 import ChatBox from '../../components/chat/ChatBox';
 import IconWithText from '../../components/content/IconWithText';
-import axios from 'axios';
 import Whiteboard from '../../components/collaboration/Whiteboard';
 import { selectAwareness } from '../../reducers/awarenessSlice';
 import Hint from './Hint';
-
-interface Question {
-  questionID: string;
-  complexity: string;
-  categories: string[];
-}
-
-interface PairIdsResponse {
-  _id: string;
-  userOne: number;
-  userTwo: number;
-  room_id: string;
-  complexity: string[];
-  categories: string[];
-  question_ids: number[];
-  __v: number;
-}
+import UserAPI from '../../api/users/user';
+import CollaborationAPI from '../../api/collaboration/collaboration';
+import ToastWrapper from '../../utils/toast';
 
 interface CollaborationRoomProps {
   isMatchingRoom: boolean;
 }
 const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }: CollaborationRoomProps) => {
-  const collabServiceUrl = process.env.REACT_APP_COLLABORATION_SERVICE_SOCKET_IO_BACKEND_URL;
-  const userServiceUrl = process.env.REACT_APP_USER_SERVICE_BACKEND_URL;
-  const [attemptedFirst, setAttemptedFirst] = useState(false);
-  const toast = useToast();
-  const editorTheme = useColorModeValue('light', 'vs-dark');
-  const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const toast = new ToastWrapper();
+  const navigate = useNavigate();
   const user = useAppSelector(selectUser);
   const awareness = useAppSelector(selectAwareness);
-  const { socket } = useContext(SocketContext);
   const roomId = useParams<{ roomId: string }>().roomId;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const editorTheme = useColorModeValue('light', 'vs-dark');
+  const codeEditor = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const { socket } = useContext(SocketContext);
+
+  const collaborationServiceApi = new CollaborationAPI();
+  const userServiceApi = new UserAPI();
+  const [attemptedFirst, setAttemptedFirst] = useState(false);
   const [questionId, setQuestionId] = useState<number | undefined>(undefined);
 
-  const navigate = useNavigate();
-  const addSavedQuestion = async (currIndex: number, roomId: number): Promise<void> => {
-    const currQuestionResponse = await axios.get(
-      collabServiceUrl + (currIndex === 1 ? 'api/get-first-question' : 'api/get-second-question'),
-      {
-        params: {
-          roomId,
-        },
-      },
-    );
-
-    const pairIdsResponse = await axios.get(collabServiceUrl + 'api/get-pair-ids', {
-      params: {
-        roomId,
-      },
-    });
-    // save both users
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const pairIds = pairIdsResponse.data as PairIdsResponse;
+  const addSavedQuestion = async (currIndex: 1 | 2, roomId: string): Promise<void> => {
+    // Save both users
+    const currQuestion = await collaborationServiceApi.getMatchedQuestion(currIndex, roomId);
+    const pairIds = await collaborationServiceApi.getMatchedPairInfo(roomId);
     const userOneId = pairIds.userOne;
     const userTwoId = pairIds.userTwo;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const currQuestion = currQuestionResponse.data.data as Question;
-    if (user?.id === userOneId) {
-      await axios.post(userServiceUrl + 'api/user/add-answered-question', {
-        userId: userOneId,
-        questionId: currQuestion.questionID,
-        complexity: currQuestion.complexity,
-        category: currQuestion.categories,
-      });
-    } else if (user?.id === userTwoId) {
-      await axios.post(userServiceUrl + 'api/user/add-answered-question', {
-        userId: userTwoId,
-        questionId: currQuestion.questionID,
-        complexity: currQuestion.complexity,
-        category: currQuestion.categories,
-      });
+    try {
+      if (user?.id === userOneId) {
+        await userServiceApi.postSaveAnsweredQuestion(userOneId, currQuestion);
+      } else if (user?.id === userTwoId) {
+        await userServiceApi.postSaveAnsweredQuestion(userTwoId, currQuestion);
+      }
+    } catch (error) {
+      console.error('Error adding saved question:', error);
     }
   };
 
-  // a user click next
-  const handleNextQuestion = (): void => {
-    if (user === null) {
-      return;
+  const handleQuestionChange = (newQuestionId?: number): void => {
+    if (user === null) return;
+
+    if (isMatchingRoom) {
+      // User clicks next question
+      socket?.emit('user-agreed-next', roomId, user.id);
+      setAttemptedFirst(true);
+    } else {
+      setQuestionId(newQuestionId);
+      // Emit change-question event to let other connected users know to change the question
+      socket?.emit('change-question', newQuestionId, roomId, user?.username);
     }
-    socket?.emit('user-agreed-next', roomId, user.id);
-    setAttemptedFirst(true);
   };
 
-  // a user click end session
+  // A user clicks end session
   const handleEndSession = (): void => {
-    if (user === null) {
-      return;
-    }
+    if (user === null) return;
     if (!attemptedFirst) {
-      toast({
-        title: 'You have to attempt at least one question before ending the session',
-        status: 'warning',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.showWarningToast({ title: 'You have to attempt at least one question before ending the session' });
       return;
     }
     socket?.emit('user-agreed-end', roomId, user.id);
   };
 
-  useEffect(() => {
-    const checkAuthorization = async (): Promise<void> => {
-      if (user === null) {
-        console.error('User ID is undefined');
-        navigate('/');
-        return;
-      }
-      const response = await axios.get<{ authorised: boolean }>(collabServiceUrl + 'api/check-authorization', {
-        params: {
-          userId: user.id,
-          roomId,
-        },
-      });
-      console.log('Response:', response.data);
+  const checkAuthorization = async (): Promise<void> => {
+    if (user === null || roomId == null) {
+      console.error('User/ Room ID is undefined');
+      navigate('/');
+      return;
+    }
 
-      if (!response.data.authorised) {
-        toast({
-          title: 'Invalid permission',
-          description: 'Room does not belong to you.',
-          status: 'warning',
-          duration: 5000,
-          isClosable: true,
-        });
+    try {
+      const isAuthorised = await collaborationServiceApi.checkAuthorisation(user.id, roomId);
+      if (!isAuthorised) {
+        toast.showWarningToast({ title: 'Invalid permission', description: 'Room does not belong to you.' });
         navigate('/');
       }
-    };
-    checkAuthorization().catch((error) => {
+    } catch (error) {
       console.error('Error checking authorization:', error);
-    });
-  }, []);
+    }
+  };
 
-  useEffect(() => {
-    socket?.emit('join-room', roomId, user?.username);
+  // Attach socket listeners relevant only for matching room
+  const attachMatchingListeners = (): void => {
+    // Listen to set first question
+    socket?.on('set-first-question', (questionId: number) => {
+      setQuestionId(questionId);
+    });
+
+    // Attach listener for when other user tries to go to next question
     socket?.on('waiting-for-other-user', () => {
-      toast({
-        title: 'Both users have to agree to go to the next question',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.showSuccessToast({ title: 'Both users have to agree to go to the next question' });
     });
-    socket?.on('waiting-for-other-user-end', () => {
-      toast({
-        title: 'Both users have to agree to end the session',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
-    });
-    socket?.on('both-users-agreed-next', async (roomId: number) => {
-      console.log('Both users agreed to go to the next question');
-      setAttemptedFirst(true);
-      const nextQuestionResponse = await axios.get(collabServiceUrl + 'api/get-second-question', {
-        params: {
-          roomId,
-        },
-      });
-      console.log('Next question response:', nextQuestionResponse.data);
-      addSavedQuestion(1, roomId).catch((error) => {
-        console.error('Error adding saved question:', error);
-      });
-      socket?.off('both-users-agreed-next');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const nextQuestionData = nextQuestionResponse.data.data as Question;
 
+    // Attach listener for when other user tries to end the session
+    socket?.on('waiting-for-other-user-end', () => {
+      toast.showSuccessToast({ title: 'Both users have to agree to end the session' });
+    });
+
+    // Attach listener for when both users have agreed to proceed to the next question
+    socket?.on('both-users-agreed-next', async (roomId: string) => {
+      console.log('Both users agreed to go to the next question');
+
+      // Save the first question as attempted
+      setAttemptedFirst(true);
+      await addSavedQuestion(1, roomId);
+
+      // Remove listener (only 2 questions per session)
+      socket?.off('both-users-agreed-next');
+
+      // Go to the next question, no need to emit change-question
+      // event as users are responsible for retrieving and updating their own question
+      const nextQuestionData = await collaborationServiceApi.getMatchedSecondQuestion(roomId);
       const nextQuestionId = Number(nextQuestionData.questionID);
       setQuestionId(nextQuestionId);
-      socket?.emit('change-question', nextQuestionId, roomId);
     });
 
-    socket?.on('both-users-agreed-end', (roomId: number) => {
-      addSavedQuestion(2, roomId).catch((error) => {
-        console.error('Error adding saved question:', error);
-      });
+    // Attach listener for when both users have agreed to end the session
+    socket?.on('both-users-agreed-end', async (roomId: string) => {
+      // Save the question before leaving the room
+      await addSavedQuestion(2, roomId);
       socket?.off('both-users-agreed-end');
       navigate('/');
     });
+  };
 
-    socket?.on('set-question', (questionId: number) => {
+  // Attach socket listeners relevant only for practice room
+  const attachPracticeRoomListeners = (): void => {
+    // Listen to set question events and show toast
+    socket?.on('set-question', (questionId: number, username: string) => {
       setQuestionId(questionId);
+      toast.showInfoToast({ title: `User ${username} changed the question` });
+    });
+  };
+
+  useEffect(() => {
+    if (isMatchingRoom) {
+      // Check that the user is authorised to enter the room
+      void checkAuthorization();
+    }
+
+    // Emit join-room event to broadcast new user entering room
+    socket?.emit('join-room', roomId, user?.username);
+
+    // Listen to new users joining
+    socket?.on('user-join', (newUser: string) => {
+      toast.showInfoToast({ title: `User ${newUser} has joined the room` });
     });
 
-    socket?.on('broadcast-question', (questionId: number) => {
-      setQuestionId(questionId);
+    // Listen to users leaving
+    socket?.on('user-disconnect', (disconnectedUser: string) => {
+      toast.showInfoToast({ title: `User ${disconnectedUser} has left the room` });
     });
+
+    // Attach matching listeners only for matching room
+    if (isMatchingRoom) {
+      attachMatchingListeners();
+    } else {
+      attachPracticeRoomListeners();
+    }
 
     return () => {
-      socket?.off('both-users-agreed-next');
-      socket?.off('both-users-agreed-end');
+      if (isMatchingRoom) {
+        socket?.off('both-users-agreed-next');
+        socket?.off('both-users-agreed-end');
+      }
     };
   }, [socket, roomId]);
 
   return (
-    <>
+    <Box>
       <Flex mt={4} mx={4} justifyContent="space-between">
         <RoomInfo />
         {isMatchingRoom && (
-          <>
-            {!attemptedFirst && (
-              <Button size="sm" onClick={handleNextQuestion} mx={4}>
-                Next Question {attemptedFirst}
-              </Button>
-            )}
+          <Box>
+            <Button
+              size="sm"
+              onClick={() => {
+                handleQuestionChange();
+              }}
+              mx={4}
+              hidden={attemptedFirst}
+            >
+              Next Question {attemptedFirst}
+            </Button>
             <Button size="sm" mx={4} onClick={handleEndSession}>
               End Session
             </Button>
-          </>
+          </Box>
         )}
         {!isMatchingRoom && (
-          <>
-            <Button
-              size="sm"
-              mx={4}
-              onClick={() => {
-                navigate('/');
-              }}
-            >
-              Exit
-            </Button>
-          </>
+          <Button
+            size="sm"
+            mx={4}
+            onClick={() => {
+              navigate('/');
+            }}
+          >
+            Exit
+          </Button>
         )}
         <Spacer />
         {awareness !== null && <CollaboratorUsers awareness={awareness} />}
@@ -263,7 +239,11 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       <Box width="100%" height="80vh" my={5}>
         <Allotment defaultSizes={[6, 9, 5]}>
           <Allotment.Pane>
-            <CollaborationQuestion />
+            <CollaborationQuestion
+              questionId={questionId}
+              disableSelection={isMatchingRoom}
+              onQuestionIdChange={handleQuestionChange}
+            />
           </Allotment.Pane>
           <Allotment.Pane>
             <Box as="div" style={{ maxHeight: '80vh' }}>
@@ -313,7 +293,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
           </Allotment.Pane>
         </Allotment>
       </Box>
-    </>
+    </Box>
   );
 };
 

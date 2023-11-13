@@ -38,6 +38,14 @@ function findIntersection(arr1: string[], arr2: string[]) {
   return arr1.filter((item) => arr2.includes(item));
 }
 
+export async function findPendingMatchesOfUser(user_id: number) {
+  const pendingMatches = await Matching.find({
+    user_id: user_id,
+    status: MatchStatusEnum.PENDING,
+  }).exec();
+  return pendingMatches;
+}
+
 export async function findMatch(matchingInfo: MatchingInfo) {
   const difficulty_level_query: FilterQuery<typeof Matching>[] =
     matchingInfo.difficulty_level
@@ -81,6 +89,9 @@ export async function findMatch(matchingInfo: MatchingInfo) {
   const potentialMatch = await Matching.findOne({
     status: MatchStatusEnum.PENDING,
     $and: difficulty_level_query.concat(topics_query),
+    user_id: {
+      $ne: matchingInfo.user_id,
+    },
   }).exec();
 
   if (!potentialMatch) return null;
@@ -89,11 +100,11 @@ export async function findMatch(matchingInfo: MatchingInfo) {
     ...potentialMatch.toObject(),
     categories: findIntersection(
       potentialMatch.categories,
-      matchingInfo.topics,
+      matchingInfo.topics
     ),
     difficulty_levels: findIntersection(
       potentialMatch.difficulty_levels,
-      matchingInfo.difficulty_level,
+      matchingInfo.difficulty_level
     ),
   };
 
@@ -108,6 +119,6 @@ export async function markAsTimeout(matchingInfo: MatchingInfo) {
       socket_id: matchingInfo.socket_id,
       status: MatchStatusEnum.PENDING,
     },
-    { status: MatchStatusEnum.TIMEOUT },
+    { status: MatchStatusEnum.TIMEOUT }
   );
 }
