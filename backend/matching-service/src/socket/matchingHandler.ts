@@ -5,6 +5,7 @@ import {
   findMatch,
   insertMatching,
   markAsTimeout,
+  findPendingMatchesOfUser,
 } from "../controllers/matchingController";
 import { store } from "../utils/store";
 import matching from "../models/matching";
@@ -21,6 +22,7 @@ export enum MatchStatusEnum {
   MATCHED = "Matched",
   PENDING = "Pending",
   TIMEOUT = "Timeout",
+  CANCELLED = "Cancelled",
 }
 interface RequestMatchProps {
   userId: number;
@@ -37,6 +39,13 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
       topics: props.categories,
       status: MatchStatusEnum.PENDING,
     };
+
+    // Cancel all pending matches from this pending user first.
+    for (const pendingMatch of await findPendingMatchesOfUser(props.userId)) {
+      clearTimeout(store[pendingMatch.user_id]);
+      pendingMatch.updateOne({ status: MatchStatusEnum.CANCELLED });
+      socket.to(pendingMatch.socket_id).emit("cancelled");
+    }
 
     const result = await findMatch(matchingInfo);
     if (!result) {
