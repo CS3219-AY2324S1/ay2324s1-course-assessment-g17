@@ -54,14 +54,15 @@ userServiceClient.interceptors.response.use(null, async (error: AxiosError) => {
     const requestUrl = error.config.url;
     console.log(`Intercepted request to ${requestUrl}`);
 
-    if (error.response.status === 401 
-      && requestUrl !== '/login'
-      && requestUrl !== '/signup'
-      && requestUrl !== '/oauth/auth'
-      && requestUrl !== '/oauth/signup'
-      && requestUrl !== '/token'
-      && requestUrl !== '/logout'
-      ) {
+    if (
+      error.response.status === 401 &&
+      requestUrl !== '/login' &&
+      requestUrl !== '/signup' &&
+      requestUrl !== '/oauth/auth' &&
+      requestUrl !== '/oauth/signup' &&
+      requestUrl !== '/token' &&
+      requestUrl !== '/logout'
+    ) {
       // eslint-disable-next-line no-useless-catch
       try {
         const authApi = new AuthAPI();

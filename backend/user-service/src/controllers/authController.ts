@@ -195,31 +195,36 @@ export const oAuthAuthenticate: RequestHandler[] = [
       res.status(400).json({ errors: validationResult(req).array() });
       return;
     }
-  
+
     const formData = new FormData();
-    formData.append('client_id', OAUTH_CLIENT_ID as string);
-    formData.append('client_secret', OAUTH_CLIENT_SECRET as string);
-    formData.append('code', req.body.code as string);
-    const response = await fetch(`https://github.com/login/oauth/access_token`, {
+    formData.append("client_id", OAUTH_CLIENT_ID as string);
+    formData.append("client_secret", OAUTH_CLIENT_SECRET as string);
+    formData.append("code", req.body.code as string);
+    const response = await fetch(
+      `https://github.com/login/oauth/access_token`,
+      {
         method: "POST",
         body: formData,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Accept': 'application/json',
+          "Access-Control-Allow-Origin": "*",
+          Accept: "application/json",
         },
-    });
+      },
+    );
 
     const resp = await response.text();
     const params = JSON.parse(resp);
-    const githubAccessToken = params['access_token'];
-    console.log('Received Github access token', githubAccessToken);
+    const githubAccessToken = params["access_token"];
+    console.log("Received Github access token", githubAccessToken);
 
     const user_resp = await fetch(`https://api.github.com/user`, {
       headers: { Authorization: `token ${githubAccessToken}` },
     });
     const githubUser = await user_resp.json();
-    const githubUserId = githubUser['id'] as number;
-    const user = await prisma.user.findFirst({ where: { githubId: githubUserId } });
+    const githubUserId = githubUser["id"] as number;
+    const user = await prisma.user.findFirst({
+      where: { githubId: githubUserId },
+    });
 
     if (user !== null) {
       // User already exists in the database
@@ -231,15 +236,15 @@ export const oAuthAuthenticate: RequestHandler[] = [
         } as UserWithoutPassword;
         const appAccessToken = await generateAccessToken(userWithoutPassword);
         const refreshToken = await generateRefreshToken(userWithoutPassword);
-  
+
         await prisma.user.update({
           where: { id: user.id },
           data: { token: refreshToken },
         });
 
-        console.log('generated access token', appAccessToken);
-        console.log('generated refresh token', refreshToken);
-  
+        console.log("generated access token", appAccessToken);
+        console.log("generated refresh token", refreshToken);
+
         res.cookie("accessToken", appAccessToken, {
           httpOnly: true,
           secure: true,
@@ -263,22 +268,20 @@ export const oAuthAuthenticate: RequestHandler[] = [
     }
 
     // New user
-    const githubName = githubUser['name'];
-    const githubUsername = githubUser['login'];
-    const githubEmail = githubUser['email'];
+    const githubName = githubUser["name"];
+    const githubUsername = githubUser["login"];
+    const githubEmail = githubUser["email"];
 
-    return res.status(200).json(
-      {
-        user: null,
-        githubDetails: {
-          githubId: githubUserId,
-          username: githubUsername,
-          name: githubName,
-          email: githubEmail,
-        },
-        message: 'Successful OAuth login for new user',
-      }
-    );
+    return res.status(200).json({
+      user: null,
+      githubDetails: {
+        githubId: githubUserId,
+        username: githubUsername,
+        name: githubName,
+        email: githubEmail,
+      },
+      message: "Successful OAuth login for new user",
+    });
   },
 ];
 
@@ -286,7 +289,7 @@ export const oAuthNewUser: RequestHandler[] = [
   body("githubId").notEmpty(),
   body("username").notEmpty(),
   body("email")
-    .notEmpty() 
+    .notEmpty()
     .isEmail()
     .withMessage("Email should be a valid email."),
   async (req, res, next) => {
@@ -296,10 +299,18 @@ export const oAuthNewUser: RequestHandler[] = [
     }
 
     const { githubId: githubUserId, username, email } = req.body;
-    const user = await prisma.user.findFirst({ where: { githubId: githubUserId } });
+    const user = await prisma.user.findFirst({
+      where: { githubId: githubUserId },
+    });
 
     if (user !== null) {
-      res.status(400).json({ errors: [`Github user with ID ${githubUserId} already exists in the system`] });
+      res
+        .status(400)
+        .json({
+          errors: [
+            `Github user with ID ${githubUserId} already exists in the system`,
+          ],
+        });
       return;
     }
 
@@ -347,7 +358,7 @@ export const oAuthNewUser: RequestHandler[] = [
     } catch (err) {
       return next(err);
     }
-  }
+  },
 ];
 
 export const deregister = async (req: Request, res: Response) => {

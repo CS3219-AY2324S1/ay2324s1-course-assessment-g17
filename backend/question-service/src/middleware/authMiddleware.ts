@@ -32,7 +32,7 @@ export async function verifyAccessToken(
     next();
     return;
   }
-  
+
   const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
   if (!accessToken) {
