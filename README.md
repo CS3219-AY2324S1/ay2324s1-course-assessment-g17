@@ -15,8 +15,8 @@ The repository consists of a [frontend](https://github.com/CS3219-AY2324S1/ay232
 │   ├── matching-service
 │   ├── collaboration-service
 │   ├── forum-service
-│   └── chat-service 
-│   └── help-service
+│   ├── chat-service 
+│   ├── help-service
 │   └── api-gateway
 ├── serverless
 └── docker-compose.yml
