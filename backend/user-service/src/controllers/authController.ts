@@ -226,7 +226,12 @@ export const oAuthAuthenticate: RequestHandler[] = [
     const githubUser = await user_resp.json();
     const githubUserId = githubUser["id"] as number;
     const user = await prisma.user.findFirst({
-      where: { githubId: githubUserId },
+      where: { 
+        githubId: githubUserId 
+      },
+      include: {
+        languages: true,
+      },
     });
 
     if (user !== null) {
@@ -236,6 +241,9 @@ export const oAuthAuthenticate: RequestHandler[] = [
         const userWithoutPassword = {
           id: user.id,
           role: user.role,
+          email: user.email,
+          languages: user.languages,
+          username: user.username,
         } as UserWithoutPassword;
         const appAccessToken = await generateAccessToken(userWithoutPassword);
         const refreshToken = await generateRefreshToken(userWithoutPassword);
@@ -326,10 +334,29 @@ export const oAuthNewUser: RequestHandler[] = [
         },
       });
 
+      const user = await prisma.user.findFirst({
+        where: {
+          username: username,
+        },
+        include: {
+          languages: true,
+        },
+      });
+
+      if (!user) {
+        res
+          .status(401)
+          .json({ errors: [{ msg: "This username does not exist." }] });
+        return;
+      }
+
       // Justin: CHANGED THIS BIT FOR TOKEN GENERATION!
       const userWithoutPassword = {
-        id: newUser.id,
-        role: newUser.role,
+        id: user.id,
+        role: user.role,
+        email: user.email,
+        languages: user.languages,
+        username: user.username,
       } as UserWithoutPassword;
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
@@ -411,6 +438,7 @@ export async function getCurrentUser(req: Request, res: Response) {
         username: true,
         password: true,
         email: true,
+        languages: true,
         role: true,
         token: true,
       },
@@ -549,6 +577,7 @@ export async function updateAccessToken(req: Request, res: Response) {
           password: true,
           email: true,
           role: true,
+          languages: true,
           token: true,
         },
       });
@@ -650,10 +679,53 @@ export const updateUserProfile: RequestHandler[] = [
         },
       });
 
+      // UPDATING BOTH TOKENS
+      // Fetch the latest user data from the database
+      const user = await prisma.user.findFirst({
+        where: { 
+          id: userId 
+        },
+        include: {
+          languages: true,
+        },
+      });
+
+      if (!user) {
+        return res.status(401).json({ message: "Had issues retrieving user while updating tokens" });
+      }
+
+      //
+      const userWithoutPassword = {
+        id: user.id,
+        role: user.role,
+        email: user.email,
+        languages: user.languages,
+        username: user.username,
+      } as UserWithoutPassword;
+      const updatedAccessToken = await generateAccessToken(userWithoutPassword);
+      const updatedRefreshToken = await generateRefreshToken(userWithoutPassword);
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { token: updatedRefreshToken },
+      });
+
+      res.cookie("accessToken", updatedAccessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
+      res.cookie("refreshToken", updatedRefreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
+
       res.json({
         message: "User profile updated successfully",
         user: updatedUser,
       });
+
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
