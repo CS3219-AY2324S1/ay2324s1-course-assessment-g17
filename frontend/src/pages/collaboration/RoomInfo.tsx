@@ -1,13 +1,6 @@
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import React, { useEffect } from 'react';
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Alert,
-  AlertIcon,
   Box,
   Button,
   Code,
@@ -23,16 +16,16 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
-  Stack,
   Text,
   useClipboard,
 } from '@chakra-ui/react';
 import { BiLockAlt, BiInfoCircle, BiCopy, BiCheck } from 'react-icons/bi';
-import PasswordField from '../../components/content/PasswordField';
 
-const RoomInfo: React.FC = () => {
-  const location = useLocation();
-  const isPasswordProtected = location.state !== null;
+interface RoomInfoProps {
+  isMatchingRoom: boolean;
+}
+
+const RoomInfo: React.FC<RoomInfoProps> = ({ isMatchingRoom }: RoomInfoProps) => {
   const { roomId } = useParams();
   const { onCopy, hasCopied, setValue } = useClipboard('');
 
@@ -50,11 +43,11 @@ const RoomInfo: React.FC = () => {
             <Text whiteSpace="nowrap" size="sm" fontWeight="bold">
               Room ID
             </Text>
-            {isPasswordProtected && <BiLockAlt size={16} />}
-            {!isPasswordProtected && <BiInfoCircle size={16} />}
+            {isMatchingRoom && <BiLockAlt size={16} />}
+            {!isMatchingRoom && <BiInfoCircle size={16} />}
           </HStack>
         </PopoverTrigger>
-        <PopoverContent minW={{ base: '100%', lg: '700px' }}>
+        <PopoverContent minW={{ base: '100%', lg: '500px' }}>
           <PopoverArrow />
           <PopoverCloseButton />
           <PopoverHeader fontWeight="bold">Room Information</PopoverHeader>
@@ -81,38 +74,10 @@ const RoomInfo: React.FC = () => {
                 </Text>
 
                 <Text>
-                  {isPasswordProtected
+                  {isMatchingRoom
                     ? 'This room is password protected. Users have to enter the password to join the room.'
                     : 'This room is not password protected. Anyone with the room ID can join.'}
                 </Text>
-
-                <Accordion allowToggle marginY={4}>
-                  <AccordionItem>
-                    <AccordionButton>
-                      <Box as="span" flex={1} textAlign="left">
-                        {isPasswordProtected ? 'Manage password configurations' : 'Set a password to protect the room'}
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                    <AccordionPanel>
-                      <Stack spacing={4}>
-                        <Text>
-                          Protect your practice room with a password. Users who want to join the room will be prompted
-                          for the password before they can join.
-                        </Text>
-                        <Alert status="warning">
-                          <AlertIcon />
-                          Updating the room password might result in lost of progress. Other users might also get
-                          disconnected from the room. Proceed with caution.
-                        </Alert>
-                        <HStack>
-                          <PasswordField placeholder="Room password (optional)" />
-                          <Button>Update</Button>
-                        </HStack>
-                      </Stack>
-                    </AccordionPanel>
-                  </AccordionItem>
-                </Accordion>
               </Box>
             </Box>
           </PopoverBody>

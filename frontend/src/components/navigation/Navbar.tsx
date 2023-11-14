@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../reducers/hooks';
 import { logOut, selectIsLoggedIn } from '../../reducers/authSlice';
 import AuthAPI from '../../api/users/auth';
+import ConfirmationDialog from '../content/ConfirmationDialog';
 
 const Navbar: React.FC = () => {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -43,7 +44,16 @@ const Navbar: React.FC = () => {
             </Link>
           )}
           <Button onClick={toggleColorMode}>{colorMode === 'light' ? <MoonIcon /> : <SunIcon />}</Button>
-          {isLoggedIn && <Button onClick={handleLogout}>Log Out</Button>}
+          {isLoggedIn && (
+            <ConfirmationDialog
+              dialogHeader="Goodbye?"
+              dialogBody="Do you want to log out?"
+              mainButtonLabel="Log Out"
+              rightButtonLabel="Log Out"
+              onConfirm={handleLogout}
+              mainButtonProps={{ size: 'md', mt: 0, padding: 2.5 }}
+            />
+          )}
         </HStack>
       </Flex>
     </Box>

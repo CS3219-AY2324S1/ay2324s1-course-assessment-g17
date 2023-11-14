@@ -5,16 +5,18 @@ import { BiShow, BiHide } from 'react-icons/bi';
 interface PasswordFieldProps {
   placeholder?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  required?: boolean;
 }
 
 const PasswordField: React.FC<PasswordFieldProps> = ({
   placeholder = 'Enter password',
   onChange,
+  required,
 }: PasswordFieldProps) => {
   const [isVisible, setVisibility] = useState(false);
   return (
     <InputGroup size="md">
-      <Input type={isVisible ? 'text' : 'password'} placeholder={placeholder} onChange={onChange} />
+      <Input type={isVisible ? 'text' : 'password'} placeholder={placeholder} onChange={onChange} required={required} />
       <InputRightElement width="4.5rem">
         <IconButton
           aria-label={isVisible ? 'Hide password' : 'Show Password'}

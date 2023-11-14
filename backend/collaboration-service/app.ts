@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express from "express";
+import express, { Request, Response } from "express";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
@@ -13,10 +13,12 @@ import {
 import cors from "cors";
 import { EditorLanguageEnum } from "./types/languages";
 import pair from "./models/pair";
+import axios from "axios";
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const app = express();
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+app.use(express.json());
 
 const SOCKET_IO_PORT =
   (process.env.SOCKET_IO_PORT as string) || (process.env.PORT as string);
@@ -68,10 +70,57 @@ httpServer.listen(SOCKET_IO_PORT, () => {
   );
 });
 
+// Code Execution
+app.get(
+  "/api/code-execute/:token",
+  async (req: Request, res: Response) => {
+    try {
+      const token = req.params.token;
+      const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions/${token}`;
+      const response = await axios.get(url, {
+        params: { base64_encoded: 'true', fields: '*' },
+        headers: {
+          'X-RapidAPI-Host': process.env.REACT_APP_RAPID_API_HOST,
+          'X-RapidAPI-Key': process.env.REACT_APP_RAPID_API_KEY,
+        },
+      });
+      res.send(response.data);
+    } catch (err) {
+      res.json({
+        errors: [{ msg: "Something went wrong." }],
+      });
+    }
+  },
+);
+app.post(
+  "/api/code-execute",
+  async (req: Request, res: Response) => {
+    try {
+      const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions`;
+      const response = await axios.post(url, req.body, {
+        params: { base64_encoded: 'true', fields: '*' },
+        headers: {
+          'content-type': 'application/json',
+          'Content-Type': 'application/json',
+          'X-RapidAPI-Host': process.env.REACT_APP_RAPID_API_HOST,
+          'X-RapidAPI-Key': process.env.REACT_APP_RAPID_API_KEY,
+        },
+      });
+      const token = response.data.token as string;
+      res.send(token);
+    } catch (err) {
+      res.json({
+        errors: [{ msg: "Something went wrong." }],
+      });
+    }
+  },
+);
+
 app.get("/api/check-authorization", checkAuthorisedUser);
 app.get("/api/get-first-question", getFirstQuestion);
 app.get("/api/get-second-question", getSecondQuestion);
 app.get("/api/get-pair-ids", getPairIds);
+
 interface RoomLanguages {
   [roomId: string]: EditorLanguageEnum;
 }
