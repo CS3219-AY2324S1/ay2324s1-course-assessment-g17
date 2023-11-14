@@ -304,13 +304,11 @@ export const oAuthNewUser: RequestHandler[] = [
     });
 
     if (user !== null) {
-      res
-        .status(400)
-        .json({
-          errors: [
-            `Github user with ID ${githubUserId} already exists in the system`,
-          ],
-        });
+      res.status(400).json({
+        errors: [
+          `Github user with ID ${githubUserId} already exists in the system`,
+        ],
+      });
       return;
     }
 
