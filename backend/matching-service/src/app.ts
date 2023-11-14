@@ -71,9 +71,7 @@ io.on('connection', async (socket: Socket) => {
         })
       return res;
     }
-    console.log(socket.handshake);
-    console.log(socket.handshake.headers);
-    console.log(socket.handshake.headers.cookie);
+
     const accessToken = getCookie("accessToken"); // if your token is called jwt.
 
     if (accessToken) {
@@ -81,10 +79,12 @@ io.on('connection', async (socket: Socket) => {
       await authenticateAccessToken(accessToken);
       onConnection(socket);
     } catch (error) {
+      console.log(error)
       // next(new Error("Not authorized, access token failed"));
       socket.emit("timeout");
     }
   } else {
+    console.log("Not authorized, no access token")
     // next(new Error("Not authorized, no access token"));
     socket.emit("timeout");
   }
