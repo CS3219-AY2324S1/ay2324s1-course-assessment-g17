@@ -3,7 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
-// import { startRabbitMQ } from "./consumer";
+import { startRabbitMQ } from "./consumer";
 import {
   checkAuthorisedUser,
   getFirstQuestion,
@@ -50,41 +50,8 @@ server.on("listening", onListening);
 
 // Handle code editor.
 wss.on("connection", async (ws, req) => {
-  // console.log(req.cookies["accessToken"])
-
-  console.log("COOKIES: " + req.headers.cookie);
-  
-  // get the cookies if applicable
-  const cookies: Record<string, string> = {};
-  if (req.headers.cookie) {
-    req.headers.cookie.split(';').forEach((cookie: string) => {
-      const parts = cookie.match(/(.*?)=(.*)$/) as string[];
-      if (parts && parts[2]) {
-        const name = parts[1].trim();
-        const value = (parts[2] || '').trim();
-        cookies[name] = value;
-      }
-    });
-  }
-  
-  // if cookies, try to verify
-  if (cookies && cookies["accessToken"]) {
-    const accessToken = cookies["accessToken"];
-    try {
-      await authenticateAccessToken(accessToken);
-      setupWSConnection(ws, req);
-    } catch (error) {
-      console.log(error);
-      console.log("Not authorized, access token failed");
-      ws.close();
-    }
-  } else {
-    console.log("Not authorized, no access token");
-    ws.close();
-  }
+  setupWSConnection(ws, req);
 });
-
-
 
 const httpServer = createServer(app);
 
@@ -245,4 +212,4 @@ io.on("connection", async (socket) => {
   });
 });
 
-// startRabbitMQ(io);
+startRabbitMQ(io);
