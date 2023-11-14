@@ -3,7 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
-import { startRabbitMQ } from "./consumer";
+// import { startRabbitMQ } from "./consumer";
 import {
   checkAuthorisedUser,
   getFirstQuestion,
@@ -211,4 +211,4 @@ io.on("connection", async (socket) => {
   });
 });
 
-startRabbitMQ(io);
+// startRabbitMQ(io);
