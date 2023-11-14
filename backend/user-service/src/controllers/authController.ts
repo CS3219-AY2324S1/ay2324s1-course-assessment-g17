@@ -226,7 +226,12 @@ export const oAuthAuthenticate: RequestHandler[] = [
     const githubUser = await user_resp.json();
     const githubUserId = githubUser["id"] as number;
     const user = await prisma.user.findFirst({
-      where: { githubId: githubUserId },
+      where: { 
+        githubId: githubUserId 
+      },
+      include: {
+        languages: true,
+      },
     });
 
     if (user !== null) {
@@ -236,6 +241,9 @@ export const oAuthAuthenticate: RequestHandler[] = [
         const userWithoutPassword = {
           id: user.id,
           role: user.role,
+          email: user.email,
+          languages: user.languages,
+          username: user.username,
         } as UserWithoutPassword;
         const appAccessToken = await generateAccessToken(userWithoutPassword);
         const refreshToken = await generateRefreshToken(userWithoutPassword);
@@ -326,10 +334,29 @@ export const oAuthNewUser: RequestHandler[] = [
         },
       });
 
+      const user = await prisma.user.findFirst({
+        where: {
+          username: username,
+        },
+        include: {
+          languages: true,
+        },
+      });
+
+      if (!user) {
+        res
+          .status(401)
+          .json({ errors: [{ msg: "This username does not exist." }] });
+        return;
+      }
+
       // Justin: CHANGED THIS BIT FOR TOKEN GENERATION!
       const userWithoutPassword = {
-        id: newUser.id,
-        role: newUser.role,
+        id: user.id,
+        role: user.role,
+        email: user.email,
+        languages: user.languages,
+        username: user.username,
       } as UserWithoutPassword;
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
@@ -654,6 +681,21 @@ export const updateUserProfile: RequestHandler[] = [
         message: "User profile updated successfully",
         user: updatedUser,
       });
+
+      // Log the user out
+      res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
+      res.end();
+
+
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
