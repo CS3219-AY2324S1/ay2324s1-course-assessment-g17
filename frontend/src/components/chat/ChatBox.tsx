@@ -14,7 +14,7 @@ import './App.css';
 
 const ChatBox: React.FC = () => {
   const toast = useToast();
-  const { roomId } = useParams();
+  const roomId = useParams<{ roomId: string }>().roomId;
   const currentUser = useAppSelector(selectUser);
   const bgColorClass = useColorModeValue('chat-bubble', 'chat-bubble-dark');
   const usernameClass = useColorModeValue('user-name', 'user-name-dark');
@@ -57,6 +57,7 @@ const ChatBox: React.FC = () => {
       // Emit a request to join the room
       socket.current?.emit('join-room', roomId, currentUser);
     };
+
     if (roomId === undefined) {
       toast({
         title: 'Could not create room',
@@ -78,10 +79,8 @@ const ChatBox: React.FC = () => {
     } else {
       setInitial(roomId, currentUser);
     }
-  }, []);
 
-  // Receive the user has joined the room
-  useEffect(() => {
+    // Listen to users joining
     socket.current?.on('joined-room', (joinedUser: User) => {
       toast({
         title: `${joinedUser.username} joined room`,
@@ -91,15 +90,36 @@ const ChatBox: React.FC = () => {
         isClosable: true,
       });
     });
-  }, []);
 
-  // Runs whenever a chat message is emitted.
-  useEffect(() => {
+    // Listen to users leaving
+    socket.current?.on('user-disconnect', (disconnectedUser: string) => {
+      toast({
+        title: `User ${disconnectedUser} has left the room`,
+        description: '',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+    });
+
     const handleReceiveChatMessage = (message: Message): void => {
       setMessages((prev) => [...prev, message]);
     };
     socket.current?.on('receive-chat-message', handleReceiveChatMessage);
-  }, []);
+
+    const handleFileReceive = (outFile: MyFile): void => {
+      // Handle the received file data
+      toast({
+        title: `Received file ${outFile.filename}`,
+        description: '',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+      setFiles((prev) => [...prev, outFile]);
+    };
+    socket.current?.on('file-receive', handleFileReceive);
+  }, [socket]);
 
   // Scroll to bottom every time messages change
   useEffect(() => {
@@ -125,7 +145,7 @@ const ChatBox: React.FC = () => {
         text: newMessage,
         time: new Date(), // current timestamp
       };
-      socket.current?.emit('chat-message', outMessage);
+      socket.current?.emit('chat-message', roomId, outMessage);
       setNewMessage('');
     }
   };
@@ -224,7 +244,7 @@ const ChatBox: React.FC = () => {
           filename: file.name,
           time: new Date(), // current timestamp
         };
-        socket.current?.emit('upload', outFile);
+        socket.current?.emit('upload', roomId, outFile);
 
         toast({
           title: `Uploaded file ${outFile.filename}`,
@@ -258,23 +278,6 @@ const ChatBox: React.FC = () => {
       fileRef.current.value = ''; // Reset the input value to clear the selection
     }
   };
-
-  // Add the event listener when the component mounts
-  useEffect(() => {
-    const handleFileReceive = (outFile: MyFile): void => {
-      // Handle the received file data
-      toast({
-        title: `Received file ${outFile.filename}`,
-        description: '',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
-      setFiles((prev) => [...prev, outFile]);
-    };
-
-    socket.current?.on('file-receive', handleFileReceive);
-  }, []);
 
   // Format File Display
   const fileList = (): ReactJSXElement => {

@@ -74,17 +74,21 @@ const EditProfile: React.FC<EditProfileProps> = ({
       languages,
     };
 
-    console.log('Request Data:', updatedProfile);
-
-    const response = new AuthAPI()
+    new AuthAPI()
       .updateUserProfile(updatedProfile)
       .then((user) => {
-        console.log('Response Data:', response);
-
         dispatch(setUser(user));
 
         // Close the modal.
         onCloseModal();
+
+        toast({
+          title: 'Profile Updated!',
+          description: 'Your profile has been successfully updated!',
+          status: 'success',
+          duration: 4000,
+          isClosable: true,
+        });
       })
       .catch((err: AxiosError<{ errors: Array<{ msg: string }> }>) => {
         console.error('Error updating profile:', err);

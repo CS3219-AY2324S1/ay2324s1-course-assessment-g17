@@ -38,25 +38,33 @@ io.on("connection", (socket) => {
   console.log("New connection:", socket.id);
 
   // Listen for room joining.
-  socket.on("join-room", (roomId: string) => {
+  socket.on("join-room", (roomId: string, username?: string) => {
     // Join the user to the specified room.
     socket.join(roomId);
+
+    // Attach user's username and roomId to this connection
+    socket.data.username = username;
+    socket.data.roomId = roomId;
+
+    // Broadcast to all connected users that this user has joined the room
+    io.to(roomId).emit("joined-room", username);
   });
 
   // Listen for chat messages.
-  socket.on("chat-message", (message: Message) => {
+  socket.on("chat-message", (roomId: string, message: Message) => {
     // Broadcast the message to all connected clients.
-    io.emit("receive-chat-message", message);
+    io.to(roomId).emit("receive-chat-message", message);
   });
 
   // Listen for file uploads
-  socket.on("upload", (outFile: MyFile) => {
+  socket.on("upload", (roomId: string, outFile: MyFile) => {
     // Broadcast the file to all connected clients.
-    io.emit("file-receive", outFile);
+    io.to(roomId).emit("file-receive", outFile);
   });
 
   // Handle user disconnection.
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    io.to(socket.data.roomId).emit("user-disconnect", socket.data.username);
   });
 });

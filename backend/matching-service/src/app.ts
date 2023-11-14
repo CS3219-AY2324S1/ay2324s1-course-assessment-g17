@@ -66,6 +66,7 @@ io.on("connection", async (socket: Socket) => {
     const cDecoded = decodeURIComponent(
       socket.handshake.headers.cookie as string,
     );
+    console.log(socket.handshake.headers.cookie);
     const cArr = cDecoded.split(";");
     let res;
     cArr.forEach((val) => {
