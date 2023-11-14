@@ -68,7 +68,7 @@ const ChatBox: React.FC = () => {
         duration: 2000,
         isClosable: true,
       });
-      console.error('Could not create room: Invalid room ID');
+      console.error('Could not create chat room: Invalid room ID');
     } else if (currentUser == null) {
       toast({
         title: 'Could not create room',
@@ -77,7 +77,7 @@ const ChatBox: React.FC = () => {
         duration: 2000,
         isClosable: true,
       });
-      console.error('Could not create room: Invalid user ID');
+      console.error('Could not create chat room: Invalid user ID');
     } else {
       setInitial(roomId, currentUser);
     }
@@ -85,9 +85,9 @@ const ChatBox: React.FC = () => {
     // Listen to users joining
     socket.current?.on('joined-room', (joinedUser: User) => {
       toast({
-        title: `${joinedUser.username} joined room`,
+        title: `${joinedUser.username} joined chat room`,
         description: '',
-        status: 'success',
+        status: 'info',
         duration: 2000,
         isClosable: true,
       });
@@ -96,7 +96,7 @@ const ChatBox: React.FC = () => {
     // Listen to users leaving
     socket.current?.on('user-disconnect', (disconnectedUser: string) => {
       toast({
-        title: `User ${disconnectedUser} has left the room`,
+        title: `User ${disconnectedUser} has left chat room`,
         description: '',
         status: 'error',
         duration: 2000,
