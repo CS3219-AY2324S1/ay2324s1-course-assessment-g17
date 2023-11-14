@@ -213,7 +213,7 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
   return (
     <Box>
       <Flex mt={4} mx={4} justifyContent="space-between">
-        <RoomInfo />
+        <RoomInfo isMatchingRoom={isMatchingRoom} />
         {isMatchingRoom && (
           <Box>
             <Button

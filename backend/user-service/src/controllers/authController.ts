@@ -324,10 +324,11 @@ export const oAuthNewUser: RequestHandler[] = [
     }
 
     try {
+      const hashedPassword = hashPassword(randomPassword());
       const newUser = await prisma.user.create({
         data: {
           username: username,
-          password: randomPassword(),
+          password: hashedPassword,
           email: email,
           role: Role.USER,
           githubId: githubUserId,

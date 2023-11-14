@@ -6,13 +6,7 @@ import {
   ModalCloseButton,
   ModalBody,
   Stack,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionIcon,
-  AccordionPanel,
   Button,
-  Box,
   Divider,
   HStack,
   Input,
@@ -20,7 +14,6 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { BiDoorOpen } from 'react-icons/bi';
-import PasswordField from '../../components/content/PasswordField';
 import { v4 as uuidv4, validate, version } from 'uuid';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -29,11 +22,10 @@ const CreatePracticeRoom: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const [isPracticeRoomOpen, setIsPracticeRoomOpen] = useState(false);
-  const [roomPassword, setRoomPassword] = useState('');
   const [roomIdInput, setRoomIdInput] = useState('');
   const handleRoomCreation = (): void => {
     const roomId = uuidv4();
-    navigate(`/practice/${roomId}`, { state: roomPassword });
+    navigate(`/practice/${roomId}`);
   };
   const handleRoomJoin = (): void => {
     if (!validate(roomIdInput) || version(roomIdInput) !== 4) {
@@ -76,28 +68,6 @@ const CreatePracticeRoom: React.FC = () => {
               <Stack marginBottom={4}>
                 <Text fontWeight="bold">Create a room</Text>
                 <Text>Create a new practice room and invite your friends to join to start coding together!</Text>
-                <Accordion allowToggle marginY={2}>
-                  <AccordionItem>
-                    <AccordionButton>
-                      <Box as="span" flex={1} textAlign="left">
-                        Optionally, set a password to protect the room
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                    <AccordionPanel>
-                      <Text marginBottom={4}>
-                        Protect your practice room with a password. Users who want to join the room will be prompted for
-                        the password before they can join.
-                      </Text>
-                      <PasswordField
-                        placeholder="Room password (optional)"
-                        onChange={(e) => {
-                          setRoomPassword(e.target.value);
-                        }}
-                      />
-                    </AccordionPanel>
-                  </AccordionItem>
-                </Accordion>
                 <Button onClick={handleRoomCreation}>Create room</Button>
               </Stack>
               <Divider />
