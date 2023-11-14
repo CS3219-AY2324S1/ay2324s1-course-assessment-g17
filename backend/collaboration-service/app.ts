@@ -101,34 +101,33 @@ const usersAgreedEnd: UsersAgreedEnd = {};
 
 
 // Handle other collaboration features.
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log("New connection:", socket.id);
 
-  // Listen for room joining.
-  socket.on("join-room", async (roomId: string, username?: string) => {
-    
-    // Middleware is integrated below in this block
-    function getCookie(cName: string) {
-      const name = cName + "=";
-      const cDecoded = decodeURIComponent(
-        socket.handshake.headers.cookie as string,
-      );
-      console.log(socket.handshake.headers.cookie);
-      const cArr = cDecoded.split("; ");
-      let res;
-      cArr.forEach((val) => {
-        if (val.indexOf(name) === 0) res = val.substring(name.length);
-      });
-      return res;
-    }
-  
-    const accessToken = getCookie("accessToken"); // if your token is called jwt.
-    console.log(getCookie("accessToken"))
-  
-    if (accessToken) {
-      try {
-        await authenticateAccessToken(accessToken);
-        
+  // Middleware is integrated below in this block
+  function getCookie(cName: string) {
+    const name = cName + "=";
+    const cDecoded = decodeURIComponent(
+      socket.handshake.headers.cookie as string,
+    );
+    console.log(socket.handshake.headers.cookie);
+    const cArr = cDecoded.split("; ");
+    let res;
+    cArr.forEach((val) => {
+      if (val.indexOf(name) === 0) res = val.substring(name.length);
+    });
+    return res;
+  }
+
+  const accessToken = getCookie("accessToken"); // if your token is called jwt.
+  console.log(getCookie("accessToken"))
+
+  if (accessToken) {
+    try {
+      await authenticateAccessToken(accessToken);
+
+      // Listen for room joining.
+      socket.on("join-room", async (roomId: string, username?: string) => {
         // Join the user to the specified room.
         socket.join(roomId);
         // Provide the client with the previously selected language for that room.
@@ -143,20 +142,19 @@ io.on("connection", (socket) => {
         socket.data.roomId = roomId;
         // Broadcast to all connected users that this user has joined the room
         io.to(roomId).emit("user-join", username);
-   
-      } catch (error) {
-        console.log(error);
-        console.log("Not authorized, access token failed");
-        // next(new Error("Not authorized, access token failed"));
-        socket.emit("error", { errorMsg: "Not authorized, access token failed" });
-      }
-    } else {
-      console.log("Not authorized, no access token");
-      // next(new Error("Not authorized, no access token"));
-      socket.emit("error", { errorMsg: "Not authorized, no access token" });
+      });
+  
+    } catch (error) {
+      console.log(error);
+      console.log("Not authorized, access token failed");
+      // next(new Error("Not authorized, access token failed"));
+      socket.emit("error", { errorMsg: "Not authorized, access token failed" });
     }
-
-  });
+  } else {
+    console.log("Not authorized, no access token");
+    // next(new Error("Not authorized, no access token"));
+    socket.emit("error", { errorMsg: "Not authorized, no access token" });
+  }
 
   socket.on("user-agreed-next", async (roomId, userId) => {
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};

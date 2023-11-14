@@ -9,7 +9,6 @@ import CountdownProgressBar from './CountdownProgressBar';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import { useNavigate } from 'react-router-dom';
-import AuthAPI from '../../api/users/auth';
 
 enum MatchingStateEnum {
   NO_REQUEST,

@@ -10,7 +10,6 @@ import type { Message, MyFile } from '../../types/chat/messages';
 import type { User } from '../../types/users/users';
 import { Allotment } from 'allotment';
 import type { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
-import AuthAPI from '../../api/users/auth';
 import './App.css';
 
 const ChatBox: React.FC = () => {
@@ -55,8 +54,6 @@ const ChatBox: React.FC = () => {
 
   // Join the room
   useEffect(() => {
-    // To refresh access token if nearly out
-    new AuthAPI().useRefreshToken;
 
     const setInitial = (roomId: string, currentUser: User): void => {
       // Emit a request to join the room
@@ -107,11 +104,11 @@ const ChatBox: React.FC = () => {
       });
     });
 
-    // Listen to users leaving
+    // Listen to users error
     socket.current?.on('error', ({ errorMsg }) => {
       toast({
         title: 'Connect to chat service failed.',
-        description: `${errorMsg}. Please refresh your page if this is an error.`,
+        description: `${errorMsg}. Refresh your page if this is an error.`,
         status: 'error',
         duration: 2000,
         isClosable: true,
