@@ -26,10 +26,10 @@ const Questions: React.FC = () => {
         .then((questions) => {
           setQuestionList(questions);
         })
-        .catch(console.error);
-      setTimeout(() => {
-        setIsLoaded(true);
-      }, 1000);
+        .catch(console.error)
+        .finally(() => {
+          setIsLoaded(true);
+        });
     }
   }, []);
 
