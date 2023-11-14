@@ -3,7 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { Server } from "socket.io";
-import { startRabbitMQ } from "./consumer";
+// import { startRabbitMQ } from "./consumer";
 import {
   checkAuthorisedUser,
   getFirstQuestion,
@@ -49,10 +49,42 @@ server.on("error", onError);
 server.on("listening", onListening);
 
 // Handle code editor.
-wss.on("connection", (ws, req) => {
-  setupWSConnection(ws, req);
-  console.log("connection");
+wss.on("connection", async (ws, req) => {
+  // console.log(req.cookies["accessToken"])
+
+  console.log("COOKIES: " + req.headers.cookie);
+  
+  // get the cookies if applicable
+  const cookies: Record<string, string> = {};
+  if (req.headers.cookie) {
+    req.headers.cookie.split(';').forEach((cookie: string) => {
+      const parts = cookie.match(/(.*?)=(.*)$/) as string[];
+      if (parts && parts[2]) {
+        const name = parts[1].trim();
+        const value = (parts[2] || '').trim();
+        cookies[name] = value;
+      }
+    });
+  }
+  
+  // if cookies, try to verify
+  if (cookies && cookies["accessToken"]) {
+    const accessToken = cookies["accessToken"];
+    try {
+      await authenticateAccessToken(accessToken);
+      setupWSConnection(ws, req);
+    } catch (error) {
+      console.log(error);
+      console.log("Not authorized, access token failed");
+      ws.close();
+    }
+  } else {
+    console.log("Not authorized, no access token");
+    ws.close();
+  }
 });
+
+
 
 const httpServer = createServer(app);
 
@@ -110,7 +142,7 @@ io.on("connection", async (socket) => {
     const cDecoded = decodeURIComponent(
       socket.handshake.headers.cookie as string,
     );
-    console.log(socket.handshake.headers.cookie);
+    // console.log(socket.handshake.headers.cookie);
     const cArr = cDecoded.split("; ");
     let res;
     cArr.forEach((val) => {
@@ -120,7 +152,7 @@ io.on("connection", async (socket) => {
   }
 
   const accessToken = getCookie("accessToken"); // if your token is called jwt.
-  console.log(getCookie("accessToken"))
+  // console.log(getCookie("accessToken"))
 
   if (accessToken) {
     try {
@@ -149,11 +181,13 @@ io.on("connection", async (socket) => {
       console.log("Not authorized, access token failed");
       // next(new Error("Not authorized, access token failed"));
       socket.emit("error", { errorMsg: "Not authorized, access token failed" });
+      socket.disconnect()
     }
   } else {
     console.log("Not authorized, no access token");
     // next(new Error("Not authorized, no access token"));
     socket.emit("error", { errorMsg: "Not authorized, no access token" });
+    socket.disconnect()
   }
 
   socket.on("user-agreed-next", async (roomId, userId) => {
@@ -211,4 +245,4 @@ io.on("connection", async (socket) => {
   });
 });
 
-startRabbitMQ(io);
+// startRabbitMQ(io);
