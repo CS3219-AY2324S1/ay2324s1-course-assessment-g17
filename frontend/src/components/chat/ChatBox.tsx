@@ -305,7 +305,7 @@ const ChatBox: React.FC = () => {
               {file.user?.username === currentUser?.username ? ' (Me)' : ''}
             </div>
             <div className={usernameClass} style={{ width: '100%', textAlign: 'right' }}>
-              {formatTime(file.time)}
+              {formatTime(new Date(file.time))}
             </div>
           </HStack>
           <div className="user-message">
