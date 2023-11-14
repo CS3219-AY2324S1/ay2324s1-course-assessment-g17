@@ -43,16 +43,20 @@ io.on("connection", (socket) => {
     socket.join(roomId);
   });
 
+  const rooms = Object.keys(socket.rooms);
+
   // Listen for chat messages.
   socket.on("chat-message", (message: Message) => {
     // Broadcast the message to all connected clients.
-    io.emit("receive-chat-message", message);
+    rooms.map((room) => 
+      io.to(room).emit("receive-chat-message", message));
   });
 
   // Listen for file uploads
   socket.on("upload", (outFile: MyFile) => {
     // Broadcast the file to all connected clients.
-    io.emit("file-receive", outFile);
+    rooms.map((room) => 
+      io.to(room).emit("file-receive", outFile));
   });
 
   // Handle user disconnection.
