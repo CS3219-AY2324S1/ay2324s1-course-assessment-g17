@@ -30,36 +30,7 @@ const onConnection = (socket: Socket) => {
   registerMatchingHandlers(io, socket);
 };
 
-// // Middleware
-// io.use(async (socket, next) => {
-//   function getCookie(cName: string) {
-//     const name = cName + "=";
-//     const cDecoded = decodeURIComponent(socket.handshake.headers.cookie as string);
-//     const cArr = cDecoded.split(';');
-//     let res;
-//     cArr.forEach(val => {
-//        if (val.indexOf(name) === 0) res = val.substring(name.length);
-//        })
-//     return res;
-//  }
-//  const accessToken = getCookie("accessToken"); // if your token is called jwt.
-//   if (accessToken) {
-//     try {
-//       await authenticateAccessToken(accessToken);
-//       next();
-//     } catch (error) {
-//       // next(new Error("Not authorized, access token failed"));
-//       socket.emit("timeout");
-//     }
-//   } else {
-//     // next(new Error("Not authorized, no access token"));
-//     socket.emit("timeout");
-//   }
-// });
-
-// If authentication is okay, below will get executed
-// io.on("connection", onConnection);
-
+// Middleware
 io.on("connection", async (socket: Socket) => {
   function getCookie(cName: string) {
     const name = cName + "=";
@@ -67,7 +38,7 @@ io.on("connection", async (socket: Socket) => {
       socket.handshake.headers.cookie as string,
     );
     console.log(socket.handshake.headers.cookie);
-    const cArr = cDecoded.split(";");
+    const cArr = cDecoded.split("; ");
     let res;
     cArr.forEach((val) => {
       if (val.indexOf(name) === 0) res = val.substring(name.length);
@@ -76,6 +47,7 @@ io.on("connection", async (socket: Socket) => {
   }
 
   const accessToken = getCookie("accessToken"); // if your token is called jwt.
+  console.log(getCookie("accessToken"))
 
   if (accessToken) {
     try {
@@ -83,24 +55,16 @@ io.on("connection", async (socket: Socket) => {
       onConnection(socket);
     } catch (error) {
       console.log(error);
+      console.log("Not authorized, access token failed");
       // next(new Error("Not authorized, access token failed"));
-      socket.emit("timeout");
+      socket.emit("error", { errorMsg: "Not authorized, access token failed" });
     }
   } else {
     console.log("Not authorized, no access token");
     // next(new Error("Not authorized, no access token"));
-    socket.emit("timeout");
+    socket.emit("error", { errorMsg: "Not authorized, no access token" });
   }
 });
-// socketioJwt.authorize({
-//   secret: 'your secret or public key',
-//   timeout: 15000 // 15 seconds to send the authentication message
-// })
-
-// .on('authenticated', (socket: Socket) => {
-//   //this socket is authenticated, we are good to handle more events from it.
-//   onConnection(socket);
-// });
 
 if (!mongoString) {
   throw new Error("MONGO_CONNECTION_STRING must be defined");

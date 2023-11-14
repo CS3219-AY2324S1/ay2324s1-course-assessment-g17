@@ -10,6 +10,7 @@ import type { Message, MyFile } from '../../types/chat/messages';
 import type { User } from '../../types/users/users';
 import { Allotment } from 'allotment';
 import type { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import AuthAPI from '../../api/users/auth';
 import './App.css';
 
 const ChatBox: React.FC = () => {
@@ -37,6 +38,7 @@ const ChatBox: React.FC = () => {
       // Initialize the socket variable
       socket.current = io(socketIoURL, {
         path: process.env.REACT_APP_CHAT_SERVICE_PATH ?? '/socket.io/',
+        transports: ['websocket'],
       });
       // Clean up the socket connection when the component unmounts
       return () => {
@@ -53,6 +55,9 @@ const ChatBox: React.FC = () => {
 
   // Join the room
   useEffect(() => {
+    // To refresh access token if nearly out
+    new AuthAPI().useRefreshToken;
+
     const setInitial = (roomId: string, currentUser: User): void => {
       // Emit a request to join the room
       socket.current?.emit('join-room', roomId, currentUser);
@@ -96,6 +101,17 @@ const ChatBox: React.FC = () => {
       toast({
         title: `User ${disconnectedUser} has left the room`,
         description: '',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+    });
+
+    // Listen to users leaving
+    socket.current?.on('error', ({ errorMsg }) => {
+      toast({
+        title: 'Connect to chat service failed.',
+        description: `${errorMsg}. Please refresh your page if this is an error.`,
         status: 'error',
         duration: 2000,
         isClosable: true,

@@ -81,6 +81,7 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    command: ["bash", "-c", "chmod 400 /var/lib/rabbitmq/.erlang.cookie; rabbitmq-server"]
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
       interval: 1s

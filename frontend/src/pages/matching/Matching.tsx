@@ -25,7 +25,6 @@ const Matching: React.FC = () => {
   const [matchingState, setMatchingState] = useState<MatchingStateEnum>(MatchingStateEnum.NO_REQUEST);
 
   useEffect(() => {
-    new AuthAPI().useRefreshToken;
 
     const newSocket = io(process.env.REACT_APP_MATCHING_SERVICE_BACKEND_URL as string, {
       path: process.env.REACT_APP_MATCHING_SERVICE_PATH ?? '/socket.io/',
@@ -58,6 +57,18 @@ const Matching: React.FC = () => {
       toast({
         title: 'Matching failed.',
         description: 'Match request cancelled. Did you start another request in another tab?',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+    });
+
+    newSocket.on('error', ({ errorMsg }) => {
+      setMatchingState(MatchingStateEnum.NO_REQUEST);
+
+      toast({
+        title: 'Matching failed.',
+        description: `${errorMsg}. Refresh your page if this is an error.`,
         status: 'error',
         duration: 2000,
         isClosable: true,
