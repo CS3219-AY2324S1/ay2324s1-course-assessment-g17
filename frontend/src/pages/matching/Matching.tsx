@@ -9,6 +9,7 @@ import CountdownProgressBar from './CountdownProgressBar';
 import { useAppSelector } from '../../reducers/hooks';
 import { selectUser } from '../../reducers/authSlice';
 import { useNavigate } from 'react-router-dom';
+import AuthAPI from '../../api/users/auth';
 
 enum MatchingStateEnum {
   NO_REQUEST,
@@ -24,8 +25,11 @@ const Matching: React.FC = () => {
   const [matchingState, setMatchingState] = useState<MatchingStateEnum>(MatchingStateEnum.NO_REQUEST);
 
   useEffect(() => {
+    new AuthAPI().useRefreshToken
+
     const newSocket = io(process.env.REACT_APP_MATCHING_SERVICE_BACKEND_URL as string, {
       path: process.env.REACT_APP_MATCHING_SERVICE_PATH ?? '/socket.io/',
+      transports: ["websocket"],
     });
 
     newSocket.on('connect', () => {
