@@ -54,8 +54,8 @@ services:
     volumes:
       - ./backend/matching-service:/usr/src/app
     env_file: ./backend/matching-service/.env
-    # depends_on:
-    #   - rabbitmq
+    depends_on:
+      - rabbitmq
 
   forum-service:
     build: ./backend/forum-service
@@ -72,20 +72,20 @@ services:
     ports:
       - 7777:8080
 
-  # rabbitmq:
-  #   image: rabbitmq:management
-  #   container_name: rabbitmq
-  #   environment:
-  #     - RABBITMQ_DEFAULT_USER=guest
-  #     - RABBITMQ_DEFAULT_PASS=guest
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
-  #   healthcheck:
-  #     test: rabbitmq-diagnostics check_port_connectivity
-  #     interval: 1s
-  #     timeout: 3s
-  #     retries: 30
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
   chat-service:
     build: ./backend/chat-service
@@ -102,9 +102,9 @@ services:
     volumes:
       - ./backend/collaboration-service:/usr/src/app
     env_file: ./backend/collaboration-service/.env
-    # depends_on:
-    #   rabbitmq:
-    #     condition: service_healthy
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   y-websocket:
     image: ipirozhenko/y-websocket
