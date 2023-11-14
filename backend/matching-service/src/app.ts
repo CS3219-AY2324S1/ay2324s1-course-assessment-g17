@@ -47,7 +47,7 @@ io.on("connection", async (socket: Socket) => {
   }
 
   const accessToken = getCookie("accessToken"); // if your token is called jwt.
-  console.log(getCookie("accessToken"))
+  console.log(getCookie("accessToken"));
 
   if (accessToken) {
     try {
@@ -58,13 +58,13 @@ io.on("connection", async (socket: Socket) => {
       console.log("Not authorized, access token failed");
       // next(new Error("Not authorized, access token failed"));
       socket.emit("error", { errorMsg: "Not authorized, access token failed" });
-      socket.disconnect()
+      socket.disconnect();
     }
   } else {
     console.log("Not authorized, no access token");
     // next(new Error("Not authorized, no access token"));
     socket.emit("error", { errorMsg: "Not authorized, no access token" });
-    socket.disconnect()
+    socket.disconnect();
   }
 });
 

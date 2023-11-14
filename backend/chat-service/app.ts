@@ -54,12 +54,12 @@ io.on("connection", async (socket: Socket) => {
   }
 
   const accessToken = getCookie("accessToken"); // if your token is called jwt.
-  console.log("Access Token: " + getCookie("accessToken"))
+  console.log("Access Token: " + getCookie("accessToken"));
 
   if (accessToken) {
     try {
       await authenticateAccessToken(accessToken);
-      
+
       // Middleware ends here
       // Listen for room joining.
       socket.on("join-room", async (roomId: string, username?: string) => {
@@ -71,19 +71,18 @@ io.on("connection", async (socket: Socket) => {
         // Broadcast to all connected users that this user has joined the room
         io.to(roomId).emit("joined-room", username);
       });
-      
     } catch (error) {
       console.log(error);
       console.log("Not authorized, access token failed");
       // next(new Error("Not authorized, access token failed"));
       socket.emit("error", { errorMsg: "Not authorized, access token failed" });
-      socket.disconnect()
+      socket.disconnect();
     }
   } else {
     console.log("Not authorized, no access token");
     // next(new Error("Not authorized, no access token"));
     socket.emit("error", { errorMsg: "Not authorized, no access token" });
-    socket.disconnect()
+    socket.disconnect();
   }
 
   // Listen for chat messages.

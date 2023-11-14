@@ -24,7 +24,6 @@ const Matching: React.FC = () => {
   const [matchingState, setMatchingState] = useState<MatchingStateEnum>(MatchingStateEnum.NO_REQUEST);
 
   useEffect(() => {
-
     const newSocket = io(process.env.REACT_APP_MATCHING_SERVICE_BACKEND_URL as string, {
       path: process.env.REACT_APP_MATCHING_SERVICE_PATH ?? '/socket.io/',
       transports: ['websocket'],

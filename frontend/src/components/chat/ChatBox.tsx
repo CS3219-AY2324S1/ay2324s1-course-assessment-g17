@@ -54,7 +54,6 @@ const ChatBox: React.FC = () => {
 
   // Join the room
   useEffect(() => {
-
     const setInitial = (roomId: string, currentUser: User): void => {
       // Emit a request to join the room
       socket.current?.emit('join-room', roomId, currentUser);

@@ -97,8 +97,6 @@ interface UsersAgreedEnd {
 
 const usersAgreedEnd: UsersAgreedEnd = {};
 
-
-
 // Handle other collaboration features.
 io.on("connection", async (socket) => {
   console.log("New connection:", socket.id);
@@ -135,26 +133,26 @@ io.on("connection", async (socket) => {
         // Send the initial language to this user.
         socket.emit("initial-language", initialLanguage);
         const initialQuestionId = roomCurrentQuestion[roomId];
-        if (initialQuestionId) socket.emit("set-first-question", initialQuestionId);
+        if (initialQuestionId)
+          socket.emit("set-first-question", initialQuestionId);
         // Attach user's username and roomId to this connection
         socket.data.username = username;
         socket.data.roomId = roomId;
         // Broadcast to all connected users that this user has joined the room
         io.to(roomId).emit("user-join", username);
       });
-  
     } catch (error) {
       console.log(error);
       console.log("Not authorized, access token failed");
       // next(new Error("Not authorized, access token failed"));
       socket.emit("error", { errorMsg: "Not authorized, access token failed" });
-      socket.disconnect()
+      socket.disconnect();
     }
   } else {
     console.log("Not authorized, no access token");
     // next(new Error("Not authorized, no access token"));
     socket.emit("error", { errorMsg: "Not authorized, no access token" });
-    socket.disconnect()
+    socket.disconnect();
   }
 
   socket.on("user-agreed-next", async (roomId, userId) => {
