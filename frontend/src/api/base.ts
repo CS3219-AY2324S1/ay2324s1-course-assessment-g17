@@ -47,7 +47,7 @@ client.interceptors.response.use(null, async (error: AxiosError) => {
   return error.response;
 });
 
-// // Add a response interceptor
+// Add a response interceptor
 userServiceClient.interceptors.response.use(null, async (error: AxiosError) => {
   // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
   if (error != null && error.config != null && error.response != null) {
@@ -68,6 +68,28 @@ userServiceClient.interceptors.response.use(null, async (error: AxiosError) => {
         const authApi = new AuthAPI();
         await authApi.useRefreshToken();
         console.log('Refreshed user service, for access token.');
+        return await axios.request(error.config);
+      } catch (error) {
+        throw error;
+      }
+    }
+  }
+  throw error;
+});
+
+// Add a response interceptor
+forumServiceClient.interceptors.response.use(null, async (error: AxiosError) => {
+  // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
+  if (error != null && error.config != null && error.response != null) {
+    const requestUrl = error.config.url;
+    console.log(`Intercepted request to ${requestUrl}`);
+
+    if (error.response.status === 401) {
+      // eslint-disable-next-line no-useless-catch
+      try {
+        const authApi = new AuthAPI();
+        await authApi.useRefreshToken();
+        console.log('Refreshed forum service, for access token.');
         return await axios.request(error.config);
       } catch (error) {
         throw error;
