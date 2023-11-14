@@ -119,6 +119,9 @@ export const logIn: RequestHandler[] = [
       const userWithoutPassword = {
         id: user.id,
         role: user.role,
+        email: user.email,
+        languages: user.languages,
+        username: user.username,
       } as UserWithoutPassword;
       const accessToken = await generateAccessToken(userWithoutPassword);
       const refreshToken = await generateRefreshToken(userWithoutPassword);
@@ -156,7 +159,7 @@ export async function logOut(req: Request, res: Response) {
     const refreshToken = req.cookies["refreshToken"]; // If JWT token is stored in a cookie
     if (refreshToken) {
       const decoded = (await authenticateRefreshToken(
-        refreshToken,
+        refreshToken
       )) as JwtPayload;
       const userId = decoded.user.id; // user ID is used for identification
       if (userId) {
@@ -170,7 +173,7 @@ export async function logOut(req: Request, res: Response) {
     // This means access token has expired
     console.log("Cannot remove login refresh token from server: " + error);
     console.log(
-      "You might have removed it somehow. Suggested that you login again to remove old refreshToken from server.",
+      "You might have removed it somehow. Suggested that you login again to remove old refreshToken from server."
     );
     console.log("Proceeding with rest of log out procedure...");
   }
@@ -209,7 +212,7 @@ export const oAuthAuthenticate: RequestHandler[] = [
           "Access-Control-Allow-Origin": "*",
           Accept: "application/json",
         },
-      },
+      }
     );
 
     const resp = await response.text();
@@ -304,13 +307,11 @@ export const oAuthNewUser: RequestHandler[] = [
     });
 
     if (user !== null) {
-      res
-        .status(400)
-        .json({
-          errors: [
-            `Github user with ID ${githubUserId} already exists in the system`,
-          ],
-        });
+      res.status(400).json({
+        errors: [
+          `Github user with ID ${githubUserId} already exists in the system`,
+        ],
+      });
       return;
     }
 
@@ -531,7 +532,7 @@ export async function updateAccessToken(req: Request, res: Response) {
   } else {
     try {
       const decoded = (await authenticateRefreshToken(
-        refreshToken,
+        refreshToken
       )) as JwtPayload;
       const userWithoutPassword = decoded.user;
 
@@ -602,7 +603,7 @@ export const updateUserProfile: RequestHandler[] = [
       const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
       const decoded = (await authenticateAccessToken(
-        accessToken,
+        accessToken
       )) as JwtPayload;
 
       const userId = decoded.user.id; // user ID is used for identification
