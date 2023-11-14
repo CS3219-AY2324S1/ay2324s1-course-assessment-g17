@@ -17,6 +17,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaCode } from 'react-icons/fa';
 import AuthAPI from '../../api/users/auth';
 import type { AxiosError } from 'axios';
+import PasswordField from '../../components/content/PasswordField';
 
 const SignUpForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -80,9 +81,8 @@ const SignUpForm: React.FC = () => {
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Password</FormLabel>
-              <Input
-                type="password"
-                value={password}
+              <PasswordField
+                placeholder=""
                 onChange={(e) => {
                   setPassword(e.target.value);
                 }}
@@ -92,9 +92,8 @@ const SignUpForm: React.FC = () => {
 
             <FormControl isRequired>
               <FormLabel>Confirm Password</FormLabel>
-              <Input
-                type="password"
-                value={confirmPassword}
+              <PasswordField
+                placeholder=""
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
                 }}

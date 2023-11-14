@@ -18,6 +18,7 @@ import AuthAPI from '../../api/users/auth';
 import type { AxiosError } from 'axios';
 import { useAppDispatch } from '../../reducers/hooks';
 import { setUser } from '../../reducers/authSlice';
+import PasswordField from '../../components/content/PasswordField';
 
 const LoginForm: React.FC = () => {
   const GITHUB_OAUTH_CLIENT_ID = process.env.REACT_APP_GITHUB_OAUTH_CLIENT_ID;
@@ -74,9 +75,8 @@ const LoginForm: React.FC = () => {
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Password</FormLabel>
-              <Input
-                type="password"
-                value={password}
+              <PasswordField
+                placeholder=""
                 onChange={(e) => {
                   setPassword(e.target.value);
                 }}
