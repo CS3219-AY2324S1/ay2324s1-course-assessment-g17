@@ -38,8 +38,10 @@ Ensure that you have the following:
 
 1. Clone the repository.
 2. Set up the environment variables for the microservices.
-3. Run `docker-compose up` in the root directory of the repository.
-4. Access the frontend by navigating to `localhost:3000` in your browser.
+3. `cd` into `frontend` and all backend-microservices and type `npm install`
+4. Run `docker-compose up` in the root directory of the repository.
+   - If you run into database related issues, try to go into the respective folder of the failing service and type `npx prisma db push`. Then, restart the command.
+5. Access the frontend by navigating to `localhost:3000` in your browser.
 
 ## Deployment
 
