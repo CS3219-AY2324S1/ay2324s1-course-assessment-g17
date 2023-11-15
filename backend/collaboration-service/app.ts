@@ -13,6 +13,7 @@ import {
 import cors from "cors";
 import { EditorLanguageEnum } from "./types/languages";
 import pair from "./models/pair";
+import { authenticateAccessToken } from "./utils/jwt";
 import axios from "axios";
 
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
@@ -50,9 +51,8 @@ server.on("error", onError);
 server.on("listening", onListening);
 
 // Handle code editor.
-wss.on("connection", (ws, req) => {
+wss.on("connection", async (ws, req) => {
   setupWSConnection(ws, req);
-  console.log("connection");
 });
 
 const httpServer = createServer(app);
@@ -147,31 +147,62 @@ interface UsersAgreedEnd {
 const usersAgreedEnd: UsersAgreedEnd = {};
 
 // Handle other collaboration features.
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log("New connection:", socket.id);
 
-  // Listen for room joining.
-  socket.on("join-room", (roomId: string, username?: string) => {
-    // Join the user to the specified room.
-    socket.join(roomId);
+  // Middleware is integrated below in this block
+  function getCookie(cName: string) {
+    const name = cName + "=";
+    const cDecoded = decodeURIComponent(
+      socket.handshake.headers.cookie as string,
+    );
+    // console.log(socket.handshake.headers.cookie);
+    const cArr = cDecoded.split("; ");
+    let res;
+    cArr.forEach((val) => {
+      if (val.indexOf(name) === 0) res = val.substring(name.length);
+    });
+    return res;
+  }
 
-    // Provide the client with the previously selected language for that room.
-    const initialLanguage =
-      roomLanguages[roomId] || EditorLanguageEnum.javascript;
+  const accessToken = getCookie("accessToken"); // if your token is called jwt.
+  // console.log(getCookie("accessToken"))
 
-    // Send the initial language to this user.
-    socket.emit("initial-language", initialLanguage);
+  if (accessToken) {
+    try {
+      await authenticateAccessToken(accessToken);
 
-    const initialQuestionId = roomCurrentQuestion[roomId];
-    if (initialQuestionId) socket.emit("set-first-question", initialQuestionId);
-
-    // Attach user's username and roomId to this connection
-    socket.data.username = username;
-    socket.data.roomId = roomId;
-
-    // Broadcast to all connected users that this user has joined the room
-    io.to(roomId).emit("user-join", username);
-  });
+      // Listen for room joining.
+      socket.on("join-room", async (roomId: string, username?: string) => {
+        // Join the user to the specified room.
+        socket.join(roomId);
+        // Provide the client with the previously selected language for that room.
+        const initialLanguage =
+          roomLanguages[roomId] || EditorLanguageEnum.javascript;
+        // Send the initial language to this user.
+        socket.emit("initial-language", initialLanguage);
+        const initialQuestionId = roomCurrentQuestion[roomId];
+        if (initialQuestionId)
+          socket.emit("set-first-question", initialQuestionId);
+        // Attach user's username and roomId to this connection
+        socket.data.username = username;
+        socket.data.roomId = roomId;
+        // Broadcast to all connected users that this user has joined the room
+        io.to(roomId).emit("user-join", username);
+      });
+    } catch (error) {
+      console.log(error);
+      console.log("Not authorized, access token failed");
+      // next(new Error("Not authorized, access token failed"));
+      socket.emit("error", { errorMsg: "Not authorized, access token failed" });
+      socket.disconnect();
+    }
+  } else {
+    console.log("Not authorized, no access token");
+    // next(new Error("Not authorized, no access token"));
+    socket.emit("error", { errorMsg: "Not authorized, no access token" });
+    socket.disconnect();
+  }
 
   socket.on("user-agreed-next", async (roomId, userId) => {
     usersAgreedNext[roomId] = usersAgreedNext[roomId] || {};

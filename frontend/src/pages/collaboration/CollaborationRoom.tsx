@@ -184,6 +184,17 @@ const CollaborationRoom: React.FC<CollaborationRoomProps> = ({ isMatchingRoom }:
       toast.showInfoToast({ title: `User ${disconnectedUser} has left the room` });
     });
 
+    // Listen to users error
+    socket?.on('error', ({ errorMsg }) => {
+      toast.showErrorToast({
+        title: 'Connect to collaboration service - buttons - failed.',
+        description: `${errorMsg}. Refresh your page if this is an error.`,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+    });
+
     // Attach matching listeners only for matching room
     if (isMatchingRoom) {
       attachMatchingListeners();

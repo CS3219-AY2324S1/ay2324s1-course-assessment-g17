@@ -33,6 +33,7 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       // Initialize the socket variable
       const socket = io(socketIoURL, {
         path: process.env.REACT_APP_COLLAB_SERVICE_PATH ?? '/socket.io/',
+        transports: ['websocket'],
       });
       setSocket(socket);
     }

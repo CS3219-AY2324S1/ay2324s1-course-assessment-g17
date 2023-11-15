@@ -159,7 +159,7 @@ export async function logOut(req: Request, res: Response) {
     const refreshToken = req.cookies["refreshToken"]; // If JWT token is stored in a cookie
     if (refreshToken) {
       const decoded = (await authenticateRefreshToken(
-        refreshToken
+        refreshToken,
       )) as JwtPayload;
       const userId = decoded.user.id; // user ID is used for identification
       if (userId) {
@@ -173,7 +173,7 @@ export async function logOut(req: Request, res: Response) {
     // This means access token has expired
     console.log("Cannot remove login refresh token from server: " + error);
     console.log(
-      "You might have removed it somehow. Suggested that you login again to remove old refreshToken from server."
+      "You might have removed it somehow. Suggested that you login again to remove old refreshToken from server.",
     );
     console.log("Proceeding with rest of log out procedure...");
   }
@@ -212,7 +212,7 @@ export const oAuthAuthenticate: RequestHandler[] = [
           "Access-Control-Allow-Origin": "*",
           Accept: "application/json",
         },
-      }
+      },
     );
 
     const resp = await response.text();
@@ -226,8 +226,8 @@ export const oAuthAuthenticate: RequestHandler[] = [
     const githubUser = await user_resp.json();
     const githubUserId = githubUser["id"] as number;
     const user = await prisma.user.findFirst({
-      where: { 
-        githubId: githubUserId 
+      where: {
+        githubId: githubUserId,
       },
       include: {
         languages: true,
@@ -561,7 +561,7 @@ export async function updateAccessToken(req: Request, res: Response) {
   } else {
     try {
       const decoded = (await authenticateRefreshToken(
-        refreshToken
+        refreshToken,
       )) as JwtPayload;
       const userWithoutPassword = decoded.user;
 
@@ -633,7 +633,7 @@ export const updateUserProfile: RequestHandler[] = [
       const accessToken = req.cookies["accessToken"]; // If JWT token is stored in a cookie
 
       const decoded = (await authenticateAccessToken(
-        accessToken
+        accessToken,
       )) as JwtPayload;
 
       const userId = decoded.user.id; // user ID is used for identification
@@ -683,8 +683,8 @@ export const updateUserProfile: RequestHandler[] = [
       // UPDATING BOTH TOKENS
       // Fetch the latest user data from the database
       const user = await prisma.user.findFirst({
-        where: { 
-          id: userId 
+        where: {
+          id: userId,
         },
         include: {
           languages: true,
@@ -692,7 +692,11 @@ export const updateUserProfile: RequestHandler[] = [
       });
 
       if (!user) {
-        return res.status(401).json({ message: "Had issues retrieving user while updating tokens" });
+        return res
+          .status(401)
+          .json({
+            message: "Had issues retrieving user while updating tokens",
+          });
       }
 
       //
@@ -704,7 +708,8 @@ export const updateUserProfile: RequestHandler[] = [
         username: user.username,
       } as UserWithoutPassword;
       const updatedAccessToken = await generateAccessToken(userWithoutPassword);
-      const updatedRefreshToken = await generateRefreshToken(userWithoutPassword);
+      const updatedRefreshToken =
+        await generateRefreshToken(userWithoutPassword);
 
       await prisma.user.update({
         where: { id: userId },
@@ -726,7 +731,6 @@ export const updateUserProfile: RequestHandler[] = [
         message: "User profile updated successfully",
         user: updatedUser,
       });
-
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
