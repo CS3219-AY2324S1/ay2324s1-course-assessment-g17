@@ -13,7 +13,7 @@ export default class ExecutorAPI {
   }
 
   public async getExecutorSubmissionData(token: string): Promise<ExecutorStatusData> {
-    const response = await codeExecutionServiceClient.get(`${this.getExecutorUrl()}/${token}`);
+    const response = await codeExecutionServiceClient.get(`${this.getExecutorUrl()}${token}`);
     const submissionStatus = response.data as ExecutorStatusData;
     return submissionStatus;
   }
