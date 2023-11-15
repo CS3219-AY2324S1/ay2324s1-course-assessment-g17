@@ -3,7 +3,7 @@ import { codeExecutionServiceClient } from '../base';
 
 export default class ExecutorAPI {
   protected getExecutorUrl(): string {
-    return '/api/code-execute';
+    return '/api/code-execute/';
   }
 
   public async submitCode(codeSubmission: ExecutorSubmissionPostData): Promise<string> {
