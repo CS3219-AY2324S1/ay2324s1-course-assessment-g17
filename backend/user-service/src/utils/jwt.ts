@@ -11,7 +11,9 @@ export async function generateAccessToken(userWithoutPassword: object) {
 }
 
 export async function generateRefreshToken(userWithoutPassword: object) {
-  return jwt.sign({ user: userWithoutPassword }, REFRESH_TOKEN_SECRET);
+  return jwt.sign({ user: userWithoutPassword }, REFRESH_TOKEN_SECRET, {
+    expiresIn: "30d",
+  });
 }
 
 export async function authenticateAccessToken(
