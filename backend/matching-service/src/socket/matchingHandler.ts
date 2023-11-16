@@ -90,7 +90,7 @@ const registerMatchingHandlers = (io: Server, socket: Socket) => {
         });
         setTimeout(() => {
           connection.close();
-        }, 500);
+        }, 5000);
       });
 
       // Notify both users of the match result.
