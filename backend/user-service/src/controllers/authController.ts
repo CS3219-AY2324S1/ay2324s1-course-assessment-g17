@@ -692,11 +692,9 @@ export const updateUserProfile: RequestHandler[] = [
       });
 
       if (!user) {
-        return res
-          .status(401)
-          .json({
-            message: "Had issues retrieving user while updating tokens",
-          });
+        return res.status(401).json({
+          message: "Had issues retrieving user while updating tokens",
+        });
       }
 
       //
