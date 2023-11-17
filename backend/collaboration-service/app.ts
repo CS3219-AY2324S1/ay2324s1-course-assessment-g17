@@ -71,50 +71,44 @@ httpServer.listen(SOCKET_IO_PORT, () => {
 });
 
 // Code Execution
-app.get(
-  "/api/code-execute/:token",
-  async (req: Request, res: Response) => {
-    try {
-      const token = req.params.token;
-      const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions/${token}`;
-      const response = await axios.get(url, {
-        params: { base64_encoded: 'true', fields: '*' },
-        headers: {
-          'X-RapidAPI-Host': process.env.REACT_APP_RAPID_API_HOST,
-          'X-RapidAPI-Key': process.env.REACT_APP_RAPID_API_KEY,
-        },
-      });
-      res.send(response.data);
-    } catch (err) {
-      res.json({
-        errors: [{ msg: "Something went wrong." }],
-      });
-    }
-  },
-);
-app.post(
-  "/api/code-execute",
-  async (req: Request, res: Response) => {
-    try {
-      const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions`;
-      const response = await axios.post(url, req.body, {
-        params: { base64_encoded: 'true', fields: '*' },
-        headers: {
-          'content-type': 'application/json',
-          'Content-Type': 'application/json',
-          'X-RapidAPI-Host': process.env.REACT_APP_RAPID_API_HOST,
-          'X-RapidAPI-Key': process.env.REACT_APP_RAPID_API_KEY,
-        },
-      });
-      const token = response.data.token as string;
-      res.send(token);
-    } catch (err) {
-      res.json({
-        errors: [{ msg: "Something went wrong." }],
-      });
-    }
-  },
-);
+app.get("/api/code-execute/:token", async (req: Request, res: Response) => {
+  try {
+    const token = req.params.token;
+    const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions/${token}`;
+    const response = await axios.get(url, {
+      params: { base64_encoded: "true", fields: "*" },
+      headers: {
+        "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST,
+        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY,
+      },
+    });
+    res.send(response.data);
+  } catch (err) {
+    res.json({
+      errors: [{ msg: "Something went wrong." }],
+    });
+  }
+});
+app.post("/api/code-execute", async (req: Request, res: Response) => {
+  try {
+    const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions`;
+    const response = await axios.post(url, req.body, {
+      params: { base64_encoded: "true", fields: "*" },
+      headers: {
+        "content-type": "application/json",
+        "Content-Type": "application/json",
+        "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST,
+        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY,
+      },
+    });
+    const token = response.data.token as string;
+    res.send(token);
+  } catch (err) {
+    res.json({
+      errors: [{ msg: "Something went wrong." }],
+    });
+  }
+});
 
 app.get("/api/check-authorization", checkAuthorisedUser);
 app.get("/api/get-first-question", getFirstQuestion);
