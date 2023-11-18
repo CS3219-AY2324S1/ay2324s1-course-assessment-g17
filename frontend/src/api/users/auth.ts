@@ -24,15 +24,6 @@ export default class AuthAPI {
     return await userServiceClient.get(this.getAuthUrl() + 'deregister');
   }
 
-  public async getCurrentUser(): Promise<User> {
-    const response = await userServiceClient.get(this.getAuthUrl() + 'currentUser');
-    return response.data.user;
-  }
-
-  public async useRefreshToken(): Promise<never> {
-    return await userServiceClient.get(this.getAuthUrl() + 'token');
-  }
-
   // Update user profile data
   public async updateUserProfile(data: UserProfileUpdateData): Promise<User> {
     const response = await userServiceClient.put(this.getAuthUrl() + 'update-profile', data);
