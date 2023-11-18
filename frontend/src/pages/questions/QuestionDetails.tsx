@@ -4,8 +4,6 @@ import QuestionsAPI from '../../api/questions/questions';
 import { type QuestionData } from '../../types/questions/questions';
 import QuestionComplexityTag from '../../components/questions/QuestionComplexityTag';
 import QuestionEditIconButton from '../../components/questions/QuestionEditIconButton';
-import { selectIsAdmin } from '../../reducers/authSlice';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 
@@ -19,7 +17,6 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
   onQuestionTitleChange,
 }: QuestionDetailsProps) => {
   const navigate = useNavigate();
-  const isAdmin = useSelector(selectIsAdmin);
   const [question, setQuestion] = useState<QuestionData | null>(null);
   const colourScheme = useColorModeValue('gray.600', 'gray.400');
 
@@ -62,7 +59,7 @@ const QuestionDetails: React.FC<QuestionDetailsProps> = ({
     <VStack as="div" style={{ overflowY: 'auto', height: '100%', padding: '16px' }}>
       <Heading as="h1" size="xl" textAlign="center">
         {question.title}
-        {isAdmin && <QuestionEditIconButton questionId={question.questionID} title={question.title} />}
+        {<QuestionEditIconButton questionId={question.questionID} title={question.title} />}
       </Heading>
       <Text fontSize="md" color={colourScheme} mt={2}>
         <span style={{ fontWeight: 'bold' }}>Complexity: </span>

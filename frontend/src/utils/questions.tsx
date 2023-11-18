@@ -10,8 +10,6 @@ import QuestionViewIconButton from '../components/questions/QuestionViewIconButt
 import QuestionDeleteIconButton from '../components/questions/QuestionDeleteIconButton';
 import React, { useEffect, useState } from 'react';
 import QuestionsAPI from '../api/questions/questions';
-import { useSelector } from 'react-redux';
-import { selectIsAdmin } from '../reducers/authSlice';
 
 export interface QuestionDataRowData extends QuestionData {
   action?: undefined;
@@ -34,8 +32,6 @@ export const QuestionsTableColumns = (
   // Accept the setQuestionList prop
   setQuestionList: React.Dispatch<React.SetStateAction<QuestionDataRowData[]>>,
 ): Array<ColumnDef<QuestionDataRowData>> => {
-  const isAdmin = useSelector(selectIsAdmin);
-
   const [categories, setAllCategories] = useState<string[]>([]);
   useEffect(() => {
     new QuestionsAPI()
@@ -92,7 +88,7 @@ export const QuestionsTableColumns = (
       cell: (cell) => (
         <Stack direction="row" spacing={2}>
           <QuestionViewIconButton questionId={cell.row.original.questionID} title={cell.row.original.title} />
-          {isAdmin && (
+          {
             <QuestionDeleteIconButton
               questionId={cell.row.original.questionID}
               onDelete={(questionId) => {
@@ -100,7 +96,7 @@ export const QuestionsTableColumns = (
                 setQuestionList((prevList) => prevList.filter((question) => question.questionID !== questionId));
               }}
             />
-          )}
+          }
         </Stack>
       ),
     }),
