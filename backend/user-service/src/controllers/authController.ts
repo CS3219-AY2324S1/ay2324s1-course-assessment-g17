@@ -230,6 +230,9 @@ export async function updateBothTokens(req: Request, res: Response) {
         const userId = payload.user.id;
         const user = (await prisma.user.findFirst({
           where: { id: userId },
+          include: {
+            languages: true,
+          },
         })) as User;
         if (!user) {
           res
@@ -475,7 +478,7 @@ export const updateUserProfile: RequestHandler[] = [
         });
       } else {
         console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: "Internal Server Error" });
       }
     }
   },
