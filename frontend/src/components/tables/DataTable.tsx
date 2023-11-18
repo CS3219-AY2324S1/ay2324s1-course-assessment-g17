@@ -89,7 +89,7 @@ const DataTable = <T extends object>({
             {table.getPrePaginationRowModel().rows.length === 0 && (
               <Tr>
                 <Td textAlign="center" colSpan={table.getAllColumns().length} paddingY={8}>
-                  <Text color="gray.500">No questions found</Text>
+                  <Text color="gray.500">Questions may still be loading. Please wait!</Text>
                 </Td>
               </Tr>
             )}

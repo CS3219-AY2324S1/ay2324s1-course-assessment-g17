@@ -5,7 +5,7 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
 
 export async function generateAccessToken(userWithoutPassword: object) {
   return jwt.sign({ user: userWithoutPassword }, ACCESS_TOKEN_SECRET, {
-    expiresIn: "10s",
+    expiresIn: "1h",
   });
 }
 
