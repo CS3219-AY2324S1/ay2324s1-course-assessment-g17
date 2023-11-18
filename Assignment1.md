@@ -9,10 +9,10 @@
 | 3        | Set up the environment variables in `.env` for `backend/question-service` and `frontend`.                                                                                                                                                                                 |
 | 4        | `cd` into `backend/question-service` and `frontend`. Run `npm install` to install the dependencies for `question-service` and `frontend`. Note: You may need to run `npm i --save-dev @types/cors` and `npm i --save-dev @types/express` should you encounter any errors. |
 | 5        | In `frontend` and `backend/question-service`, run `npm start`. Access the frontend by navigating to `localhost:3000` in your browser.                                                                                                                                     |
-| 6        | The landing page will show "No questions found" at first. This is because all our questions in the database are scraped from Leetcode, so it would take a while, as long as 2 minutes, to load all 2354 questions. Wait for the questions to appear on the landing page before performing CRUD. |
+| 6        | The question table on the landing page will be flashing at first. This is because all our questions in the final database are scraped from Leetcode, so it would take a while, as long as 2 minutes, to get and load all 2354 questions. Wait for the question table containing questions to appear on the landing page before performing CRUD. Note: You may have to wait again after creating, editing or deleting a question. |
 
 Before:
-<img width="1672" alt="Screenshot 2023-11-18 at 10 24 56" src="https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g17/assets/97394017/6c2e0b82-9f7f-4361-855b-63e2c43a2561">
+<img width="1672" alt="Screenshot 2023-11-18 at 13 41 45" src="https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g17/assets/97394017/dbbfbcf9-8463-4d36-810d-b919f7dff1ca">
 
 After waiting:
-<img width="1670" alt="Screenshot 2023-11-18 at 10 24 44" src="https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g17/assets/97394017/5624ccd5-5303-4d8e-84bd-49309604f8e0">
+<img width="1672" alt="Screenshot 2023-11-18 at 13 50 03" src="https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g17/assets/97394017/5d4b858a-083e-4028-9170-f1d71652c222">
