@@ -11,9 +11,9 @@
 
 ### Include .env files
 3. Set up the environment for the question service, user service, and frontend by including the `.env` files for each, which have been submitted as: 
-`Assignment3-QuestionServiceEnv.txt`, 
-`Assignment3-UserServiceEnv.txt`, 
-`Assignment3-FrontendEnv.txt` respectively.
+`Assignment3-question-service-environmentVariables.txt`, 
+`Assignment3-user-service-environmentVariables.txt`, 
+`Assignment3-frontend-environmentVariables.txt` respectively.
 Make sure they are `.env` files within the question service, user service, and frontend directories.
 
 ### Install dependencies
