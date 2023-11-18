@@ -33,7 +33,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 1m30s
     ports:
       - 5432:5432
@@ -43,13 +43,17 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["npx", "prisma", "db", "push", ";", "npm", "run", "seed"]
+    command:
+      [
+        "npx",
+        "prisma",
+        "db",
+        "push",
+        ";",
+        "npm",
+        "run",
+        "seed"
+      ]
     env_file: ./backend/user-service/.env.docker
 
-  matching-service:
-    build: ./backend/matching-service
-    ports:
-      - 9000:9000
-    volumes:
-      - ./backend/matching-service:/usr/src/app
 # https://medium.com/@sumankpaul/run-db-migration-script-in-docker-compose-ce8e447a77ba
