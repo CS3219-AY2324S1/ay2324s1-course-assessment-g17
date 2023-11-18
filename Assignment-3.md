@@ -16,32 +16,6 @@
 `Assignment3-FrontendEnv.txt` respectively.
 Make sure they are `.env` files within the question service, user service, and frontend directories.
 
-For convenience, they have been placed here:
-
-`Assignment3-QuestionServiceEnv.txt`
-```
-MONGO_CONNECTION_STRING=mongodb+srv://sherylhci:wsY2vQnTjSStiIQ8@cluster0.kxz8d7c.mongodb.net/peerprep_app?retryWrites=true&w=majority
-PORT=8080
-ACCESS_TOKEN_SECRET="access_secret"
-REFRESH_TOKEN_SECRET="refresh_secret"
-FRONTEND_URL="http://localhost:3000"
-```
-
-`Assignment3-UserServiceEnv.txt`
-```
-DATABASE_URL="postgresql://postgres@localhost:5432/postgres?schema=public"
-PORT=8000
-ACCESS_TOKEN_SECRET="access_secret"
-REFRESH_TOKEN_SECRET="refresh_secret"
-FRONTEND_URL="http://localhost:3000"
-```
-
-`Assignment3-FrontendEnv.txt`
-```
-REACT_APP_BACKEND_URL=http://localhost:8080/api
-REACT_APP_USER_SERVICE_BACKEND_URL=http://localhost:8000/
-```
-
 ### Install dependencies
 4. Run `npm install` to install the dependencies for the question service, user service, and frontend.
 
