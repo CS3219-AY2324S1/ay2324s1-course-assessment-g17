@@ -6,7 +6,7 @@
 ## To set up and execute
 
 ### Download
-1. Download the ZIP file named `ay2324s1-course-assessment-g17-Assignment-2.zip` from [Assignment-2](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g17/releases/tag/Assignment-2).
+Download the ZIP file named `ay2324s1-course-assessment-g17-Assignment-2.zip` from [Assignment-2-Updated](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g17/releases/tag/Assignment-2-Updated).
 2. Unzip the file and navigate to the folder `ay2324s1-course-assessment-g17-Assignment-2`.
 
 ### Include .env files
