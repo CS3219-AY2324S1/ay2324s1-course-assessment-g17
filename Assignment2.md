@@ -29,6 +29,7 @@ docker run --rm -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres;
 ```
 npx prisma db push
 npx prisma db seed
+npx prisma migrate dev
 ```
 
 This will set up the postgresql database schema, and also seed the database with 1 ADMIN role user account, the "designated maintainer role" account, and 1 USER role user accounts, "registered users". Details for usernames and passwords below.
