@@ -1,0 +1,62 @@
+/* Style for the chat container */
+.messages-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Style for the chat bubbles */
+.chat-bubble {
+  padding: 10px;
+  margin: 5px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  word-wrap: normal; /* Wrap long words if they don't fit */
+}
+
+.chat-bubble-dark {
+  padding: 10px;
+  margin: 5px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  word-wrap: normal; /* Wrap long words if they don't fit */
+}
+
+/* Style for messages sent by the current user (on the right) */
+.chat-bubble.right {
+  background-color: #38b2ac;
+  color: white;
+}
+
+.chat-bubble-dark.right {
+  background-color: #2a8580;
+  color: white;
+}
+
+/* Style for messages sent by others (on the left) */
+.chat-bubble.left {
+  background-color: whitesmoke;
+  color: black;
+}
+
+.chat-bubble-dark.left {
+  background-color: #292b2f;
+  color: white;
+}
+
+.user-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: #1c2c4c;
+}
+
+.user-name-dark {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: white;
+}
+
+.user-message {
+  word-break: break-all;
+}

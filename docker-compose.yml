@@ -1,0 +1,129 @@
+version: "3.9"
+services:
+  question-service:
+    build: ./backend/question-service
+    ports:
+      - 8080:8080
+    volumes:
+      - ./backend/question-service:/usr/src/app
+    env_file: ./backend/question-service/.env
+
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - 3000:3000
+    env_file: ./frontend/.env
+
+  user-service:
+    build: ./backend/user-service
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend/user-service:/usr/src/app
+    depends_on:
+      - postgres
+    env_file: ./backend/user-service/.env.docker
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: peerprep
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1m30s
+    ports:
+      - 5432:5432
+
+  migration:
+    build: ./backend/user-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["npx", "prisma", "db", "push", ";", "npm", "run", "seed"]
+    env_file: ./backend/user-service/.env.docker
+
+  matching-service:
+    build: ./backend/matching-service
+    ports:
+      - 9000:9000
+    volumes:
+      - ./backend/matching-service:/usr/src/app
+    env_file: ./backend/matching-service/.env
+    depends_on:
+      - rabbitmq
+
+  forum-service:
+    build: ./backend/forum-service
+    ports:
+      - 9001:9001
+    volumes:
+      - ./backend/forum-service:/usr/src/app
+    env_file: ./backend/forum-service/.env
+    depends_on:
+      - postgres
+
+  api-gateway:
+    build: ./backend/api-gateway
+    ports:
+      - 7777:8080
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    command:
+      [
+        "bash",
+        "-c",
+        "chmod 400 /var/lib/rabbitmq/.erlang.cookie; rabbitmq-server",
+      ]
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  chat-service:
+    build: ./backend/chat-service
+    ports:
+      - 8084:8084
+    volumes:
+      - ./backend/chat-service:/usr/src/app
+    env_file: ./backend/chat-service/.env
+
+  collaboration-service:
+    build: ./backend/collaboration-service
+    ports:
+      - 8082:8082
+    volumes:
+      - ./backend/collaboration-service:/usr/src/app
+    env_file: ./backend/collaboration-service/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  y-websocket:
+    image: ipirozhenko/y-websocket
+    ports:
+      - 8081:8081
+    environment:
+      - PORT=8081
+
+  help-service:
+    build: ./backend/help-service
+    ports:
+      - 10000:10000
+    volumes:
+      - ./backend/help-service:/usr/src/app
+    env_file: ./backend/help-service/.env
+# https://medium.com/@sumankpaul/run-db-migration-script-in-docker-compose-ce8e447a77ba
